@@ -1,6 +1,7 @@
 import axios from "axios";
 import sharp from "sharp";
-import Reddit, { FullSubmission, Image } from "./src";
+import Reddit, { Image } from "..";
+import Auth from "../auth";
 
 declare global {
   namespace jest {
@@ -47,23 +48,24 @@ expect.extend({
   },
 });
 
-const r = new Reddit({
-  userAgent: "",
-});
-
-describe("submission", () => {
-  describe("image", () => {
-    var s: FullSubmission;
-    beforeAll(async () => (s = await r.submission("m3gyry").fetch()));
-
-    it("should have image", () => expect(s.images[0]).rightSize());
-    it("should have thumbnail", () => expect(s.thumbnail).rightSize());
-
-    it("should have title", () =>
-      expect(s.title).toBe("A Monumental Moment, Colorado. [OC] [1280x1600]"));
-
-    it("should have urls", () => {
-      expect(s.shortUrl).toBe("https://redd.it/m3gyry");
-    });
+export function createReddit() {
+  return new Reddit({
+    userAgent: "Wholesome Test",
   });
-});
+}
+
+export const r = createReddit();
+
+const { CLIENT_ID, CLIENT_SECRET } = process.env;
+export const ar =
+  CLIENT_ID === undefined || CLIENT_SECRET === undefined
+    ? undefined
+    : createReddit();
+if (ar !== undefined) {
+  ar.auth = new Auth(ar, {
+    client: {
+      id: CLIENT_ID!,
+      secret: CLIENT_SECRET!,
+    },
+  });
+}

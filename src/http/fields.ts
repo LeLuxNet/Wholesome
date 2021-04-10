@@ -11,6 +11,9 @@ export default function fieldInterceptor(config: AxiosRequestConfig) {
     if (config.fields === undefined) {
       throw "Fields needed if using template in URL";
     }
+    if (config.fields[p] === undefined) {
+      throw `Field '${p}' needed`;
+    }
 
     return encodeURIComponent(config.fields[p]);
   });

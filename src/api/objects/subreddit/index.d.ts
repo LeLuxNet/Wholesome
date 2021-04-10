@@ -54,6 +54,7 @@ declare namespace Api {
     has_menu_widget: boolean;
     is_enrolled_in_new_modmail: null;
     key_color: "" | string;
+    event_posts_enabled?: boolean;
     can_assign_user_flair: boolean;
     wls: 6;
     show_media_preview: boolean;
@@ -65,7 +66,7 @@ declare namespace Api {
     allow_polls: boolean;
     collapse_deleted_comments: boolean;
     emojis_custom_size: null;
-    public_description_html: string | null;
+    public_description_html: string;
     allow_videos: boolean;
     is_crosspostable_subreddit: boolean;
     notification_level: null;

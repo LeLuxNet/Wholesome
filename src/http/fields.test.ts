@@ -23,7 +23,12 @@ it("should escape", () => {
   expect(conf.url).toBe("g%2Fi");
 });
 
-it("should throw", () => {
+it("should need fields", () => {
   const err = () => fieldInterceptor({ url: "j{K}l" });
+  expect(err).toThrow();
+});
+
+it("should need all field values", () => {
+  const err = () => fieldInterceptor({ url: "j{K}l", fields: {} });
   expect(err).toThrow();
 });

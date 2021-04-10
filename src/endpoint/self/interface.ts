@@ -1,6 +1,6 @@
 import Page from "../../list/page";
-import FullSubreddit from "../../objects/subreddit/full";
+import { FullSubreddit } from "../../objects/subreddit";
 
 export default interface SelfEndpoint {
-  subreddits(): Page<FullSubreddit>;
+  subreddits(count: number): Promise<Page<FullSubreddit, any>>;
 }

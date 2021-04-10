@@ -8,19 +8,19 @@ import FullPost, { DistinguishKinds } from "./full";
 import Post from "./small";
 
 export class Submission extends Post implements Fetchable<FullSubmission> {
-  shortUrl: string;
-
   constructor(r: Reddit, id: string) {
     super(r, id, `t3_${id}`);
+  }
 
-    this.shortUrl = `https://redd.it/${id}`;
+  get shortUrl() {
+    return `https://redd.it/${this.id}`;
   }
 
   async fetch() {
     const res = await this.r.api.get<Api.GetSubmission>("comments/{id}.json", {
       fields: { id: this.id },
     });
-    return new FullSubmission(this.r, res.data[0].data.children[0].data);
+    return new FullSubmission(this.r, res.data);
   }
 
   async follow(follow: boolean = true) {
@@ -79,7 +79,8 @@ export class FullSubmission extends Submission implements FullPost {
 
   poll: Poll | null;
 
-  constructor(r: Reddit, data: Api.Submission) {
+  constructor(r: Reddit, full: Api.GetSubmission | Api.Submission) {
+    const data = full instanceof Array ? full[0].data.children[0].data : full;
     super(r, data.id);
 
     this.title = data.title;

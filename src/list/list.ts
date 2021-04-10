@@ -2,10 +2,11 @@ import EventEmitter from "node:events";
 import Identified from "../interfaces/identified";
 import Reddit from "../reddit";
 import { get, GetOptions } from "./get";
+import Page from "./page";
 import { stream, StreamCallback, StreamOptions } from "./stream";
 
 export default class List<I extends Identified, T> extends EventEmitter {
-  get: (options?: GetOptions) => Promise<I[]>;
+  get: (options?: GetOptions) => Promise<Page<I, T>>;
   listen: (fn: StreamCallback<I>, options?: StreamOptions) => void;
 
   constructor(r: Reddit, url: string, map: (d: T) => I) {

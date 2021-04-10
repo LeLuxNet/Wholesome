@@ -1,10 +1,13 @@
 import axios, { AxiosInstance } from "axios";
+import Auth from "./auth";
+import { Scope } from "./auth/scopes";
 import SelfEndpoint from "./endpoint/self/interface";
+import authInterceptor from "./http/auth";
 import bodyInterceptor from "./http/body";
 import debugInterceptor from "./http/debug";
 import fieldInterceptor from "./http/fields";
 import { Submission } from "./objects/post/submission";
-import Subreddit from "./objects/subreddit/small";
+import { Subreddit } from "./objects/subreddit";
 
 interface RedditConstructor {
   userAgent: string;
@@ -14,6 +17,8 @@ interface RedditConstructor {
 
 export default class Reddit {
   api: AxiosInstance;
+
+  auth?: Auth;
 
   selfEndpoint?: SelfEndpoint;
 
@@ -30,19 +35,20 @@ export default class Reddit {
 
     this.api.interceptors.request.use(fieldInterceptor);
     this.api.interceptors.request.use(bodyInterceptor);
+    this.api.interceptors.request.use(authInterceptor(this));
 
     if (data.debug) {
       this.api.interceptors.response.use(debugInterceptor);
     }
   }
 
-  authScope(...scopes: string[]) {}
+  authScope(...scopes: Scope[]) {}
 
   submission(id: string) {
     return new Submission(this, id);
   }
 
   subreddit(name: string) {
-    return new Subreddit(name);
+    return new Subreddit(this, name);
   }
 }

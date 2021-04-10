@@ -1,5 +1,5 @@
-import { get, GetOptions } from "../../list/get";
-import FullSubreddit from "../../objects/subreddit/full";
+import { fetchPage } from "../../list/page";
+import { FullSubreddit } from "../../objects/subreddit";
 import Reddit from "../../reddit";
 import SelfEndpoint from "./interface";
 
@@ -12,13 +12,13 @@ export default class RealSelfEndpoint implements SelfEndpoint {
     this.name = name;
   }
 
-  async subreddits(options?: GetOptions) {
+  async subreddits(count: number) {
     this.r.authScope("mysubreddits");
-    return await get<FullSubreddit, Api.SubredditWrap>(
+    return await fetchPage<FullSubreddit, Api.SubredditWrap>(
       this.r,
       "subreddits/mine/subscriber",
       (d) => new FullSubreddit(this.r, d.data),
-      options
+      count
     );
   }
 }

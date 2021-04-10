@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
     "start": "nodejs dist/index.js",
     "build": "tsc",
@@ -26,7 +27,14 @@
     "typescript": "^4.2.4"
   },
   "license": "MIT",
-  "typings": "dist/index.d.ts",
+  "homepage": "https://github.com/LeLuxNet/Wholesome#readme",
+  "bugs": {
+    "url": "https://github.com/LeLuxNet/Wholesome/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LeLuxNet/Wholesome.git"
+  },
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
