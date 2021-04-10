@@ -1,0 +1,37 @@
+{
+  "name": "wholesome",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "nodejs dist/index.js",
+    "build": "tsc",
+    "prepare": "npm run build",
+    "dev": "ts-node src/index.ts",
+    "watch": "ts-node-dev --respawn src/index.ts",
+    "test": "jest --coverage"
+  },
+  "dependencies": {
+    "axios": "^0.21.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.22",
+    "@types/node": "^14.14.37",
+    "@types/sharp": "^0.28.0",
+    "jest": "^26.6.3",
+    "sharp": "^0.28.1",
+    "ts-jest": "^26.5.4",
+    "ts-node": "^9.1.1",
+    "ts-node-dev": "^1.1.6",
+    "typescript": "^4.2.4"
+  },
+  "license": "MIT",
+  "typings": "dist/index.d.ts",
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "modulePathIgnorePatterns": [
+      "dist"
+    ]
+  }
+}
