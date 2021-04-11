@@ -5,6 +5,7 @@ import SelfEndpoint from "./endpoint/self/interface";
 import authInterceptor from "./http/auth";
 import bodyInterceptor from "./http/body";
 import debugInterceptor from "./http/debug";
+import errorInterceptor from "./http/error";
 import fieldInterceptor from "./http/fields";
 import { Submission } from "./objects/post/submission";
 import { Subreddit } from "./objects/subreddit";
@@ -40,6 +41,7 @@ export default class Reddit {
     if (data.debug) {
       this.api.interceptors.response.use(debugInterceptor);
     }
+    this.api.interceptors.response.use(errorInterceptor);
   }
 
   authScope(...scopes: Scope[]) {}

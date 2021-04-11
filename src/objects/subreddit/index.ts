@@ -1,10 +1,14 @@
+import { Stream } from "stream";
+import { upload } from "../../helper/upload";
 import Fetchable from "../../interfaces/fetchable";
 import Identified from "../../interfaces/identified";
+import List from "../../list/list";
 import Content from "../../media/content";
 import { BaseImage, Image } from "../../media/image";
 import Reddit from "../../reddit";
-import { FullSubmission } from "../post/submission";
+import { FullSubmission, Submission } from "../post/submission";
 import { parseRule, Rule } from "./rule";
+import { Traffics } from "./traffic";
 
 export class Subreddit implements Fetchable<FullSubreddit> {
   r: Reddit;
@@ -32,21 +36,154 @@ export class Subreddit implements Fetchable<FullSubreddit> {
 
   async rules(): Promise<Rule[]> {
     const res = await this.r.api.get<Api.SubredditRules>(
-      `r/{name}/about/rules.json`,
+      "r/{name}/about/rules.json",
       { fields: { name: this.name } }
     );
     return res.data.rules.map(parseRule);
   }
 
-  async randomSubmission() {
+  async traffic(): Promise<Traffics> {
+    this.r.authScope("modconfig");
+    const res = await this.r.api.get<Api.SubredditTraffic>(
+      "r/{name}/about/traffic.json",
+      { fields: { name: this.name } }
+    );
+    return {
+      hour: res.data.hour.map((d) => {
+        return {
+          time: new Date(d[0] * 1000),
+          views: d[1],
+          uniqueViews: d[2],
+        };
+      }),
+      day: res.data.day.map((d) => {
+        return {
+          time: new Date(d[0] * 1000),
+          views: d[1],
+          uniqueViews: d[2],
+          joined: d[3],
+        };
+      }),
+      month: res.data.month.map((d) => {
+        return {
+          time: new Date(d[0] * 1000),
+          views: d[1],
+          uniqueViews: d[2],
+        };
+      }),
+    };
+  }
+
+  async sticky(num: 1 | 2 = 1) {
     const res = await this.r.api.get<Api.GetSubmission>(
-      `r/{name}/random.json`,
-      {
-        fields: { name: this.name },
-      }
+      "r/{name}/about/sticky.json",
+      { fields: { name: this.name }, params: { num } }
     );
     return new FullSubmission(this.r, res.data);
   }
+
+  async randomSubmission() {
+    const res = await this.r.api.get<Api.GetSubmission>(
+      "r/{name}/random.json",
+      { fields: { name: this.name } }
+    );
+    return new FullSubmission(this.r, res.data);
+  }
+
+  feed(kind: "top") {
+    return new List<FullSubmission, Api.SubmissionWrap>(
+      this.r,
+      `r/${encodeURIComponent(this.name)}/${kind}.json`,
+      (d) => new FullSubmission(this.r, d.data)
+    );
+  }
+
+  submitLink(title: string, url: string, options?: NewSubmissionOptions) {
+    return submit(this, title, { kind: "link", url }, options);
+  }
+
+  submitText(title: string, body?: string, options?: NewSubmissionOptions) {
+    return submit(this, title, { kind: "self", text: body }, options);
+  }
+
+  async submitMedia(
+    title: string,
+    file: Stream,
+    name: string,
+    mimetype: string,
+    options?: NewSubmissionOptions
+  ) {
+    const url = await upload(this.r, file, name, mimetype);
+    this.submitLink(title, url, options);
+  }
+
+  submitPoll(
+    title: string,
+    body: string | undefined,
+    items: string[],
+    duration: number,
+    options?: NewSubmissionOptions
+  ) {
+    return submit(
+      this,
+      title,
+      { text: body, options: items, duration },
+      options,
+      "api/submit_poll_post"
+    );
+  }
+
+  submitCrosspost(
+    title: string,
+    submission: Submission,
+    options?: NewSubmissionOptions
+  ) {
+    return submit(
+      this,
+      title,
+      { kind: "crosspost", crosspost_fullname: submission.fullId },
+      options
+    );
+  }
+}
+
+interface NewSubmissionOptions {
+  oc?: boolean;
+  nsfw?: boolean;
+  spoiler?: boolean;
+}
+async function submit(
+  subreddit: Subreddit,
+  title: string,
+  data: any,
+  options?: NewSubmissionOptions,
+  url?: string
+) {
+  subreddit.r.authScope("submit");
+  const res = await subreddit.r.api.post(
+    url || "api/submit",
+    {
+      sr: subreddit.name,
+      title,
+
+      spoiler: options?.spoiler,
+      nsfw: options?.nsfw,
+
+      ...data,
+    },
+    {
+      headers: {
+        "Content-Type": url === undefined ? undefined : "application/json",
+      },
+    }
+  );
+  const submission = subreddit.r.submission(res.data.json.data.id);
+
+  if (options?.oc) {
+    await submission.markOc();
+  }
+
+  return submission;
 }
 
 export class FullSubreddit extends Subreddit implements Identified {

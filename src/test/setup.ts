@@ -56,7 +56,7 @@ export function createReddit() {
 
 export const r = createReddit();
 
-const { CLIENT_ID, CLIENT_SECRET } = process.env;
+const { CLIENT_ID, CLIENT_SECRET, USERNAME, PASSWORD } = process.env;
 export const ar =
   CLIENT_ID === undefined || CLIENT_SECRET === undefined
     ? undefined
@@ -67,5 +67,13 @@ if (ar !== undefined) {
       id: CLIENT_ID!,
       secret: CLIENT_SECRET!,
     },
+    auth:
+      USERNAME === undefined || PASSWORD === undefined
+        ? undefined
+        : {
+            username: USERNAME,
+            password: PASSWORD,
+          },
   });
+  ar.auth.accessToken.then(console.log);
 }

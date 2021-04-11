@@ -1,4 +1,4 @@
-/// <reference path="../index.d.ts" />
+/// <reference path="../../index.d.ts" />
 declare namespace Api {
   export interface Award {
     giver_coin_reward: null;

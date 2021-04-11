@@ -28,10 +28,4 @@ declare namespace Api {
     requestCrisisSupport?: boolean;
     oneUsername?: boolean;
   }
-
-  export interface SubredditRules {
-    rules: Rule[];
-    site_rules: string[];
-    site_rules_flow: Reason[];
-  }
 }
