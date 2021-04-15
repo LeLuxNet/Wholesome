@@ -1,7 +1,7 @@
 {
   "name": "wholesome",
-  "version": "0.1.0",
-  "description": "",
+  "version": "0.1.1",
+  "description": "A Reddit API wrapper",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
@@ -37,5 +37,8 @@
     "modulePathIgnorePatterns": [
       "dist"
     ]
-  }
+  },
+  "keywords": [
+    "reddit"
+  ]
 }

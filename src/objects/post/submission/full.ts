@@ -3,11 +3,17 @@ import GIF from "../../../media/gif";
 import { Image, Stream, Video } from "../../../media/image";
 import Poll from "../../../media/poll";
 import Reddit from "../../../reddit";
+import { Subreddit } from "../../subreddit";
 import FullPost, { DistinguishKinds } from "../full";
 import Submission from "./small";
 
 export default class FullSubmission extends Submission implements FullPost {
   title: string;
+
+  subreddit: Subreddit;
+
+  score: number;
+  upvoteRatio: number;
 
   oc: boolean;
   spoiler: boolean;
@@ -39,6 +45,11 @@ export default class FullSubmission extends Submission implements FullPost {
     super(r, data.id);
 
     this.title = data.title;
+
+    this.subreddit = r.subreddit(data.subreddit);
+
+    this.score = data.score;
+    this.upvoteRatio = data.upvote_ratio;
 
     this.oc = data.is_original_content;
     this.spoiler = data.spoiler;

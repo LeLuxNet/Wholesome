@@ -1,4 +1,4 @@
-import EventEmitter from "events";
+import { EventEmitter } from "events";
 import Identified from "../interfaces/identified";
 import Reddit from "../reddit";
 import { get, GetOptions } from "./get";

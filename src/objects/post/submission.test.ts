@@ -12,6 +12,8 @@ describe("image", () => {
     expect(s.title).toBe("A Monumental Moment, Colorado. [OC] [1280x1600]");
   });
 
+  it("should have subreddit", () => expect(s.subreddit.name).toBe("EarthPorn"));
+
   it("should have urls", () => {
     expect(s.shortUrl).toBe("https://redd.it/m3gyry");
   });

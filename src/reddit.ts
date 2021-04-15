@@ -14,6 +14,7 @@ import { User } from "./objects/user";
 interface RedditConstructor {
   userAgent: string;
 
+  browser?: boolean;
   debug?: boolean;
 }
 
@@ -27,12 +28,8 @@ export default class Reddit {
   constructor(data: RedditConstructor) {
     this.api = axios.create({
       baseURL: "https://www.reddit.com",
-      headers: {
-        "User-Agent": data.userAgent,
-      },
-      params: {
-        raw_json: 1,
-      },
+      headers: data.browser ? undefined : { "User-Agent": data.userAgent },
+      params: { raw_json: 1 },
     });
 
     this.api.interceptors.request.use(fieldInterceptor);
