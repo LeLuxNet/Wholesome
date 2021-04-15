@@ -2,6 +2,7 @@ import Deletable from "../../interfaces/deletable";
 import Identified from "../../interfaces/identified";
 import Replyable from "../../mixins/replyable";
 import Reddit from "../../reddit";
+import { Award } from "../award";
 import { DistinguishKinds } from "./full";
 
 export type VoteDirection = 1 | 0 | -1;
@@ -29,10 +30,12 @@ class _Post implements Deletable, Identified {
     await this.r.api.post("api/vote", { dir, id: this.fullId });
   }
 
-  async hide(save: boolean = true) {
-    this.r.authScope("report");
-    await this.r.api.post(`api/${save ? "hide" : "unhide"}`, {
-      id: this.fullId,
+  async award(award: Award, anonymous: boolean) {
+    this.r.authScope("creddits");
+    await this.r.api.post("api/v2/gold/gild", {
+      thing_id: this.fullId,
+      gild_type: award.id,
+      is_anonymous: anonymous,
     });
   }
 
@@ -43,11 +46,10 @@ class _Post implements Deletable, Identified {
     });
   }
 
-  async distinguish(kind: DistinguishKinds = "mod") {
-    this.r.authScope("modposts");
-    await this.r.api.post("api/distinguish", {
+  async hide(save: boolean = true) {
+    this.r.authScope("report");
+    await this.r.api.post(`api/${save ? "hide" : "unhide"}`, {
       id: this.fullId,
-      how: kind === null ? "no" : kind === "mod" ? "yes" : kind,
     });
   }
 
@@ -55,6 +57,14 @@ class _Post implements Deletable, Identified {
     this.r.authScope("modposts");
     await this.r.api.post(`api/${lock ? "lock" : "unlock"}`, {
       id: this.fullId,
+    });
+  }
+
+  async distinguish(kind: DistinguishKinds = "mod") {
+    this.r.authScope("modposts");
+    await this.r.api.post("api/distinguish", {
+      id: this.fullId,
+      how: kind === null ? "no" : kind === "mod" ? "yes" : kind,
     });
   }
 

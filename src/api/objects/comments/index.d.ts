@@ -9,17 +9,17 @@ declare namespace Api {
 
   export interface Comment extends Thing, Votable, Authored, Created {
     total_awards_received: number;
-    approved_at_utc: null;
+    approved_at_utc: number | null;
     comment_type: null;
     awarders: [];
     mod_reason_by: null;
-    banned_by: null;
+    banned_by: string | null;
     removal_reason: null;
     link_id: string;
     replies: "" | Listing<CommentMoreWrap>;
     user_reports: unknown[];
     saved: boolean;
-    banned_at_utc: null;
+    banned_at_utc: number | null;
     mod_reason_title: string;
     gilded: number;
     archived: boolean;
@@ -27,7 +27,7 @@ declare namespace Api {
     can_mod_post: boolean;
     send_replies: boolean;
     parent_id: string;
-    approved_by: null;
+    approved_by: string | null;
     report_reasons: null;
     all_awardings: Award[];
     subreddit_id: string;

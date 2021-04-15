@@ -26,7 +26,7 @@ export interface BaseImage {
   resized?: BaseResolution[];
 
   caption?: string;
-  url?: string;
+  captionLink?: string;
 }
 
 export interface Image extends BaseImage {

@@ -1,29 +1,54 @@
+import Action from "../../../media/actions";
 import Content from "../../../media/content";
 import GIF from "../../../media/gif";
 import { Image, Stream, Video } from "../../../media/image";
 import Poll from "../../../media/poll";
 import Reddit from "../../../reddit";
+import { Award, GivenAward } from "../../award";
 import { Subreddit } from "../../subreddit";
+import { SubmissionUser } from "../../user";
 import FullPost, { DistinguishKinds } from "../full";
+import { VoteDirection } from "../small";
 import Submission from "./small";
 
 export default class FullSubmission extends Submission implements FullPost {
   title: string;
 
+  author: SubmissionUser | null;
   subreddit: Subreddit;
+
+  created: Date;
+  edited: Date | null;
+
+  url: string;
 
   score: number;
   upvoteRatio: number;
+  voted: VoteDirection;
+
+  awardCount: number;
+  awards: GivenAward[];
 
   oc: boolean;
   spoiler: boolean;
   nsfw: boolean;
 
+  robotIndexable: boolean;
+
   saved: boolean;
+  hidden: boolean;
+  pinned: boolean;
   archived: boolean;
   locked: boolean;
   stickied: boolean;
+  quarantine: boolean;
   distinguished: DistinguishKinds;
+
+  deleted: boolean;
+  approved: Action | null;
+  removed: Action | null;
+
+  commentCount: number;
 
   crosspost: FullSubmission | null;
   crossposts: number;
@@ -46,21 +71,61 @@ export default class FullSubmission extends Submission implements FullPost {
 
     this.title = data.title;
 
+    this.author =
+      data.author_fullname === undefined
+        ? null
+        : new SubmissionUser(this.r, data.author);
     this.subreddit = r.subreddit(data.subreddit);
+
+    this.created = new Date(data.created_utc * 1000);
+    this.edited = data.edited ? new Date(data.edited * 1000) : null;
+
+    this.url = `https://reddit.com${data.permalink}`;
 
     this.score = data.score;
     this.upvoteRatio = data.upvote_ratio;
+    this.voted = data.likes === null ? 0 : data.likes ? 1 : -1;
+
+    this.awardCount = data.total_awards_received;
+    this.awards = data.all_awardings.map(
+      (a): GivenAward => {
+        return { count: a.count, award: new Award(a) };
+      }
+    );
 
     this.oc = data.is_original_content;
     this.spoiler = data.spoiler;
     this.nsfw = data.over_18;
 
+    this.robotIndexable = data.is_robot_indexable;
+
     this.saved = data.saved;
+    this.hidden = data.hidden;
+    this.pinned = data.pinned;
     this.archived = data.archived;
     this.locked = data.locked;
     this.stickied = data.stickied;
+    this.quarantine = data.quarantine;
     this.distinguished =
       data.distinguished === "moderator" ? "mod" : data.distinguished;
+
+    this.deleted = this.author === null;
+    this.approved =
+      data.approved_by === null
+        ? null
+        : {
+            by: r.user(data.approved_by),
+            at: new Date(data.approved_at_utc! * 1000),
+          };
+    this.removed =
+      data.banned_by === null
+        ? null
+        : {
+            by: r.user(data.banned_by),
+            at: new Date(data.banned_at_utc! * 1000),
+          };
+
+    this.commentCount = data.num_comments;
 
     this.crosspost =
       data.crosspost_parent_list === undefined
@@ -114,7 +179,7 @@ export default class FullSubmission extends Submission implements FullPost {
 
           return {
             caption: i.caption,
-            url: i.outbound_url,
+            captionLink: i.outbound_url,
             native: { url: img.s.u, width: img.s.x, height: img.s.y },
             resized: img.p.map((i) => {
               return { url: i.u, width: i.x, height: i.y };
