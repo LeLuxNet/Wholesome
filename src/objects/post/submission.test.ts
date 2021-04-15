@@ -1,5 +1,5 @@
+import { FullSubmission } from ".";
 import { r } from "../../test/setup";
-import { FullSubmission } from "./submission";
 
 describe("image", () => {
   var s: FullSubmission;

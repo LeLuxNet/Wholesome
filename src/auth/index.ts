@@ -21,6 +21,7 @@ interface ClientAuth {
 
 export default class Auth {
   accessToken: Promise<string>;
+  username?: string;
 
   constructor(r: Reddit, data: AuthConstructor) {
     const config: AxiosRequestConfig = {
@@ -33,15 +34,18 @@ export default class Auth {
         password: data.client.secret,
       };
 
-      config.data = data.auth
-        ? {
-            grant_type: "password",
-            username: data.auth.username,
-            password: data.auth.password,
-          }
-        : {
-            grant_type: "client_credentials",
-          };
+      if (data.auth === undefined) {
+        config.data = {
+          grant_type: "client_credentials",
+        };
+      } else {
+        this.username = data.auth.username;
+        config.data = {
+          grant_type: "password",
+          username: data.auth.username,
+          password: data.auth.password,
+        };
+      }
     } else {
       config.data = {
         grant_type: "refresh_token",

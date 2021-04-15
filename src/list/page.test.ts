@@ -1,5 +1,5 @@
 import Identified from "../interfaces/identified";
-import { FullSubmission } from "../objects/post/submission";
+import { FullSubmission } from "../objects/post";
 import { r } from "../test/setup";
 import { unique } from "../utils/array";
 import Page, { fetchPage } from "./page";

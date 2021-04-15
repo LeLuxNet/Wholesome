@@ -1,7 +1,7 @@
 import Fetchable from "../../../interfaces/fetchable";
 import Reddit from "../../../reddit";
 import Post from "../small";
-import { Submission } from "../submission";
+import Submission from "../submission/small";
 import FullComment from "./full";
 
 export default class Comment

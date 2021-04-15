@@ -7,8 +7,9 @@ import bodyInterceptor from "./http/body";
 import debugInterceptor from "./http/debug";
 import errorInterceptor from "./http/error";
 import fieldInterceptor from "./http/fields";
-import { Submission } from "./objects/post/submission";
+import { Submission } from "./objects/post";
 import { Subreddit } from "./objects/subreddit";
+import { User } from "./objects/user";
 
 interface RedditConstructor {
   userAgent: string;
@@ -46,11 +47,26 @@ export default class Reddit {
 
   authScope(...scopes: Scope[]) {}
 
+  authUsername() {
+    if (this.auth === undefined) throw "Not authenticated";
+    if (this.auth.username === undefined)
+      throw "Not authenticated with a username";
+    return this.auth.username;
+  }
+
   submission(id: string) {
     return new Submission(this, id);
   }
 
   subreddit(name: string) {
     return new Subreddit(this, name);
+  }
+
+  get all() {
+    return this.subreddit("all");
+  }
+
+  user(name: string) {
+    return new User(this, name);
   }
 }

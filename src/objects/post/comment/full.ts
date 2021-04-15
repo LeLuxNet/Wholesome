@@ -1,6 +1,6 @@
 import Reddit from "../../../reddit";
 import FullPost, { DistinguishKinds } from "../full";
-import { Submission } from "../submission";
+import Submission from "../submission/small";
 import Comment from "./small";
 
 export default class FullComment extends Comment implements FullPost {

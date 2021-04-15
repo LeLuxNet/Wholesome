@@ -1,57 +1,12 @@
-import Fetchable from "../../interfaces/fetchable";
-import Content from "../../media/content";
-import GIF from "../../media/gif";
-import { Image, Stream, Video } from "../../media/image";
-import Poll from "../../media/poll";
-import Reddit from "../../reddit";
-import FullPost, { DistinguishKinds } from "./full";
-import Post from "./small";
+import Content from "../../../media/content";
+import GIF from "../../../media/gif";
+import { Image, Stream, Video } from "../../../media/image";
+import Poll from "../../../media/poll";
+import Reddit from "../../../reddit";
+import FullPost, { DistinguishKinds } from "../full";
+import Submission from "./small";
 
-export class Submission extends Post implements Fetchable<FullSubmission> {
-  constructor(r: Reddit, id: string) {
-    super(r, id, `t3_${id}`);
-  }
-
-  get shortUrl() {
-    return `https://redd.it/${this.id}`;
-  }
-
-  async fetch() {
-    const res = await this.r.api.get<Api.GetSubmission>("comments/{id}.json", {
-      fields: { id: this.id },
-    });
-    return new FullSubmission(this.r, res.data);
-  }
-
-  async follow(follow: boolean = true) {
-    this.r.authScope("subscribe");
-    await this.r.api.post("api/follow_post", {
-      follow,
-      fullname: this.fullId,
-    });
-  }
-
-  async markOc(oc: boolean = true) {
-    await this.r.api.post("api/set_original_content", {
-      fullname: this.fullId,
-      should_set_oc: oc,
-    });
-  }
-
-  async markNsfw(nsfw: boolean = true) {
-    await this.r.api.post(`api/${nsfw ? "" : "un"}marknsfw`, {
-      id: this.fullId,
-    });
-  }
-
-  async markSpoiler(spoiler: boolean = true) {
-    await this.r.api.post(`api/${spoiler ? "" : "un"}spoiler`, {
-      id: this.fullId,
-    });
-  }
-}
-
-export class FullSubmission extends Submission implements FullPost {
+export default class FullSubmission extends Submission implements FullPost {
   title: string;
 
   oc: boolean;
