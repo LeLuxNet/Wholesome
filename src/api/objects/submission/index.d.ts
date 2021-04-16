@@ -32,7 +32,7 @@ declare namespace Api {
     gilded: number;
     clicked: boolean;
     title: string;
-    link_flair_richtext: Flair[];
+    link_flair_richtext: UserFlair[];
     subreddit_name_prefixed: string;
     hidden: boolean;
     pwls: 0 | 6;
@@ -123,9 +123,10 @@ declare namespace Api {
 
   type WhitelistStatus = "no_ads" | "all_ads";
 
-  interface SecureMedia {
-    reddit_video: Video;
-  }
+  type SecureMedia =
+    | {}
+    | { reddit_video: Video }
+    | { oembed: Embed; type: string };
 
   interface Gildings {
     [key: string]: number;

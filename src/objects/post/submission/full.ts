@@ -1,5 +1,6 @@
 import Action from "../../../media/actions";
 import Content from "../../../media/content";
+import Embed from "../../../media/embed";
 import GIF from "../../../media/gif";
 import { Image, Stream, Video } from "../../../media/image";
 import Poll from "../../../media/poll";
@@ -64,6 +65,7 @@ export default class FullSubmission extends Submission implements FullPost {
   rpan: Stream | null;
 
   poll: Poll | null;
+  embed: Embed | null;
 
   constructor(r: Reddit, full: Api.GetSubmission | Api.Submission) {
     const data = full instanceof Array ? full[0].data.children[0].data : full;
@@ -152,6 +154,7 @@ export default class FullSubmission extends Submission implements FullPost {
 
     this.gif = null;
     this.video = null;
+    this.embed = null;
 
     if (data.preview !== undefined) {
       const img = data.preview.images[0];
@@ -188,9 +191,23 @@ export default class FullSubmission extends Submission implements FullPost {
     }
 
     if (data.secure_media) {
-      if (!("reddit_video" in data.secure_media))
-        console.log(data.secure_media);
-      this.video = mapVideo(data.secure_media.reddit_video);
+      if ("reddit_video" in data.secure_media) {
+        this.video = mapVideo(data.secure_media.reddit_video);
+      } else if ("oembed" in data.secure_media) {
+        const e = data.secure_media.oembed;
+        this.embed = {
+          title: e.title || null,
+          author: {
+            name: e.author_name,
+            url: e.author_url,
+          },
+
+          html: e.html,
+
+          width: e.width,
+          height: e.height,
+        };
+      }
     }
 
     this.rpan =
@@ -236,7 +253,7 @@ function mapVideo(video: Api.Video) {
     dash: video.dash_url,
     mp4: {
       video: mp4,
-      audio: mp4.slice(0, mp4.indexOf("DASH")) + "DASH_audio.mp4", //  TODO: Correct audio url
+      audio: mp4.slice(0, mp4.indexOf("DASH")) + "DASH_audio.mp4",
     },
   };
 }
