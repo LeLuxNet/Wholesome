@@ -2,7 +2,7 @@
 declare namespace Api {
   export type FlairType = "richtext" | "text";
 
-  export type Flair = TextFlair | EmojiFlair;
+  export type UserFlair = TextFlair | EmojiFlair;
 
   interface TextFlair {
     e: "text";

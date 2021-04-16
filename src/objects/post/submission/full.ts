@@ -4,11 +4,11 @@ import GIF from "../../../media/gif";
 import { Image, Stream, Video } from "../../../media/image";
 import Poll from "../../../media/poll";
 import Reddit from "../../../reddit";
-import { Award, GivenAward } from "../../award";
 import { Subreddit } from "../../subreddit";
 import { SubmissionUser } from "../../user";
 import FullPost, { DistinguishKinds } from "../full";
 import { VoteDirection } from "../small";
+import { GivenAward } from "./award";
 import Submission from "./small";
 
 export default class FullSubmission extends Submission implements FullPost {
@@ -74,7 +74,7 @@ export default class FullSubmission extends Submission implements FullPost {
     this.author =
       data.author_fullname === undefined
         ? null
-        : new SubmissionUser(this.r, data.author);
+        : new SubmissionUser(this.r, data);
     this.subreddit = r.subreddit(data.subreddit);
 
     this.created = new Date(data.created_utc * 1000);
@@ -87,11 +87,7 @@ export default class FullSubmission extends Submission implements FullPost {
     this.voted = data.likes === null ? 0 : data.likes ? 1 : -1;
 
     this.awardCount = data.total_awards_received;
-    this.awards = data.all_awardings.map(
-      (a): GivenAward => {
-        return { count: a.count, award: new Award(a) };
-      }
-    );
+    this.awards = data.all_awardings.map((a) => new GivenAward(a));
 
     this.oc = data.is_original_content;
     this.spoiler = data.spoiler;

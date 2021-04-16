@@ -1,12 +1,22 @@
 import Reddit from "./reddit";
 export default Reddit;
 
+export { List } from "./list/list";
+export { default as Page } from "./list/page";
+export { default as Content } from "./media/content";
 export { Image } from "./media/image";
+export { default as Poll } from "./media/poll";
 export {
   Comment,
   FullComment,
   FullSubmission,
   Submission,
 } from "./objects/post";
-export { default as FullUser } from "./objects/user/full";
-export { default as User } from "./objects/user/small";
+export { FullSubreddit, Rule, Subreddit, Traffic } from "./objects/subreddit";
+export {
+  FullUser,
+  SubmissionUser,
+  Trophy,
+  User,
+  UserFlair,
+} from "./objects/user";

@@ -1,8 +1,8 @@
 import Action from "../../media/actions";
-import { GivenAward } from "../award";
 import { Subreddit } from "../subreddit";
 import { SubmissionUser } from "../user";
 import { VoteDirection } from "./small";
+import { GivenAward } from "./submission/award";
 
 export type DistinguishKinds = "mod" | "admin" | "special" | null;
 

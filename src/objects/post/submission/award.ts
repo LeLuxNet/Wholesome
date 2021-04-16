@@ -1,9 +1,4 @@
-import { Image } from "../../media/image";
-
-export interface GivenAward {
-  count: number;
-  award: Award;
-}
+import { Image } from "../../../media/image";
 
 export class Award {
   id: string;
@@ -92,5 +87,14 @@ export class Award {
     } else {
       return this._tierIcons[count];
     }
+  }
+}
+
+export class GivenAward extends Award {
+  count: number;
+
+  constructor(data: Api.Award) {
+    super(data);
+    this.count = data.count;
   }
 }

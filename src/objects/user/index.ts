@@ -1,3 +1,5 @@
-export { default as FullUser } from "./full";
-export { default as User } from "./small";
-export { default as SubmissionUser } from "./submission";
+export { UserFlair } from "./flair";
+export { FullUser } from "./full";
+export { User } from "./small";
+export { SubmissionUser } from "./submission";
+export { Trophy } from "./trophy";

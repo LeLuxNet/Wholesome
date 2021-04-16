@@ -1,7 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import Auth from "./auth";
 import { Scope } from "./auth/scopes";
-import SelfEndpoint from "./endpoint/self/interface";
 import authInterceptor from "./http/auth";
 import bodyInterceptor from "./http/body";
 import debugInterceptor from "./http/debug";
@@ -22,8 +21,6 @@ export default class Reddit {
   api: AxiosInstance;
 
   auth?: Auth;
-
-  selfEndpoint?: SelfEndpoint;
 
   constructor(data: RedditConstructor) {
     this.api = axios.create({

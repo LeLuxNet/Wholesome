@@ -2,8 +2,8 @@ import Deletable from "../../interfaces/deletable";
 import Identified from "../../interfaces/identified";
 import Replyable from "../../mixins/replyable";
 import Reddit from "../../reddit";
-import { Award } from "../award";
 import { DistinguishKinds } from "./full";
+import { Award } from "./submission/award";
 
 export type VoteDirection = 1 | 0 | -1;
 
@@ -36,6 +36,14 @@ class _Post implements Deletable, Identified {
       thing_id: this.fullId,
       gild_type: award.id,
       is_anonymous: anonymous,
+    });
+  }
+
+  async edit(text: string) {
+    this.r.authScope("edit");
+    await this.r.api.post("api/editusertext", {
+      thing_id: this.fullId,
+      text,
     });
   }
 

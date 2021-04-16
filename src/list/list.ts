@@ -5,7 +5,13 @@ import { get, GetOptions } from "./get";
 import Page from "./page";
 import { stream, StreamOptions } from "./stream";
 
-export default class List<I extends Identified, T> extends EventEmitter {
+export declare interface List<I extends Identified, T> {
+  on(event: "item", listener: (val: I) => void): this;
+  once(event: "item", listener: (val: I) => void): this;
+  emit(event: "item", val: I): boolean;
+}
+
+export class List<I extends Identified, T> extends EventEmitter {
   get: (options?: GetOptions) => Promise<Page<I, T>>;
   listen: (options?: StreamOptions) => void;
 
@@ -13,6 +19,6 @@ export default class List<I extends Identified, T> extends EventEmitter {
     super();
     this.get = (options?: GetOptions) => get(r, url, map, options);
     this.listen = (options?) =>
-      stream(r, url, map, (d) => this.emit("data", d), options);
+      stream(r, url, map, (d) => this.emit("item", d), options);
   }
 }

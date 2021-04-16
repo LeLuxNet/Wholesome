@@ -1,7 +1,7 @@
 import { Stream } from "stream";
 import { upload } from "../../helper/upload";
 import Fetchable from "../../interfaces/fetchable";
-import List from "../../list/list";
+import { List } from "../../list/list";
 import Reddit from "../../reddit";
 import { FullSubmission, Submission } from "../post";
 import FullSubreddit from "./full";
@@ -30,6 +30,15 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
       fields: { name: this.name },
     });
     return new FullSubreddit(this.r, res.data.data);
+  }
+
+  async join(join: boolean = true) {
+    this.r.authScope("subscribe");
+    await this.r.api.post("api/subscribe", {
+      action: join ? "sub" : "unsub",
+      skip_initial_defaults: join ? true : undefined,
+      sr_name: this.name,
+    });
   }
 
   async rules(): Promise<Rule[]> {

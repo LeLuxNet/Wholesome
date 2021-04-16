@@ -1,10 +1,10 @@
 import Action from "../../../media/actions";
 import Reddit from "../../../reddit";
-import { Award, GivenAward } from "../../award";
 import { Subreddit } from "../../subreddit";
 import { SubmissionUser } from "../../user";
 import FullPost, { DistinguishKinds } from "../full";
 import { VoteDirection } from "../small";
+import { GivenAward } from "../submission/award";
 import Submission from "../submission/small";
 import Comment from "./small";
 
@@ -37,13 +37,11 @@ export default class FullComment extends Comment implements FullPost {
     super(r, data.id, submission);
 
     this.author =
-      data.author_fullname === undefined
-        ? null
-        : new SubmissionUser(r, data.author);
+      data.author_fullname === undefined ? null : new SubmissionUser(r, data);
     this.subreddit = r.subreddit(data.subreddit);
 
     this.created = new Date(data.created_utc * 1000);
-    this.edited = !data.edited ? null : new Date(data.edited * 1000);
+    this.edited = data.edited ? new Date(data.edited * 1000) : null;
 
     this.url = `https://reddit.com${data.permalink}`;
 
@@ -51,11 +49,7 @@ export default class FullComment extends Comment implements FullPost {
     this.voted = data.likes === null ? 0 : data.likes ? 1 : -1;
 
     this.awardCount = data.total_awards_received;
-    this.awards = data.all_awardings.map(
-      (a): GivenAward => {
-        return { count: a.count, award: new Award(a) };
-      }
-    );
+    this.awards = data.all_awardings.map((a) => new GivenAward(a));
 
     this.saved = data.saved;
     this.archived = data.archived;

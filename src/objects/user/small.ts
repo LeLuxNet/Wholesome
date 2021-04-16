@@ -1,8 +1,10 @@
 import Fetchable from "../../interfaces/fetchable";
 import Reddit from "../../reddit";
-import FullUser from "./full";
+import { Multi } from "../multi";
+import { FullUser } from "./full";
+import { Trophy } from "./trophy";
 
-export default class User implements Fetchable<FullUser> {
+export class User implements Fetchable<FullUser> {
   r: Reddit;
 
   name: string;
@@ -24,6 +26,30 @@ export default class User implements Fetchable<FullUser> {
       params: { user: this.name },
     });
     return res.data;
+  }
+
+  async givePremium(months: number) {
+    this.r.authScope("creddits");
+    await this.r.api.post(
+      "/api/v1/gold/give/{name}",
+      { months },
+      { fields: { name: this.name } }
+    );
+  }
+
+  async trophies() {
+    const res = await this.r.api.get<Api.TrophyList>(
+      "user/{name}/trophies.json",
+      { fields: { name: this.name } }
+    );
+    return res.data.data.trophies.map((d) => new Trophy(d.data));
+  }
+
+  async multis() {
+    const res = await this.r.api.get<Api.MultiWrap[]>("api/multi/user/{name}", {
+      fields: { name: this.name },
+    });
+    return res.data.map((d) => new Multi(this.r, d.data));
   }
 
   async sendMessage(subject: string, body: string) {
