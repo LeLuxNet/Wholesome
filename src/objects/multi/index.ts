@@ -62,11 +62,12 @@ export class Multi implements Deletable, Fetchable<Multi> {
 
   async copy(name: string) {
     this.r.authScope("subscribe");
-    const user = this.r.authUsername();
     const res = await this.r.api.post("api/multi/copy", {
       display_name: name,
       from: this.path,
-      to: `user/${encodeURIComponent(user)}/m/${encodeURIComponent(name)}`,
+      to: `user/${encodeURIComponent(
+        this.r.needUsername
+      )}/m/${encodeURIComponent(name)}`,
     });
     console.log(res.data);
   }

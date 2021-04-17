@@ -1,3 +1,5 @@
+import { Scope } from "./scopes";
+
 export type AuthData = RTAuth | ClientAuth | OAuthAuth;
 
 interface RTAuth {
@@ -20,10 +22,17 @@ interface ClientAuth {
 interface OAuthAuth {
   code: string;
   redirectUri: string;
+
+  client: {
+    id: string;
+    secret?: string;
+  };
 }
 
 export interface Auth {
   username?: string;
 
   accessToken: string;
+
+  scopes: "*" | Set<Scope>;
 }

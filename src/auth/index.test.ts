@@ -16,8 +16,3 @@ const { CLIENT_ID, CLIENT_SECRET } = process.env;
     expect(r.auth?.accessToken).toBeDefined();
   }
 );
-
-it("a", () =>
-  console.log(
-    createReddit().oauth("QMT3T8YrkqiZ0g", "http://localhost", ["identity"])
-  ));

@@ -21,6 +21,15 @@ export default class Reddit {
   api: AxiosInstance;
 
   auth?: Auth;
+  get needAuth() {
+    if (!this.auth) throw "You need to be authenticated to use this function";
+    return this.auth;
+  }
+  get needUsername() {
+    if (!this.auth || !this.auth.username)
+      throw "You need to be authenticated with a user";
+    return this.auth.username;
+  }
 
   linkUrl: string = "https://www.reddit.com";
 
@@ -43,22 +52,34 @@ export default class Reddit {
   }
 
   async login(data: AuthData) {
+    var body: any;
     const config: AxiosRequestConfig = { skipAuth: true };
     var username: string | undefined;
 
-    if ("client" in data) {
+    if ("code" in data) {
+      config.auth = {
+        username: data.client.id,
+        password: data.client.secret || "",
+      };
+
+      body = {
+        grant_type: "authorization_code",
+        code: data.code,
+        redirect_uri: data.redirectUri,
+      };
+    } else if ("client" in data) {
       config.auth = {
         username: data.client.id,
         password: data.client.secret,
       };
 
       if (data.auth === undefined) {
-        config.data = {
+        body = {
           grant_type: "client_credentials",
         };
       } else {
         username = data.auth.username;
-        config.data = {
+        body = {
           grant_type: "password",
           username: data.auth.username,
           password: data.auth.twoFA
@@ -66,29 +87,62 @@ export default class Reddit {
             : data.auth.password,
         };
       }
-    } else if ("refreshToken" in data) {
-      config.data = {
+    } else {
+      body = {
         grant_type: "refresh_token",
         refresh_token: data.refreshToken,
-      };
-    } else {
-      config.data = {
-        grant_type: "authorization_code",
-        code: data.code,
-        redirect_uri: data.redirectUri,
       };
     }
 
     const res = await this.api.post<Api.AccessToken>(
       "https://www.reddit.com/api/v1/access_token",
-      config.data,
+      body,
       config
     );
+    if ("error" in res.data) {
+      throw (res.data as any).error;
+    }
+
+    const scopes =
+      res.data.scope === "*"
+        ? "*"
+        : new Set(res.data.scope.split(" ") as Scope[]);
+
+    if (res.data.refresh_token) {
+      const refresh = (data: Api.AccessToken) => {
+        const timeout = setTimeout(async () => {
+          const res = await this.api.post<Api.AccessToken>(
+            "https://www.reddit.com/api/v1/access_token",
+            {
+              grant_type: "refresh_token",
+              refresh_token: data.refresh_token,
+            },
+            { skipAuth: true }
+          );
+
+          if (this.auth === undefined) return;
+          this.auth.accessToken = res.data.access_token;
+
+          refresh(res.data);
+        }, (data.expires_in - 30) * 1000);
+        timeout.unref();
+      };
+
+      refresh(res.data);
+    } else {
+      setTimeout(() => (this.auth = undefined)).unref();
+    }
 
     this.auth = {
       username,
       accessToken: res.data.access_token,
+      scopes,
     };
+
+    if ("code" in data && (scopes === "*" || scopes.has("identity"))) {
+      const res2 = await this.api.get("api/v1/me");
+      this.auth.username = res2.data.name;
+    }
   }
 
   oauth(
@@ -106,7 +160,20 @@ export default class Reddit {
     )}`;
   }
 
-  authScope(...scopes: Scope[]) {}
+  authScope(...scopes: Scope[]) {
+    const auth = this.needAuth;
+    if (auth.scopes === "*") return;
+
+    const needed: string[] = [];
+    for (const s of scopes) {
+      if (!auth.scopes.has(s)) needed.push(s);
+    }
+
+    if (needed.length !== 0)
+      throw `You are missing the ${needed.join(", ")} scope${
+        needed.length === 1 ? "" : "s"
+      }`;
+  }
 
   submission(id: string) {
     return new Submission(this, id);
