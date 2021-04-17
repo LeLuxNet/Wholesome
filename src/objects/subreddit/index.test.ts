@@ -1,4 +1,4 @@
-import { FullSubreddit } from ".";
+import { FullSubreddit } from "../..";
 import { r } from "../../test/setup";
 
 var s: FullSubreddit;

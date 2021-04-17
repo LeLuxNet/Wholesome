@@ -43,7 +43,7 @@ export default class FullComment extends Comment implements FullPost {
     this.created = new Date(data.created_utc * 1000);
     this.edited = data.edited ? new Date(data.edited * 1000) : null;
 
-    this.url = `https://reddit.com${data.permalink}`;
+    this.url = r.linkUrl + data.permalink;
 
     this.score = data.score_hidden ? null : data.score;
     this.voted = data.likes === null ? 0 : data.likes ? 1 : -1;

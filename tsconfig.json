@@ -19,7 +19,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
-    "declaration": true
+    "declaration": true,
+    "typeRoots": ["src/typings", "node_modules/@types"]
   },
   "exclude": ["dist", "src/test", "**/**.test.ts"]
 }

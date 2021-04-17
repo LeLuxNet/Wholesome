@@ -14,6 +14,10 @@ export class User implements Fetchable<FullUser> {
     this.name = name;
   }
 
+  get url() {
+    return `${this.r.linkUrl}/user/${encodeURIComponent(this.name)}`;
+  }
+
   async fetch() {
     const res = await this.r.api.get<Api.UserWrap>("user/{name}/about.json", {
       fields: { name: this.name },

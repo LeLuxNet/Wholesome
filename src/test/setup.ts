@@ -1,7 +1,6 @@
 import axios from "axios";
 import sharp from "sharp";
 import Reddit, { Image } from "..";
-import Auth from "../auth";
 
 declare global {
   namespace jest {
@@ -62,7 +61,7 @@ export const ar =
     ? undefined
     : createReddit();
 if (ar !== undefined) {
-  ar.auth = new Auth(ar, {
+  ar.login({
     client: {
       id: CLIENT_ID!,
       secret: CLIENT_SECRET!,
@@ -70,10 +69,6 @@ if (ar !== undefined) {
     auth:
       USERNAME === undefined || PASSWORD === undefined
         ? undefined
-        : {
-            username: USERNAME,
-            password: PASSWORD,
-          },
+        : { username: USERNAME, password: PASSWORD },
   });
-  ar.auth.accessToken.then(console.log);
 }

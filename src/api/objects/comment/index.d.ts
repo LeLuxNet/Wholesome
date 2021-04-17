@@ -55,6 +55,6 @@ declare namespace Api {
     collapsed_because_crowd_control: null;
     mod_reports: [];
     mod_note: null;
-    distinguished: null;
+    distinguished: Distinguish;
   }
 }

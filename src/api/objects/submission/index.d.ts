@@ -97,7 +97,7 @@ declare namespace Api {
     visited: boolean;
     removed_by: null;
     num_reports: null;
-    distinguished: "moderator" | null;
+    distinguished: Distinguish;
     subreddit_id: string;
     mod_reason_by: null;
     removal_reason: null;

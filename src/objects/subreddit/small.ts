@@ -18,7 +18,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   get url() {
-    return `https://www.reddit.com/r/${encodeURIComponent(this.name)}`;
+    return `${this.r.linkUrl}/r/${encodeURIComponent(this.name)}`;
   }
 
   get stylesheet() {

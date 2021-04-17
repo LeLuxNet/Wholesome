@@ -1,5 +1,5 @@
-import axios, { AxiosInstance } from "axios";
-import Auth from "./auth";
+import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import { Auth, AuthData } from "./auth";
 import { Scope } from "./auth/scopes";
 import authInterceptor from "./http/auth";
 import bodyInterceptor from "./http/body";
@@ -22,6 +22,8 @@ export default class Reddit {
 
   auth?: Auth;
 
+  linkUrl: string = "https://www.reddit.com";
+
   constructor(data: RedditConstructor) {
     this.api = axios.create({
       baseURL: "https://www.reddit.com",
@@ -29,24 +31,82 @@ export default class Reddit {
       params: { raw_json: 1 },
     });
 
+    if (data.debug) {
+      this.api.interceptors.request.use(debugInterceptor);
+    }
+
     this.api.interceptors.request.use(fieldInterceptor);
     this.api.interceptors.request.use(bodyInterceptor);
     this.api.interceptors.request.use(authInterceptor(this));
 
-    if (data.debug) {
-      this.api.interceptors.response.use(debugInterceptor);
-    }
     this.api.interceptors.response.use(errorInterceptor);
   }
 
-  authScope(...scopes: Scope[]) {}
+  async login(data: AuthData) {
+    const config: AxiosRequestConfig = { skipAuth: true };
+    var username: string | undefined;
 
-  authUsername() {
-    if (this.auth === undefined) throw "Not authenticated";
-    if (this.auth.username === undefined)
-      throw "Not authenticated with a username";
-    return this.auth.username;
+    if ("client" in data) {
+      config.auth = {
+        username: data.client.id,
+        password: data.client.secret,
+      };
+
+      if (data.auth === undefined) {
+        config.data = {
+          grant_type: "client_credentials",
+        };
+      } else {
+        username = data.auth.username;
+        config.data = {
+          grant_type: "password",
+          username: data.auth.username,
+          password: data.auth.twoFA
+            ? `${data.auth.password}:${data.auth.twoFA}`
+            : data.auth.password,
+        };
+      }
+    } else if ("refreshToken" in data) {
+      config.data = {
+        grant_type: "refresh_token",
+        refresh_token: data.refreshToken,
+      };
+    } else {
+      config.data = {
+        grant_type: "authorization_code",
+        code: data.code,
+        redirect_uri: data.redirectUri,
+      };
+    }
+
+    const res = await this.api.post<Api.AccessToken>(
+      "https://www.reddit.com/api/v1/access_token",
+      config.data,
+      config
+    );
+
+    this.auth = {
+      username,
+      accessToken: res.data.access_token,
+    };
   }
+
+  oauth(
+    clientId: string,
+    redirectUri: string,
+    scopes: Scope[],
+    temporary?: boolean
+  ) {
+    return `https://www.reddit.com/api/v1/authorize?client_id=${encodeURIComponent(
+      clientId
+    )}&response_type=code&state=+&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&duration=${temporary ? "temporary" : "permanent"}&scope=${scopes.join(
+      "+"
+    )}`;
+  }
+
+  authScope(...scopes: Scope[]) {}
 
   submission(id: string) {
     return new Submission(this, id);

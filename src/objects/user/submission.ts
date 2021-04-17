@@ -1,6 +1,6 @@
-import { User } from ".";
 import Reddit from "../../reddit";
 import { userFlair, UserFlair } from "./flair";
+import { User } from "./small";
 
 export class SubmissionUser extends User {
   id: string;

@@ -10,8 +10,6 @@ export class FullUser extends User implements Identified {
   displayName: string;
   description: string | null;
 
-  url: string;
-
   icon: Image;
   avatar: Image | null;
   banner: Image | null;
@@ -39,8 +37,6 @@ export class FullUser extends User implements Identified {
 
     this.displayName = data.subreddit.title || this.name;
     this.description = data.subreddit.public_description || null;
-
-    this.url = `https://reddit.com${data.subreddit.url}`;
 
     this.icon = {
       native: {

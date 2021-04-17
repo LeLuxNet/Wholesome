@@ -1,6 +1,7 @@
 import Reddit from "./reddit";
 export default Reddit;
 
+export { Scope } from "./auth/scopes";
 export { List } from "./list/list";
 export { default as Page } from "./list/page";
 export { default as Content } from "./media/content";

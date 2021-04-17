@@ -55,7 +55,9 @@ export default class FullSubmission extends Submission implements FullPost {
   crossposts: number;
   crosspostable: boolean;
 
-  link: string;
+  link: string | null;
+  rawLink: string;
+
   body: Content | null;
   thumbnail: Image | null;
 
@@ -74,15 +76,13 @@ export default class FullSubmission extends Submission implements FullPost {
     this.title = data.title;
 
     this.author =
-      data.author_fullname === undefined
-        ? null
-        : new SubmissionUser(this.r, data);
+      data.author_fullname === undefined ? null : new SubmissionUser(r, data);
     this.subreddit = r.subreddit(data.subreddit);
 
     this.created = new Date(data.created_utc * 1000);
     this.edited = data.edited ? new Date(data.edited * 1000) : null;
 
-    this.url = `https://reddit.com${data.permalink}`;
+    this.url = r.linkUrl + data.permalink;
 
     this.score = data.score;
     this.upvoteRatio = data.upvote_ratio;
@@ -132,7 +132,13 @@ export default class FullSubmission extends Submission implements FullPost {
     this.crossposts = data.num_crossposts;
     this.crosspostable = data.is_crosspostable;
 
-    this.link = data.url;
+    this.link =
+      data.is_reddit_media_domain ||
+      data.url === `https://www.reddit.com${data.permalink}`
+        ? null
+        : data.url;
+    this.rawLink = data.url;
+
     this.body =
       data.selftext_html === null
         ? null

@@ -9,9 +9,9 @@ declare module "axios" {
 
 export default function authInterceptor(r: Reddit) {
   return async (config: AxiosRequestConfig) => {
-    if (!config.skipAuth && r.auth) {
+    if (r.auth && !config.skipAuth) {
       config.baseURL = "https://oauth.reddit.com";
-      config.headers.authorization = `Bearer ${await r.auth.accessToken}`;
+      config.headers.authorization = `Bearer ${r.auth.accessToken}`;
     }
 
     return config;

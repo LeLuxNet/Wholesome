@@ -1,4 +1,3 @@
-import Auth from ".";
 import { createReddit } from "../test/setup";
 
 const { CLIENT_ID, CLIENT_SECRET } = process.env;
@@ -7,15 +6,18 @@ const { CLIENT_ID, CLIENT_SECRET } = process.env;
   "should get access token",
   async () => {
     const r = createReddit();
-    r.auth = new Auth(r, {
+    await r.login({
       client: {
         id: CLIENT_ID!,
         secret: CLIENT_SECRET!,
       },
     });
 
-    const a = await r.auth.accessToken;
-
-    expect(a).toBeDefined();
+    expect(r.auth?.accessToken).toBeDefined();
   }
 );
+
+it("a", () =>
+  console.log(
+    createReddit().oauth("QMT3T8YrkqiZ0g", "http://localhost", ["identity"])
+  ));
