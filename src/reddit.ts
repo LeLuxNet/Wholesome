@@ -7,6 +7,7 @@ import debugInterceptor from "./http/debug";
 import errorInterceptor from "./http/error";
 import fieldInterceptor from "./http/fields";
 import { Submission } from "./objects/post";
+import Self from "./objects/self";
 import { Subreddit } from "./objects/subreddit";
 import { User } from "./objects/user";
 
@@ -21,15 +22,6 @@ export default class Reddit {
   api: AxiosInstance;
 
   auth?: Auth;
-  get needAuth() {
-    if (!this.auth) throw "You need to be authenticated to use this function";
-    return this.auth;
-  }
-  get needUsername() {
-    if (!this.auth || !this.auth.username)
-      throw "You need to be authenticated with a user";
-    return this.auth.username;
-  }
 
   linkUrl: string = "https://www.reddit.com";
 
@@ -160,7 +152,7 @@ export default class Reddit {
     )}`;
   }
 
-  authScope(...scopes: Scope[]) {
+  needScopes(...scopes: Scope[]) {
     const auth = this.needAuth;
     if (auth.scopes === "*") return;
 
@@ -175,7 +167,19 @@ export default class Reddit {
       }`;
   }
 
+  get needAuth() {
+    if (!this.auth) throw "You need to be authenticated to use this function";
+    return this.auth;
+  }
+
+  get needUsername() {
+    if (!this.auth || !this.auth.username)
+      throw "You need to be authenticated with a user";
+    return this.auth.username;
+  }
+
   submission(id: string) {
+    if (id.startsWith("t3_")) id = id.slice(3);
     return new Submission(this, id);
   }
 
@@ -189,5 +193,18 @@ export default class Reddit {
 
   user(name: string) {
     return new User(this, name);
+  }
+
+  get self() {
+    if (!this.auth) return null;
+    return new Self(this, this.auth.username);
+  }
+
+  async trendingSubreddits() {
+    // This endpoint only exists on www.reddit.com not on oauth.reddit.com
+    const res = await this.api.get<Api.TrendingSubreddits>(
+      "https://www.reddit.com/api/trending_subreddits.json"
+    );
+    return res.data.subreddit_names.map((n) => this.subreddit(n));
   }
 }

@@ -8,6 +8,9 @@ export class User implements Fetchable<FullUser> {
   r: Reddit;
 
   name: string;
+  get key() {
+    return this.name;
+  }
 
   constructor(r: Reddit, name: string) {
     this.r = r;
@@ -33,7 +36,7 @@ export class User implements Fetchable<FullUser> {
   }
 
   async givePremium(months: number) {
-    this.r.authScope("creddits");
+    this.r.needScopes("creddits");
     await this.r.api.post(
       "/api/v1/gold/give/{name}",
       { months },
@@ -57,7 +60,7 @@ export class User implements Fetchable<FullUser> {
   }
 
   async sendMessage(subject: string, body: string) {
-    this.r.authScope("privatemessages");
+    this.r.needScopes("privatemessages");
     await this.r.api.post("api/compose", {
       subject,
       text: body,

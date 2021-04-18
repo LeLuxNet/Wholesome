@@ -22,7 +22,7 @@ export default class Submission
   }
 
   async follow(follow: boolean = true) {
-    this.r.authScope("subscribe");
+    this.r.needScopes("subscribe");
     await this.r.api.post("api/follow_post", {
       follow,
       fullname: this.fullId,

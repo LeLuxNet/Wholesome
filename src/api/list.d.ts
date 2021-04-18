@@ -1,5 +1,7 @@
 /// <reference path="./index.d.ts" />
 declare namespace Api {
+  export type ListingRes<T> = Listing<T> | [unknown, Listing<T>];
+
   export interface Listing<T> {
     kind: "Listing";
     data: {

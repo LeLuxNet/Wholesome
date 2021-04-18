@@ -12,7 +12,8 @@ export class Multi implements Deletable, Fetchable<Multi> {
   name: string;
   description: Content | null;
   url: string;
-  private path: string;
+
+  key: string;
 
   owner: User;
   created: Date;
@@ -36,7 +37,7 @@ export class Multi implements Deletable, Fetchable<Multi> {
             html: data.description_html,
           };
     this.url = `https://www.reddit.com${data.path}`;
-    this.path = data.path;
+    this.key = data.path;
 
     this.owner = r.user(data.owner);
     this.created = new Date(data.created_utc * 1000);
@@ -56,15 +57,15 @@ export class Multi implements Deletable, Fetchable<Multi> {
   }
 
   async fetch() {
-    const res = await this.r.api.get<Api.MultiWrap>(`api/multi${this.path}`);
+    const res = await this.r.api.get<Api.MultiWrap>(`api/multi${this.key}`);
     return new Multi(this.r, res.data.data);
   }
 
   async copy(name: string) {
-    this.r.authScope("subscribe");
+    this.r.needScopes("subscribe");
     const res = await this.r.api.post("api/multi/copy", {
       display_name: name,
-      from: this.path,
+      from: this.key,
       to: `user/${encodeURIComponent(
         this.r.needUsername
       )}/m/${encodeURIComponent(name)}`,
@@ -73,22 +74,22 @@ export class Multi implements Deletable, Fetchable<Multi> {
   }
 
   async delete() {
-    this.r.authScope("subscribe");
+    this.r.needScopes("subscribe");
     await this.r.api.delete("api/multi/{name}", {
       fields: { name: this.name },
     });
   }
 
   async addSubreddit(sub: Subreddit) {
-    this.r.authScope("subscribe");
-    await this.r.api.put(`api/multi${this.path}/r/{sub}`, undefined, {
+    this.r.needScopes("subscribe");
+    await this.r.api.put(`api/multi${this.key}/r/{sub}`, undefined, {
       fields: { sub: sub.name },
     });
   }
 
   async removeSubreddit(sub: Subreddit) {
-    this.r.authScope("subscribe");
-    await this.r.api.delete(`api/multi${this.path}/r/{sub}`, {
+    this.r.needScopes("subscribe");
+    await this.r.api.delete(`api/multi${this.key}/r/{sub}`, {
       fields: { sub: sub.name },
     });
   }

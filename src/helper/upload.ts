@@ -9,7 +9,7 @@ export async function upload(
   name: string,
   mimetype: string
 ) {
-  r.authScope();
+  r.needScopes();
 
   const res = await r.api.post<Api.Media>("api/media/asset.json", {
     filepath: name,

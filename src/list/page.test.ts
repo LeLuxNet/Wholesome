@@ -13,7 +13,7 @@ function pageItems(p: Page<Identified, any>) {
 it("should have right item count", async () => {
   const p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
     r,
-    "r/memes/top.json",
+    { url: "r/memes/top.json" },
     (d) => new FullSubmission(r, d.data),
     205
   );
@@ -25,7 +25,7 @@ it("should have right item count", async () => {
 it("should get next items", async () => {
   const p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
     r,
-    "r/earthporn/top.json",
+    { url: "r/earthporn/top.json" },
     (d) => new FullSubmission(r, d.data),
     20
   );
@@ -40,7 +40,7 @@ it("should get next items", async () => {
 it("should refetch same items", async () => {
   const p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
     r,
-    "r/earthporn/top.json",
+    { url: "r/earthporn/top.json" },
     (d) => new FullSubmission(r, d.data),
     80
   );

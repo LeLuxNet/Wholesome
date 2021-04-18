@@ -2,7 +2,7 @@ import Reddit from "./reddit";
 export default Reddit;
 
 export { Scope } from "./auth/scopes";
-export { List } from "./list/list";
+export { default as Cache } from "./cache";
 export { default as Page } from "./list/page";
 export { default as Content } from "./media/content";
 export { default as Embed } from "./media/embed";
@@ -14,7 +14,13 @@ export {
   FullSubmission,
   Submission,
 } from "./objects/post";
-export { FullSubreddit, Rule, Subreddit, Traffic } from "./objects/subreddit";
+export {
+  FullSubreddit,
+  Rule,
+  Subreddit,
+  Times,
+  Traffic,
+} from "./objects/subreddit";
 export {
   FullUser,
   SubmissionUser,

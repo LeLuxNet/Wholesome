@@ -1,3 +1,5 @@
+import { get, GetOptions } from "../../../list/get";
+import { stream, StreamCallback, StreamOptions } from "../../../list/stream";
 import Action from "../../../media/actions";
 import Content from "../../../media/content";
 import Embed from "../../../media/embed";
@@ -52,7 +54,7 @@ export default class FullSubmission extends Submission implements FullPost {
   commentCount: number;
 
   crosspost: FullSubmission | null;
-  crossposts: number;
+  crosspostCount: number;
   crosspostable: boolean;
 
   link: string | null;
@@ -129,7 +131,7 @@ export default class FullSubmission extends Submission implements FullPost {
       data.crosspost_parent_list === undefined
         ? null
         : new FullSubmission(r, data.crosspost_parent_list[0]);
-    this.crossposts = data.num_crossposts;
+    this.crosspostCount = data.num_crossposts;
     this.crosspostable = data.is_crosspostable;
 
     this.link =
@@ -230,7 +232,71 @@ export default class FullSubmission extends Submission implements FullPost {
             totalScore: data.poll_data.total_vote_count,
           };
   }
+
+  crossposts(options?: CrosspostsOptions) {
+    return this.duplicates({ ...options, crosspostsOnly: true });
+  }
+
+  crosspostsStream(
+    fn: StreamCallback<FullSubmission>,
+    options?: CrosspostsStreamOptions
+  ) {
+    return this.duplicatesStream(fn, { ...options, crosspostsOnly: true });
+  }
+
+  duplicates(options?: DuplicatesOptions) {
+    return get<FullSubmission, Api.SubmissionWrap>(
+      this.r,
+      {
+        url: "duplicates/{id}.json",
+        fields: { id: this.id },
+        params: {
+          crossposts_only: options?.crosspostsOnly ? 1 : undefined,
+          sort: options?.sort === "new" ? "new" : "num_comments",
+          sr: options?.sub ? options.sub.name : undefined,
+        },
+      },
+      (d) => new FullSubmission(this.r, d.data),
+      options
+    );
+  }
+
+  duplicatesStream(
+    fn: StreamCallback<FullSubmission>,
+    options?: DuplicatesStreamOptions
+  ) {
+    return stream<FullSubmission, Api.SubmissionWrap>(
+      this.r,
+      {
+        url: "duplicates/{id}.json",
+        fields: { id: this.id },
+        params: {
+          crossposts_only: options?.crosspostsOnly ? 1 : undefined,
+          sort: "new",
+          sr: options?.sub ? options.sub.name : undefined,
+        },
+      },
+      (d) => new FullSubmission(this.r, d.data),
+      fn,
+      options
+    );
+  }
 }
+
+export type CrosspostsStreamOptions = StreamOptions & { sub?: Subreddit };
+
+export type CrosspostsOptions = GetOptions & {
+  sub?: Subreddit;
+  sort?: "new" | "commentCount";
+};
+
+export type DuplicatesStreamOptions = CrosspostsStreamOptions & {
+  crosspostsOnly?: boolean;
+};
+
+export type DuplicatesOptions = CrosspostsOptions & {
+  crosspostsOnly?: boolean;
+};
 
 function mapPreview(img: Api.PreviewImage) {
   return {

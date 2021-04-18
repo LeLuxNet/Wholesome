@@ -1,9 +1,10 @@
+import { AxiosRequestConfig } from "axios";
 import Identified from "../interfaces/identified";
 import Reddit from "../reddit";
 
 export type StreamCallback<I extends Identified> = (
-  d: I,
-  done: Function
+  data: I,
+  end: Function
 ) => void;
 
 export interface StreamOptions {
@@ -12,23 +13,29 @@ export interface StreamOptions {
 
 export async function stream<I extends Identified, T>(
   r: Reddit,
-  url: string,
+  config: AxiosRequestConfig,
   map: (d: T) => I,
   fn: StreamCallback<I>,
   options: StreamOptions | undefined
 ) {
   r.api
-    .get<Api.Listing<T>>(url, { params: { limit: 1 } })
+    .get<Api.ListingRes<T>>(config.url!, {
+      ...config,
+      params: { ...config.params, limit: 1 },
+    })
     .then((res) => {
-      const first = map(res.data.data.children[0]);
+      const data = res.data instanceof Array ? res.data[1] : res.data;
+      const first = map(data.data.children[0]);
       var before = first.fullId;
 
       const interval = setInterval(async () => {
-        const res = await r.api.get<Api.Listing<T>>(url, {
-          params: { before, limit: 100 },
+        const res = await r.api.get<Api.ListingRes<T>>(config.url!, {
+          ...config,
+          params: { ...config.params, before, limit: 100 },
         });
+        const data = res.data instanceof Array ? res.data[1] : res.data;
 
-        const children = res.data.data.children.map(map);
+        const children = data.data.children.map(map);
         if (children.length > 0) {
           before = children[0].fullId;
         }
