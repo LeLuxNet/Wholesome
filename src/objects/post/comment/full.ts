@@ -18,6 +18,7 @@ export default class FullComment extends Comment implements FullPost {
   url: string;
 
   score: number | null;
+  scoreHidden: boolean;
   voted: VoteDirection;
 
   awardCount: number;
@@ -46,6 +47,7 @@ export default class FullComment extends Comment implements FullPost {
     this.url = r.linkUrl + data.permalink;
 
     this.score = data.score_hidden ? null : data.score;
+    this.scoreHidden = data.score_hidden;
     this.voted = data.likes === null ? 0 : data.likes ? 1 : -1;
 
     this.awardCount = data.total_awards_received;

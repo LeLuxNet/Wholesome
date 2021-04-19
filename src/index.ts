@@ -2,7 +2,6 @@ import Reddit from "./reddit";
 export default Reddit;
 
 export { Scope } from "./auth/scopes";
-export { default as Cache } from "./cache";
 export { default as Page } from "./list/page";
 export { default as Content } from "./media/content";
 export { default as Embed } from "./media/embed";

@@ -15,6 +15,8 @@ export default interface FullPost {
 
   url: string;
 
+  score: number | null;
+  scoreHidden: boolean;
   voted: VoteDirection;
 
   awardCount: number;

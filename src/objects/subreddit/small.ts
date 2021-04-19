@@ -7,6 +7,7 @@ import Reddit from "../../reddit";
 import { FullSubmission, Submission } from "../post";
 import FullSubreddit from "./full";
 import { parseRule, Rule } from "./rule";
+import { Style } from "./style";
 import { Traffics } from "./traffic";
 
 export type Times = "hour" | "day" | "week" | "month" | "year" | "all";
@@ -40,6 +41,29 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
       fields: { name: this.name },
     });
     return new FullSubreddit(this.r, res.data.data);
+  }
+
+  async style(): Promise<Style> {
+    const res = await this.r.api.get<Api.Style>(
+      "api/v1/structured_styles/{name}.json",
+      { fields: { name: this.name } }
+    );
+    const s = res.data.data.style;
+
+    return {
+      upvoteInactive: s.postUpvoteIconInactive
+        ? { native: { url: s.postUpvoteIconInactive } }
+        : null,
+      upvoteActive: s.postUpvoteIconActive
+        ? { native: { url: s.postUpvoteIconActive } }
+        : null,
+      downvoteInactive: s.postDownvoteIconInactive
+        ? { native: { url: s.postDownvoteIconInactive } }
+        : null,
+      downvoteActive: s.postDownvoteIconActive
+        ? { native: { url: s.postDownvoteIconActive } }
+        : null,
+    };
   }
 
   async join(join: boolean = true) {

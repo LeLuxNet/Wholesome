@@ -25,7 +25,8 @@ export default class FullSubmission extends Submission implements FullPost {
 
   url: string;
 
-  score: number;
+  score: number | null;
+  scoreHidden: boolean;
   upvoteRatio: number;
   voted: VoteDirection;
 
@@ -53,8 +54,20 @@ export default class FullSubmission extends Submission implements FullPost {
 
   commentCount: number;
 
+  /**
+   * The crosspost this submission contains
+   */
   crosspost: FullSubmission | null;
+
+  /**
+   * How often this submission has been crossposted
+   * @see {@link crossposts} to fetch them
+   */
   crosspostCount: number;
+
+  /**
+   * Whether the subreddit allows this submission to be crossposted
+   */
   crosspostable: boolean;
 
   link: string | null;
@@ -86,7 +99,8 @@ export default class FullSubmission extends Submission implements FullPost {
 
     this.url = r.linkUrl + data.permalink;
 
-    this.score = data.score;
+    this.score = data.hide_score ? null : data.score;
+    this.scoreHidden = data.hide_score;
     this.upvoteRatio = data.upvote_ratio;
     this.voted = data.likes === null ? 0 : data.likes ? 1 : -1;
 
@@ -263,10 +277,17 @@ export default class FullSubmission extends Submission implements FullPost {
     }
   }
 
+  /**
+   * Returns all crossposts of this submission
+   * @see {@link crosspostsStream}
+   */
   crossposts(options?: CrosspostsOptions) {
     return this.duplicates({ ...options, crosspostsOnly: true });
   }
 
+  /**
+   * @param fn function that gets called once a new crosspost arrives
+   */
   crosspostsStream(
     fn: StreamCallback<FullSubmission>,
     options?: CrosspostsStreamOptions
@@ -274,6 +295,10 @@ export default class FullSubmission extends Submission implements FullPost {
     return this.duplicatesStream(fn, { ...options, crosspostsOnly: true });
   }
 
+  /**
+   * Returns all duplicates of this submission
+   * @see {@link duplicatesStream}
+   */
   duplicates(options?: DuplicatesOptions) {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
@@ -291,6 +316,9 @@ export default class FullSubmission extends Submission implements FullPost {
     );
   }
 
+  /**
+   * @param fn function that gets called once a new duplicate arrives
+   */
   duplicatesStream(
     fn: StreamCallback<FullSubmission>,
     options?: DuplicatesStreamOptions

@@ -24,11 +24,21 @@ class _Post implements Deletable, Identified {
     this.fullId = fullId;
   }
 
+  /**
+   * Deleting the submission or comment
+   */
   async delete() {
     this.r.needScopes("edit");
     await this.r.api.post("api/del", { id: this.fullId });
   }
 
+  /**
+   * Casting a vote on a submission or comment
+   * @param dir The direction to vote
+   * 1 = upvote
+   * 0 = no vote
+   * -1 = downvote
+   */
   async vote(dir: VoteDirection) {
     this.r.needScopes("vote");
     await this.r.api.post("api/vote", { dir, id: this.fullId });
@@ -43,6 +53,10 @@ class _Post implements Deletable, Identified {
     });
   }
 
+  /**
+   * Edit the body of a submission or comment
+   * @param {string} text The new body in markdown
+   */
   async edit(text: string) {
     this.r.needScopes("edit");
     await this.r.api.post("api/editusertext", {

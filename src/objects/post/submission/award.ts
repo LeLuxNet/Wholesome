@@ -96,5 +96,6 @@ export class GivenAward extends Award {
   constructor(data: Api.Award) {
     super(data);
     this.count = data.count;
+    this.icon = this.tierIcon(data.count);
   }
 }
