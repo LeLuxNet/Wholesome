@@ -1,11 +1,12 @@
 import { Stream } from "stream";
+import { FullSubreddit } from ".";
 import { upload } from "../../helper/upload";
 import Fetchable from "../../interfaces/fetchable";
 import { get, GetOptions } from "../../list/get";
 import { stream, StreamCallback, StreamOptions } from "../../list/stream";
+import { BaseImage } from "../../media/image";
 import Reddit from "../../reddit";
 import { FullSubmission, Submission } from "../post";
-import FullSubreddit from "./full";
 import { parseRule, Rule } from "./rule";
 import { Style } from "./style";
 import { Traffics } from "./traffic";
@@ -51,18 +52,12 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     const s = res.data.data.style;
 
     return {
-      upvoteInactive: s.postUpvoteIconInactive
-        ? { native: { url: s.postUpvoteIconInactive } }
-        : null,
-      upvoteActive: s.postUpvoteIconActive
-        ? { native: { url: s.postUpvoteIconActive } }
-        : null,
-      downvoteInactive: s.postDownvoteIconInactive
-        ? { native: { url: s.postDownvoteIconInactive } }
-        : null,
-      downvoteActive: s.postDownvoteIconActive
-        ? { native: { url: s.postDownvoteIconActive } }
-        : null,
+      icon: createStyleImage(s.communityIcon),
+
+      upvoteInactive: createStyleImage(s.postUpvoteIconInactive),
+      upvoteActive: createStyleImage(s.postUpvoteIconActive),
+      downvoteInactive: createStyleImage(s.postDownvoteIconInactive),
+      downvoteActive: createStyleImage(s.postDownvoteIconActive),
     };
   }
 
@@ -284,4 +279,8 @@ async function submit(
   }
 
   return submission;
+}
+
+function createStyleImage(url: string | null): BaseImage | null {
+  return url ? { native: { url } } : null;
 }

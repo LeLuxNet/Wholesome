@@ -1,6 +1,8 @@
 import { BaseImage } from "../../media/image";
 
 export interface Style {
+  icon: BaseImage | null;
+
   upvoteInactive: BaseImage | null;
   upvoteActive: BaseImage | null;
   downvoteInactive: BaseImage | null;
