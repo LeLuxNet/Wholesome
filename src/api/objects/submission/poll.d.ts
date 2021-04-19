@@ -1,7 +1,7 @@
 /// <reference path="../../index.d.ts" />
 declare namespace Api {
   export interface Poll {
-    user_selection: null;
+    user_selection: string | null;
     total_stake_amount: null;
     voting_end_timestamp: number;
     total_vote_count: number;

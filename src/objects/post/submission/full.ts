@@ -5,7 +5,7 @@ import Content from "../../../media/content";
 import Embed from "../../../media/embed";
 import GIF from "../../../media/gif";
 import { Image, Stream, Video } from "../../../media/image";
-import Poll from "../../../media/poll";
+import Poll, { PollOption } from "../../../media/poll";
 import Reddit from "../../../reddit";
 import { Subreddit } from "../../subreddit";
 import { SubmissionUser } from "../../user";
@@ -221,16 +221,46 @@ export default class FullSubmission extends Submission implements FullPost {
     this.rpan =
       data.rpan_video === undefined ? null : { hls: data.rpan_video.hls_url };
 
-    this.poll =
-      data.poll_data === undefined
-        ? null
-        : {
-            prediction: data.poll_data.is_prediction,
-            items: data.poll_data.options.map((o) => {
-              return { text: o.text, score: o.vote_count };
-            }),
-            totalScore: data.poll_data.total_vote_count,
-          };
+    this.poll = null;
+    if (data.poll_data) {
+      var body: Content | null = null;
+      if (this.body) {
+        const htmlParts = this.body.html.split("\n");
+        htmlParts.splice(-2, 1);
+
+        body = {
+          markdown: this.body.markdown.split("\n").slice(0, -2).join("\n"),
+          html: htmlParts.join("\n"),
+        };
+      }
+      const userVote = data.poll_data.user_selection;
+      var voted: PollOption | null = null;
+
+      const options = data.poll_data.options.map((o) => {
+        const option = {
+          id: o.id,
+          text: o.text,
+          score: o.vote_count,
+          voted: o.id === userVote,
+        };
+        if (option.voted) voted = option;
+        return option;
+      });
+
+      this.poll = {
+        body,
+        url: `${this.r.linkUrl}/poll/${encodeURIComponent(this.id)}`,
+
+        voted,
+        totalScore: data.poll_data.total_vote_count,
+
+        endDate: new Date(data.poll_data.voting_end_timestamp),
+
+        options,
+
+        prediction: data.poll_data.is_prediction,
+      };
+    }
   }
 
   crossposts(options?: CrosspostsOptions) {

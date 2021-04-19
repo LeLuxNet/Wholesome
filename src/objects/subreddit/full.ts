@@ -27,6 +27,8 @@ export default class FullSubreddit extends Subreddit implements Identified {
   nsfw: boolean;
   language: string;
 
+  favorite: boolean;
+
   hasMenu: boolean;
 
   enabledMediaPreview: boolean;
@@ -89,6 +91,8 @@ export default class FullSubreddit extends Subreddit implements Identified {
     this.created = new Date(data.created_utc * 1000);
     this.nsfw = data.over18;
     this.language = data.lang;
+
+    this.favorite = data.user_has_favorited || false;
 
     this.hasMenu = data.has_menu_widget;
 

@@ -39,7 +39,7 @@ declare namespace Api {
     public_description: "" | string;
     comment_score_hide_mins: number;
     allow_predictions: boolean;
-    user_has_favorited: null;
+    user_has_favorited: boolean | null;
     user_flair_template_id: null;
     community_icon: "" | string;
     banner_background_image: string;
