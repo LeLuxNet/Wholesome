@@ -1,6 +1,7 @@
 import { get, GetOptions } from "../list/get";
 import { stream, StreamCallback, StreamOptions } from "../list/stream";
 import Reddit from "../reddit";
+import { Message } from "./message";
 import { FullSubreddit } from "./subreddit";
 import { User } from "./user";
 
@@ -38,12 +39,14 @@ export default class Self extends User {
     );
   }
 
-  /* messageInbox() {
+  messagesStream(fn: StreamCallback<Message>, options?: StreamOptions) {
     this.r.needScopes("privatemessages");
-    return new List<Message, Api.MessageWrap>(
+    return stream<Message, Api.MessageWrap>(
       this.r,
-      "message/inbox",
-      (d) => new Message(this.r, d.data)
+      { url: "message/inbox" },
+      (d) => new Message(this.r, d.data),
+      fn,
+      options
     );
-  } */
+  }
 }

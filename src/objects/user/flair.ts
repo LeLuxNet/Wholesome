@@ -1,6 +1,12 @@
 import { BaseImage } from "../../media/image";
 
-export type UserFlair = TextFlair | EmojiFlair;
+export interface Flair {
+  text: "light" | "dark";
+  background: string | null;
+  parts: FlairPart[];
+}
+
+export type FlairPart = TextFlair | EmojiFlair;
 
 interface TextFlair {
   type: "text";
@@ -13,7 +19,7 @@ interface EmojiFlair {
   image: BaseImage;
 }
 
-export function userFlair(f: Api.UserFlair): UserFlair {
+export function flairPart(f: Api.UserFlair): FlairPart {
   switch (f.e) {
     case "text":
       return {

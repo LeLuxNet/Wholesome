@@ -7,7 +7,7 @@ export class Award {
 
   coinPrice: number;
   coinReward: number;
-  daysPremium: number;
+  daysOfPremium: number;
 
   startDate: Date | null;
   endDate: Date | null;
@@ -23,7 +23,7 @@ export class Award {
 
     this.coinPrice = data.coin_price;
     this.coinReward = data.coin_reward;
-    this.daysPremium = data.days_of_premium;
+    this.daysOfPremium = data.days_of_premium;
 
     this.startDate =
       data.start_date === null ? null : new Date(data.start_date * 1000);

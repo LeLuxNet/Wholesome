@@ -16,6 +16,7 @@ export {
 export {
   FullSubreddit,
   Rule,
+  Style,
   Subreddit,
   Times,
   Traffic,

@@ -1,5 +1,5 @@
 import Reddit from "../../reddit";
-import { userFlair, UserFlair } from "./flair";
+import { Flair, flairPart } from "./flair";
 import { User } from "./small";
 
 export class SubmissionUser extends User {
@@ -8,9 +8,7 @@ export class SubmissionUser extends User {
 
   premium: boolean;
 
-  flair: UserFlair[];
-  flairText: "light" | "dark";
-  flairBackground: string | null;
+  flair: Flair | null;
 
   constructor(r: Reddit, data: Api.Submission | Api.Comment) {
     super(r, data.author);
@@ -20,8 +18,12 @@ export class SubmissionUser extends User {
 
     this.premium = data.author_premium;
 
-    this.flair = data.author_flair_richtext.map(userFlair);
-    this.flairText = data.author_flair_text_color!;
-    this.flairBackground = data.author_flair_background_color;
+    this.flair = data.author_flair_text_color
+      ? {
+          text: data.author_flair_text_color,
+          background: data.author_flair_background_color,
+          parts: data.author_flair_richtext.map(flairPart),
+        }
+      : null;
   }
 }

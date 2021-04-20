@@ -22,27 +22,22 @@ expect.extend({
         const res = await axios.get(r.url, { responseType: "arraybuffer" });
         const meta = await sharp(res.data).metadata();
 
-        if (r.width !== meta.width) {
+        if (r.width !== meta.width || r.height !== meta.height) {
           return {
             pass: false,
             message: () =>
-              `Expect image to be ${r.width}px wide not ${meta.width}px`,
-          };
-        } else if (r.height !== meta.height) {
-          return {
-            pass: false,
-            message: () =>
-              `Expect image to be ${r.height}px high not ${meta.height}px`,
+              `Expect image from ${r.url} to be ${r.width}x${r.height}px not ${meta.width}x${meta.height}px`,
           };
         } else {
           return {
             pass: true,
             message: () =>
-              `Expect image not to have ${r.width}px wide or ${r.height}px high`,
+              `Expect image from ${r.url} not to be ${r.width}x${r.height}px`,
           };
         }
       })
     );
+
     return res.find((r) => !r.pass) || res[0];
   },
 });

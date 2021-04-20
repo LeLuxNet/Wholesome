@@ -9,6 +9,7 @@ import Poll, { PollOption } from "../../../media/poll";
 import Reddit from "../../../reddit";
 import { Subreddit } from "../../subreddit";
 import { SubmissionUser } from "../../user";
+import { Flair, flairPart } from "../../user/flair";
 import FullPost, { DistinguishKinds } from "../full";
 import { VoteDirection } from "../small";
 import { GivenAward } from "./award";
@@ -36,6 +37,8 @@ export default class FullSubmission extends Submission implements FullPost {
   oc: boolean;
   spoiler: boolean;
   nsfw: boolean;
+
+  flair: Flair | null;
 
   robotIndexable: boolean;
 
@@ -110,6 +113,14 @@ export default class FullSubmission extends Submission implements FullPost {
     this.oc = data.is_original_content;
     this.spoiler = data.spoiler;
     this.nsfw = data.over_18;
+
+    this.flair = data.link_flair_richtext.length
+      ? {
+          text: data.link_flair_text_color,
+          background: data.link_flair_background_color,
+          parts: data.link_flair_richtext.map(flairPart),
+        }
+      : null;
 
     this.robotIndexable = data.is_robot_indexable;
 
