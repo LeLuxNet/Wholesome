@@ -22,6 +22,21 @@ export {
   Traffic,
 } from "./objects/subreddit";
 export {
+  ButtonWidget,
+  CalendarWidget,
+  CustomWidget,
+  FlairWidget,
+  IdWidget,
+  ImageWidget,
+  MenuWidget,
+  ModWidget,
+  RulesWidget,
+  SidebarWidget,
+  SubredditsWidget,
+  TextWidget,
+  Widgets,
+} from "./objects/subreddit/widget";
+export {
   Flair,
   FlairPart,
   FullUser,

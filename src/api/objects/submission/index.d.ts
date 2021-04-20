@@ -32,7 +32,7 @@ declare namespace Api {
     gilded: number;
     clicked: boolean;
     title: string;
-    link_flair_richtext: UserFlair[];
+    link_flair_richtext: Flair[];
     subreddit_name_prefixed: string;
     hidden: boolean;
     pwls: 0 | 6;

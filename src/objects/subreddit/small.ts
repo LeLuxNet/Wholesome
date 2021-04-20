@@ -10,6 +10,13 @@ import { FullSubmission, Submission } from "../post";
 import { parseRule, Rule } from "./rule";
 import { Style } from "./style";
 import { Traffics } from "./traffic";
+import {
+  parseIdWidget,
+  parseMenuWidget,
+  parseModWidget,
+  parseSidebarWidget,
+  Widgets,
+} from "./widget";
 
 export type Times = "hour" | "day" | "week" | "month" | "year" | "all";
 
@@ -42,6 +49,34 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
       fields: { name: this.name },
     });
     return new FullSubreddit(this.r, res.data.data);
+  }
+
+  async widgets(): Promise<Widgets> {
+    this.r.needScopes("structuredstyles");
+    const res = await this.r.api.get<Api.SubredditWidgets>(
+      `r/{name}/api/widgets`,
+      { fields: { name: this.name } }
+    );
+
+    const { items, layout } = res.data;
+
+    return {
+      id: parseIdWidget(this.r, items[layout.idCardWidget] as Api.IdCardWidget),
+      moderator: parseModWidget(
+        this.r,
+        items[layout.moderatorWidget] as Api.ModWidget
+      ),
+      menu:
+        layout.topbar.order.length === 0
+          ? null
+          : parseMenuWidget(
+              this.r,
+              items[layout.topbar.order[0]] as Api.MenuWidget
+            ),
+      sidebar: layout.sidebar.order.map((i) =>
+        parseSidebarWidget(this.r, items[i] as Api.SidebarWidget)
+      ),
+    };
   }
 
   async style(): Promise<Style> {

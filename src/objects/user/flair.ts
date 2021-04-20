@@ -19,7 +19,7 @@ interface EmojiFlair {
   image: BaseImage;
 }
 
-export function flairPart(f: Api.UserFlair): FlairPart {
+export function flairPart(f: Api.Flair): FlairPart {
   switch (f.e) {
     case "text":
       return {
