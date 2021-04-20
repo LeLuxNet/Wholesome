@@ -22,9 +22,10 @@ export {
   Traffic,
 } from "./objects/subreddit";
 export {
+  Flair,
+  FlairPart,
   FullUser,
   SubmissionUser,
   Trophy,
   User,
-  UserFlair,
 } from "./objects/user";

@@ -1,6 +1,9 @@
 import Fetchable from "../../interfaces/fetchable";
+import { get, GetOptions } from "../../list/get";
+import { stream, StreamCallback, StreamOptions } from "../../list/stream";
 import Reddit from "../../reddit";
 import { Multi } from "../multi";
+import { FullComment, FullSubmission } from "../post";
 import { FullUser } from "./full";
 import { Trophy } from "./trophy";
 
@@ -57,6 +60,47 @@ export class User implements Fetchable<FullUser> {
       fields: { name: this.name },
     });
     return res.data.map((d) => new Multi(this.r, d.data));
+  }
+
+  submissions(options?: GetOptions) {
+    return get<FullSubmission, Api.SubmissionWrap>(
+      this.r,
+      { url: "user/{name}/submitted.json", fields: { name: this.name } },
+      (d) => new FullSubmission(this.r, d.data),
+      options
+    );
+  }
+
+  submissionsStream(
+    fn: StreamCallback<FullSubmission>,
+    options?: StreamOptions
+  ) {
+    return stream<FullSubmission, Api.SubmissionWrap>(
+      this.r,
+      { url: "user/{name}/submitted.json", fields: { name: this.name } },
+      (d) => new FullSubmission(this.r, d.data),
+      fn,
+      options
+    );
+  }
+
+  comments(options?: GetOptions) {
+    return get<FullComment, Api.CommentWrap>(
+      this.r,
+      { url: "user/{name}/comments.json", fields: { name: this.name } },
+      (d) => new FullComment(this.r, d.data),
+      options
+    );
+  }
+
+  commentsStream(fn: StreamCallback<FullComment>, options?: StreamOptions) {
+    return stream<FullComment, Api.CommentWrap>(
+      this.r,
+      { url: "user/{name}/comments.json", fields: { name: this.name } },
+      (d) => new FullComment(this.r, d.data),
+      fn,
+      options
+    );
   }
 
   async sendMessage(subject: string, body: string) {
