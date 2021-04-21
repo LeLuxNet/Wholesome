@@ -34,6 +34,7 @@ declare namespace Api {
     title: string;
     link_flair_richtext: Flair[];
     subreddit_name_prefixed: string;
+    collections?: SubmissionCollection[];
     hidden: boolean;
     pwls: 0 | 6;
     link_flair_css_class: "" | null;

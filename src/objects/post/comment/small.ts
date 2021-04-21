@@ -25,8 +25,8 @@ export default class Comment
     if (children.length === 0) return null;
     return new FullComment(
       this.r,
-      this.submission,
-      children[0].data as Api.Comment // TODO: Check for 'more' kind
+      children[0].data as Api.Comment, // TODO: Check for 'more' kind
+      this.submission
     );
   }
 }

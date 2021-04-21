@@ -14,7 +14,7 @@ declare namespace Api {
 
     author_patreon_flair: false;
     author_flair_css_class: "" | string | null;
-    author_flair_richtext: UserFlair[];
+    author_flair_richtext: Flair[];
     author_flair_text_color: "light" | "dark" | null;
     author_flair_type: FlairType;
     author_flair_text: null;

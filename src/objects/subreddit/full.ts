@@ -2,6 +2,7 @@ import Identified from "../../interfaces/identified";
 import Content from "../../media/content";
 import { BaseImage, Image } from "../../media/image";
 import Reddit from "../../reddit";
+import { Collection } from "../collection";
 import Subreddit from "./small";
 
 export default class FullSubreddit extends Subreddit implements Identified {
@@ -110,5 +111,13 @@ export default class FullSubreddit extends Subreddit implements Identified {
     this.allowImages = data.allow_images;
     this.allowGifs = data.allow_videogifs;
     this.allowVideos = data.allow_videos;
+  }
+
+  async collections() {
+    const res = await this.r.api.get<Api.SubmissionCollection[]>(
+      "api/v1/collections/subreddit_collections.json",
+      { params: { sr_fullname: this.fullId } }
+    );
+    return res.data.map((c) => new Collection(this.r, c));
   }
 }

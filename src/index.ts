@@ -7,6 +7,7 @@ export { default as Content } from "./media/content";
 export { default as Embed } from "./media/embed";
 export { Image } from "./media/image";
 export { default as Poll } from "./media/poll";
+export { Collection } from "./objects/collection";
 export {
   Comment,
   FullComment,

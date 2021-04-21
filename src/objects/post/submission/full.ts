@@ -7,6 +7,7 @@ import GIF from "../../../media/gif";
 import { Image, Stream, Video } from "../../../media/image";
 import Poll, { PollOption } from "../../../media/poll";
 import Reddit from "../../../reddit";
+import { Collection } from "../../collection";
 import { Subreddit } from "../../subreddit";
 import { SubmissionUser } from "../../user";
 import { Flair, flairPart } from "../../user/flair";
@@ -72,6 +73,8 @@ export default class FullSubmission extends Submission implements FullPost {
    * Whether the subreddit allows this submission to be crossposted
    */
   crosspostable: boolean;
+
+  collections: Collection[];
 
   link: string | null;
   rawLink: string;
@@ -158,6 +161,10 @@ export default class FullSubmission extends Submission implements FullPost {
         : new FullSubmission(r, data.crosspost_parent_list[0]);
     this.crosspostCount = data.num_crossposts;
     this.crosspostable = data.is_crosspostable;
+
+    this.collections = data.collections
+      ? data.collections.map((c) => new Collection(this.r, c))
+      : [];
 
     this.link =
       data.is_reddit_media_domain ||

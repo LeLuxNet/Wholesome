@@ -6,6 +6,7 @@ import bodyInterceptor from "./http/body";
 import debugInterceptor from "./http/debug";
 import errorInterceptor from "./http/error";
 import fieldInterceptor from "./http/fields";
+import { Collection } from "./objects/collection";
 import { Submission } from "./objects/post";
 import Self from "./objects/self";
 import { Subreddit } from "./objects/subreddit";
@@ -198,6 +199,14 @@ export default class Reddit {
   get self() {
     if (!this.auth) return null;
     return new Self(this, this.auth.username);
+  }
+
+  async collections(id: string) {
+    const res = await this.api.get<Api.Collection>(
+      "api/v1/collections/collection.json",
+      { params: { collection_id: id, include_links: 0 } }
+    );
+    return new Collection(this, res.data);
   }
 
   async trendingSubreddits() {

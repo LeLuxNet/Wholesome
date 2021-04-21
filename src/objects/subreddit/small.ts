@@ -96,6 +96,19 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     };
   }
 
+  async moderators() {
+    const res = await this.r.api.get<Api.SubredditModerators>(
+      "r/{name}/about/moderators",
+      { fields: { name: this.name } }
+    );
+    return res.data.data.children.map((m) => {
+      return {
+        user: this.r.user(m.name),
+        date: new Date(m.date),
+      };
+    });
+  }
+
   async join(join: boolean = true) {
     this.r.needScopes("subscribe");
     await this.r.api.post("api/subscribe", {
