@@ -40,7 +40,7 @@ it("should get next items", async () => {
 it("should refetch same items", async () => {
   const p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
     r,
-    { url: "r/earthporn/top.json" },
+    { url: "r/earthporn/new.json" },
     (d) => new FullSubmission(r, d.data),
     80
   );
@@ -50,4 +50,31 @@ it("should refetch same items", async () => {
   expect(pageItems(p).length).toBe(
     unique([...pageItems(p), ...pageItems(p2)]).length
   );
+});
+
+it("should be able to call next multiple times", async () => {
+  var p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
+    r,
+    { url: "r/earthporn/top.json" },
+    (d) => new FullSubmission(r, d.data),
+    5
+  );
+
+  for (let i = 0; i < 10; i++) {
+    p = await p.next(5);
+  }
+});
+
+it("should have no previous items", async () => {
+  var p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
+    r,
+    { url: "r/earthporn/top.json" },
+    (d) => new FullSubmission(r, d.data),
+    5
+  );
+
+  const pr = await p.prev(10);
+
+  expect(p.items.length).toBe(5);
+  expect(pr.items.length).toBe(0);
 });

@@ -3,6 +3,7 @@ import { stream, StreamCallback, StreamOptions } from "../../../list/stream";
 import Action from "../../../media/actions";
 import Content from "../../../media/content";
 import Embed from "../../../media/embed";
+import Event from "../../../media/event";
 import GIF from "../../../media/gif";
 import { Image, Stream, Video } from "../../../media/image";
 import Poll, { PollOption } from "../../../media/poll";
@@ -43,6 +44,8 @@ export default class FullSubmission extends Submission implements FullPost {
 
   robotIndexable: boolean;
 
+  commentCount: number;
+
   saved: boolean;
   hidden: boolean;
   pinned: boolean;
@@ -55,8 +58,6 @@ export default class FullSubmission extends Submission implements FullPost {
   deleted: boolean;
   approved: Action | null;
   removed: Action | null;
-
-  commentCount: number;
 
   /**
    * The crosspost this submission contains
@@ -75,6 +76,8 @@ export default class FullSubmission extends Submission implements FullPost {
   crosspostable: boolean;
 
   collections: Collection[];
+
+  event: Event | null;
 
   link: string | null;
   rawLink: string;
@@ -127,6 +130,8 @@ export default class FullSubmission extends Submission implements FullPost {
 
     this.robotIndexable = data.is_robot_indexable;
 
+    this.commentCount = data.num_comments;
+
     this.saved = data.saved;
     this.hidden = data.hidden;
     this.pinned = data.pinned;
@@ -153,8 +158,6 @@ export default class FullSubmission extends Submission implements FullPost {
             at: new Date(data.banned_at_utc! * 1000),
           };
 
-    this.commentCount = data.num_comments;
-
     this.crosspost =
       data.crosspost_parent_list === undefined
         ? null
@@ -165,6 +168,14 @@ export default class FullSubmission extends Submission implements FullPost {
     this.collections = data.collections
       ? data.collections.map((c) => new Collection(this.r, c))
       : [];
+
+    this.event = data.event_start
+      ? {
+          from: new Date(data.event_start * 1000),
+          to: new Date(data.event_end! * 1000),
+          isLive: data.event_is_live!,
+        }
+      : null;
 
     this.link =
       data.is_reddit_media_domain ||

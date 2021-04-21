@@ -32,6 +32,7 @@ declare namespace Api {
     gilded: number;
     clicked: boolean;
     title: string;
+    event_start?: number;
     link_flair_richtext: Flair[];
     subreddit_name_prefixed: string;
     collections?: SubmissionCollection[];
@@ -100,8 +101,10 @@ declare namespace Api {
     num_reports: null;
     distinguished: Distinguish;
     subreddit_id: string;
+    event_end?: number;
     mod_reason_by: null;
     removal_reason: null;
+    event_is_live?: boolean;
     link_flair_background_color: "" | string;
     is_robot_indexable: boolean;
     num_duplicates: number;

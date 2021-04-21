@@ -1,5 +1,6 @@
 import Fetchable from "../../../interfaces/fetchable";
 import Reddit from "../../../reddit";
+import CommentTree from "../comment/tree";
 import Post from "../small";
 import FullSubmission from "./full";
 
@@ -19,6 +20,13 @@ export default class Submission
       fields: { id: this.id },
     });
     return new FullSubmission(this.r, res.data);
+  }
+
+  async comments() {
+    const res = await this.r.api.get<Api.GetSubmission>("comments/{id}.json", {
+      fields: { id: this.id },
+    });
+    return new CommentTree(this.r, this, res.data[1].data.children);
   }
 
   async follow(follow: boolean = true) {

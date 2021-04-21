@@ -39,7 +39,8 @@ export default class Page<I extends Identified, T> {
       this.config,
       this.map,
       count,
-      this.items[0].fullId
+      undefined,
+      this.items[this.items.length - 1].fullId
     );
   }
 
@@ -49,8 +50,7 @@ export default class Page<I extends Identified, T> {
       this.config,
       this.map,
       count,
-      undefined,
-      this.items[this.items.length - 1].fullId
+      this.items[0].fullId
     );
   }
 }

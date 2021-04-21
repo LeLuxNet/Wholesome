@@ -10,6 +10,7 @@ export { default as Poll } from "./media/poll";
 export { Collection } from "./objects/collection";
 export {
   Comment,
+  CommentTree,
   FullComment,
   FullSubmission,
   Submission,

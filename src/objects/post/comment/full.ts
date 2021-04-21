@@ -7,6 +7,7 @@ import { VoteDirection } from "../small";
 import { GivenAward } from "../submission/award";
 import Submission from "../submission/small";
 import Comment from "./small";
+import CommentTree from "./tree";
 
 export default class FullComment extends Comment implements FullPost {
   author: SubmissionUser | null;
@@ -23,6 +24,8 @@ export default class FullComment extends Comment implements FullPost {
 
   awardCount: number;
   awards: GivenAward[];
+
+  comments: CommentTree;
 
   saved: boolean;
   archived: boolean;
@@ -52,6 +55,12 @@ export default class FullComment extends Comment implements FullPost {
 
     this.awardCount = data.total_awards_received;
     this.awards = data.all_awardings.map((a) => new GivenAward(a));
+
+    this.comments = new CommentTree(
+      r,
+      this.submission,
+      data.replies ? data.replies.data.children : []
+    );
 
     this.saved = data.saved;
     this.archived = data.archived;
