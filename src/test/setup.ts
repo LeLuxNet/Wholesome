@@ -10,6 +10,14 @@ declare global {
   }
 }
 
+jest.setTimeout(30 * 1000);
+
+export async function getSize(url: string): Promise<[number, number]> {
+  const res = await axios.get(url, { responseType: "arraybuffer" });
+  const meta = await sharp(res.data).metadata();
+  return [meta.width!, meta.height!];
+}
+
 expect.extend({
   rightSize: async (image: Image) => {
     const resolution = [image.native];
@@ -19,14 +27,13 @@ expect.extend({
 
     const res = await Promise.all(
       resolution.map<Promise<jest.CustomMatcherResult>>(async (r) => {
-        const res = await axios.get(r.url, { responseType: "arraybuffer" });
-        const meta = await sharp(res.data).metadata();
+        const [width, height] = await getSize(r.url);
 
-        if (r.width !== meta.width || r.height !== meta.height) {
+        if (r.width !== width || r.height !== height) {
           return {
             pass: false,
             message: () =>
-              `Expect image from ${r.url} to be ${r.width}x${r.height}px not ${meta.width}x${meta.height}px`,
+              `Expect image from ${r.url} to be ${r.width}x${r.height}px not ${width}x${height}px`,
           };
         } else {
           return {

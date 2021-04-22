@@ -59,6 +59,7 @@ export default class FullComment extends Comment implements FullPost {
     this.comments = new CommentTree(
       r,
       this.submission,
+      this,
       data.replies ? data.replies.data.children : []
     );
 

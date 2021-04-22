@@ -163,7 +163,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
       "r/{name}/about/sticky.json",
       { fields: { name: this.name }, params: { num } }
     );
-    return new FullSubmission(this.r, res.data);
+    return new FullSubmission(this.r, res.data[0].data.children[0].data);
   }
 
   async randomSubmission() {
@@ -171,7 +171,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
       "r/{name}/random.json",
       { fields: { name: this.name } }
     );
-    return new FullSubmission(this.r, res.data);
+    return new FullSubmission(this.r, res.data[0].data.children[0].data);
   }
 
   hot(options?: GetOptions) {

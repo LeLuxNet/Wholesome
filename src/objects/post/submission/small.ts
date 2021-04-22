@@ -19,14 +19,14 @@ export default class Submission
     const res = await this.r.api.get<Api.GetSubmission>("comments/{id}.json", {
       fields: { id: this.id },
     });
-    return new FullSubmission(this.r, res.data);
+    return new FullSubmission(this.r, res.data[0].data.children[0].data);
   }
 
   async comments() {
     const res = await this.r.api.get<Api.GetSubmission>("comments/{id}.json", {
       fields: { id: this.id },
     });
-    return new CommentTree(this.r, this, res.data[1].data.children);
+    return new CommentTree(this.r, this, this, res.data[1].data.children);
   }
 
   async follow(follow: boolean = true) {

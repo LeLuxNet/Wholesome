@@ -93,8 +93,7 @@ export default class FullSubmission extends Submission implements FullPost {
   poll: Poll | null;
   embed: Embed | null;
 
-  constructor(r: Reddit, full: Api.GetSubmission | Api.Submission) {
-    const data = full instanceof Array ? full[0].data.children[0].data : full;
+  constructor(r: Reddit, data: Api.Submission) {
     super(r, data.id);
 
     this.title = data.title;

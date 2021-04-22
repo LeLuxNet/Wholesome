@@ -1,9 +1,11 @@
 import { Comment, FullComment, Submission } from "..";
 import Reddit from "../../../reddit";
 
-export default class CommentTree {
+export default class CommentTree<T = Submission | FullComment> {
   r: Reddit;
+
   submission: Submission;
+  parent: T;
 
   /** Already loaded comments */
   loadedComments: FullComment[] = [];
@@ -11,9 +13,15 @@ export default class CommentTree {
   /** Already loaded and comment that can be loaded later as single objects */
   allComments: (FullComment | Comment)[] = [];
 
-  constructor(r: Reddit, submission: Submission, data: Api.CommentMoreWrap[]) {
+  constructor(
+    r: Reddit,
+    submission: Submission,
+    parent: T,
+    data: Api.CommentMoreWrap[]
+  ) {
     this.r = r;
     this.submission = submission;
+    this.parent = parent;
 
     for (const d of data) {
       if (d.kind === "t1") {

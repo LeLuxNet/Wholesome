@@ -30,20 +30,7 @@ export class Award {
     this.endDate =
       data.end_date === null ? null : new Date(data.end_date * 1000);
 
-    this.icon = {
-      native: {
-        url: data.icon_url,
-        width: data.icon_width,
-        height: data.icon_height,
-      },
-      resized: data.resized_icons.map((i) => {
-        return {
-          url: i.url,
-          width: i.width,
-          height: i.height,
-        };
-      }),
-    };
+    this.icon = image(data.icon_url, data.icon_width, data.resized_icons);
 
     if (data.tiers_by_required_awardings !== null) {
       Object.defineProperty(this, "_tierIcons", {
@@ -52,20 +39,11 @@ export class Award {
 
       Object.entries(data.tiers_by_required_awardings).forEach(
         ([key, i]) =>
-          (this._tierIcons![parseInt(key)] = {
-            native: {
-              url: i.icon.url,
-              width: i.icon.width,
-              height: i.icon.height,
-            },
-            resized: i.resized_icons.map((i) => {
-              return {
-                url: i.url,
-                width: i.width,
-                height: i.height,
-              };
-            }),
-          })
+          (this._tierIcons![parseInt(key)] = image(
+            i.icon.url,
+            i.icon.width,
+            i.resized_icons
+          ))
       );
 
       var lastTier = this.icon;
@@ -98,4 +76,26 @@ export class GivenAward extends Award {
     this.count = data.count;
     this.icon = this.tierIcon(data.count);
   }
+}
+
+function image(u: string, w: number, r: Api.Image[]) {
+  var size = w;
+  if (u.startsWith("https://www.redditstatic.com")) {
+    const parts = u.split("_");
+    size = parseInt(parts[parts.length - 1].split(".")[0]);
+  }
+
+  const res: Image = {
+    native: { url: u, width: size, height: size },
+    resized: [],
+  };
+
+  if (u !== r[0].url) {
+    r.forEach((i) => {
+      if (i.width == 48) return;
+      res.resized!.push({ url: i.url, width: i.width, height: i.height });
+    });
+  }
+
+  return res;
 }
