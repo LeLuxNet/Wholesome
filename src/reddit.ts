@@ -128,7 +128,10 @@ export default class Reddit {
 
     this.auth = {
       username,
+
       accessToken: res.data.access_token,
+      refreshToken: res.data.refresh_token,
+
       scopes,
     };
 

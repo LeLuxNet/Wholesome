@@ -33,6 +33,7 @@ export interface Auth {
   username?: string;
 
   accessToken: string;
+  refreshToken?: string;
 
   scopes: "*" | Set<Scope>;
 }
