@@ -3,7 +3,7 @@ import { r } from "../../test/setup";
 
 var c: Collection;
 beforeAll(async () => {
-  c = await r.collections("84359211-be58-4c98-87cd-26bc10c59fb3");
+  c = await r.collection("84359211-be58-4c98-87cd-26bc10c59fb3");
 });
 
 it("should have title", () => expect(c.title).toBe("searching for starman"));

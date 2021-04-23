@@ -17,6 +17,7 @@ class _Post implements Deletable, Identified {
     return this.fullId;
   }
 
+  /** @internal */
   constructor(r: Reddit, id: string, fullId: string) {
     this.r = r;
 
@@ -24,9 +25,7 @@ class _Post implements Deletable, Identified {
     this.fullId = fullId;
   }
 
-  /**
-   * Deleting the submission or comment
-   */
+  /** Delete this thing */
   async delete() {
     this.r.needScopes("edit");
     await this.r.api.post("api/del", { id: this.fullId });
@@ -35,9 +34,6 @@ class _Post implements Deletable, Identified {
   /**
    * Casting a vote on a submission or comment
    * @param dir The direction to vote
-   * 1 = upvote
-   * 0 = no vote
-   * -1 = downvote
    */
   async vote(dir: VoteDirection) {
     this.r.needScopes("vote");
@@ -55,13 +51,13 @@ class _Post implements Deletable, Identified {
 
   /**
    * Edit the body of a submission or comment
-   * @param {string} text The new body in markdown
+   * @param body The new body in markdown
    */
-  async edit(text: string) {
+  async edit(body: string) {
     this.r.needScopes("edit");
     await this.r.api.post("api/editusertext", {
       thing_id: this.fullId,
-      text,
+      text: body,
     });
   }
 
@@ -97,6 +93,11 @@ class _Post implements Deletable, Identified {
   async approve() {
     this.r.needScopes("modposts");
     await this.r.api.post("api/approve", { id: this.fullId });
+  }
+
+  async comment(body: string) {
+    this.r.needScopes("submit");
+    await this.r.api.post("api/comment", { thing_id: this.fullId, text: body });
   }
 }
 

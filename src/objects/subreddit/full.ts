@@ -47,6 +47,7 @@ export default class FullSubreddit extends Subreddit implements Identified {
   allowGifs: boolean;
   allowVideos: boolean;
 
+  /** @internal */
   constructor(r: Reddit, data: Api.Subreddit) {
     super(r, data.display_name);
 

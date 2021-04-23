@@ -21,6 +21,7 @@ export class Collection implements Deletable {
   author: User;
   subreddit: Subreddit;
 
+  /** @internal */
   constructor(r: Reddit, data: Api.SubmissionCollection) {
     this.r = r;
     this.id = data.collection_id;

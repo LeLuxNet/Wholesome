@@ -7,6 +7,7 @@ export class Award {
 
   coinPrice: number;
   coinReward: number;
+
   daysOfPremium: number;
 
   startDate: Date | null;
@@ -16,6 +17,7 @@ export class Award {
 
   private _tierIcons?: Image[];
 
+  /** @internal */
   constructor(data: Api.Award) {
     this.id = data.id;
     this.name = data.name;
@@ -71,6 +73,7 @@ export class Award {
 export class GivenAward extends Award {
   count: number;
 
+  /** @internal */
   constructor(data: Api.Award) {
     super(data);
     this.count = data.count;

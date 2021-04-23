@@ -10,6 +10,7 @@ export class SubmissionUser extends User {
 
   flair: Flair | null;
 
+  /** @internal */
   constructor(r: Reddit, data: Api.Submission | Api.Comment) {
     super(r, data.author);
 

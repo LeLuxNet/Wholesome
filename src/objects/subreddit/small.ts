@@ -30,6 +30,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     return this.name;
   }
 
+  /** @internal */
   constructor(r: Reddit, name: string) {
     this.r = r;
 
@@ -79,6 +80,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     };
   }
 
+  /** Get structured subreddit styles */
   async style(): Promise<Style> {
     const res = await this.r.api.get<Api.Style>(
       "api/v1/structured_styles/{name}.json",

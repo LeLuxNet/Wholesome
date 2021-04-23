@@ -37,6 +37,7 @@ export default class FullComment extends Comment implements FullPost {
   approved: Action | null;
   removed: Action | null;
 
+  /** @internal */
   constructor(r: Reddit, data: Api.Comment, submission?: Submission) {
     super(r, data.id, submission || r.submission(data.link_id));
 

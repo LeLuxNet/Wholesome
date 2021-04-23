@@ -1,19 +1,23 @@
 import { BaseImage } from "../../media/image";
 
 export interface Flair {
+  /** Light or dark text color based on the {@link background} color */
   text: "light" | "dark";
+
+  /** The background color of the flair */
   background: string | null;
+
   parts: FlairPart[];
 }
 
 export type FlairPart = TextFlair | EmojiFlair;
 
-interface TextFlair {
+export interface TextFlair {
   type: "text";
   content: string;
 }
 
-interface EmojiFlair {
+export interface EmojiFlair {
   type: "emoji";
   emoji: string;
   image: BaseImage;

@@ -2,10 +2,11 @@ import { AxiosRequestConfig } from "axios";
 import Identified from "../interfaces/identified";
 import Reddit from "../reddit";
 
-export default class Page<I extends Identified, T> {
+export default class Page<I extends Identified, T = any> {
   r: Reddit;
   config: AxiosRequestConfig;
-  map: (d: T) => I;
+
+  private map: (d: T) => I;
 
   items: I[];
 
@@ -22,6 +23,9 @@ export default class Page<I extends Identified, T> {
     this.items = items;
   }
 
+  /**
+   * Refetch the current page
+   */
   fetch() {
     return fetchPage(
       this.r,
@@ -33,6 +37,10 @@ export default class Page<I extends Identified, T> {
     );
   }
 
+  /**
+   * Fetch next page after this
+   * @param count count of items
+   */
   next(count: number) {
     return fetchPage(
       this.r,
@@ -44,6 +52,10 @@ export default class Page<I extends Identified, T> {
     );
   }
 
+  /**
+   * Fetch previous page before this
+   * @param count count of items
+   */
   prev(count: number) {
     return fetchPage(
       this.r,

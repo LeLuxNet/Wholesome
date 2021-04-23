@@ -4,7 +4,10 @@ import Reddit from "../../../reddit";
 export default class CommentTree<T = Submission | FullComment> {
   r: Reddit;
 
+  /** The submission this comment was posted under */
   submission: Submission;
+
+  /** The comment above this or the submission in case of a top comment */
   parent: T;
 
   /** Already loaded comments */
@@ -13,6 +16,7 @@ export default class CommentTree<T = Submission | FullComment> {
   /** Already loaded and comment that can be loaded later as single objects */
   allComments: (FullComment | Comment)[] = [];
 
+  /** @internal */
   constructor(
     r: Reddit,
     submission: Submission,
@@ -36,6 +40,11 @@ export default class CommentTree<T = Submission | FullComment> {
     }
   }
 
+  /**
+   * Fetch all not fetched comments and return them together with the {@link loadedComments} comments
+   *
+   * @returns the comment or `null` if it has been deleted
+   */
   fetchAll(): Promise<(FullComment | null)[]> {
     return Promise.all(
       this.allComments.map((c) => {
@@ -48,6 +57,11 @@ export default class CommentTree<T = Submission | FullComment> {
     );
   }
 
+  /**
+   * Fetch all not fetched comments
+   *
+   * @returns the comment or `null` if it has been deleted
+   */
   fetchMissing() {
     const res: Promise<FullComment | null>[] = [];
     this.allComments.forEach((c) => {

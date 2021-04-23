@@ -5,10 +5,12 @@ export { Scope } from "./auth/scopes";
 export { default as Page } from "./list/page";
 export { default as Content } from "./media/content";
 export { default as Embed } from "./media/embed";
-export { Image } from "./media/image";
+export { Image, Stream, Video } from "./media/image";
 export { default as Poll } from "./media/poll";
 export { Collection } from "./objects/collection";
+export { Message } from "./objects/message";
 export {
+  Award,
   Comment,
   CommentTree,
   FullComment,

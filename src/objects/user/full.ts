@@ -29,6 +29,7 @@ export class FullUser extends User implements Identified {
   awardeeKarma: number;
   awarderKarma: number;
 
+  /** @internal */
   constructor(r: Reddit, data: Api.User) {
     super(r, data.name);
 

@@ -7,6 +7,7 @@ import Event from "../../../media/event";
 import GIF from "../../../media/gif";
 import { Image, Stream, Video } from "../../../media/image";
 import Poll, { PollOption } from "../../../media/poll";
+import Promotion from "../../../media/promotion";
 import Reddit from "../../../reddit";
 import { Collection } from "../../collection";
 import { Subreddit } from "../../subreddit";
@@ -18,19 +19,29 @@ import { GivenAward } from "./award";
 import Submission from "./small";
 
 export default class FullSubmission extends Submission implements FullPost {
+  /** The title of the submission. */
   title: string;
 
+  /** The user who posted this submission or null if he's 'u/[deleted]' */
   author: SubmissionUser | null;
+
+  /** The subreddit this submission was posted on. */
   subreddit: Subreddit;
 
+  /** The date submission was created. */
   created: Date;
+  /** The date this submission body was edited or `null` if it wasn't. */
   edited: Date | null;
 
+  /** The URL this submission can be accessed. To get the link this submission container see {@link link}. */
   url: string;
 
+  /** The *fuzzed* score the submission has or `null` if it's {@link scoreHidden|hidden}. */
   score: number | null;
+  /** Whether the score is hidden. */
   scoreHidden: boolean;
   upvoteRatio: number;
+  /** The vote the user casted on this submission. Use {@link vote} to change it. */
   voted: VoteDirection;
 
   awardCount: number;
@@ -59,9 +70,7 @@ export default class FullSubmission extends Submission implements FullPost {
   approved: Action | null;
   removed: Action | null;
 
-  /**
-   * The crosspost this submission contains
-   */
+  /** The crosspost this submission contains */
   crosspost: FullSubmission | null;
 
   /**
@@ -70,11 +79,10 @@ export default class FullSubmission extends Submission implements FullPost {
    */
   crosspostCount: number;
 
-  /**
-   * Whether the subreddit allows this submission to be crossposted
-   */
+  /** Whether the subreddit allows this submission to be crossposted */
   crosspostable: boolean;
 
+  /** The collections this submission is a part of */
   collections: Collection[];
 
   event: Event | null;
@@ -92,7 +100,9 @@ export default class FullSubmission extends Submission implements FullPost {
 
   poll: Poll | null;
   embed: Embed | null;
+  promoted: Promotion | null;
 
+  /** @internal */
   constructor(r: Reddit, data: Api.Submission) {
     super(r, data.id);
 
@@ -303,6 +313,10 @@ export default class FullSubmission extends Submission implements FullPost {
         prediction: data.poll_data.is_prediction,
       };
     }
+
+    this.promoted = data.call_to_action
+      ? { button: data.call_to_action }
+      : null;
   }
 
   /**

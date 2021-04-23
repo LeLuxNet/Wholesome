@@ -8,6 +8,7 @@ export class Trophy {
 
   icon: Image;
 
+  /** @internal */
   constructor(data: Api.Trophy) {
     this.name = data.name;
     this.description = data.description;

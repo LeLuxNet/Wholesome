@@ -15,6 +15,7 @@ export class User implements Fetchable<FullUser> {
     return this.name;
   }
 
+  /** @internal */
   constructor(r: Reddit, name: string) {
     this.r = r;
     this.name = name;

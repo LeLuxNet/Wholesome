@@ -20,6 +20,7 @@ interface RedditConstructor {
 }
 
 export default class Reddit {
+  /** @internal */
   api: AxiosInstance;
 
   auth?: Auth;
@@ -156,6 +157,7 @@ export default class Reddit {
     )}`;
   }
 
+  /** @internal */
   needScopes(...scopes: Scope[]) {
     const auth = this.needAuth;
     if (auth.scopes === "*") return;
@@ -171,17 +173,30 @@ export default class Reddit {
       }`;
   }
 
+  /** @internal */
   get needAuth() {
     if (!this.auth) throw "You need to be authenticated to use this function";
     return this.auth;
   }
 
+  /** @internal */
   get needUsername() {
     if (!this.auth || !this.auth.username)
       throw "You need to be authenticated with a user";
     return this.auth.username;
   }
 
+  /**
+   * Get a submission
+   *
+   * @param id The id with or without a prefix
+   *
+   * @example Get the title of a submission
+   * ```ts
+   * const s = await r.submission("87").fetch();
+   * console.log(s.title); // The Downing Street Memo
+   * ```
+   */
   submission(id: string) {
     if (id.startsWith("t3_")) id = id.slice(3);
     return new Submission(this, id);
@@ -191,6 +206,7 @@ export default class Reddit {
     return new Subreddit(this, name);
   }
 
+  /** The r/all *pseudo* subreddit */
   get all() {
     return this.subreddit("all");
   }
@@ -204,7 +220,7 @@ export default class Reddit {
     return new Self(this, this.auth.username);
   }
 
-  async collections(id: string) {
+  async collection(id: string) {
     const res = await this.api.get<Api.Collection>(
       "api/v1/collections/collection.json",
       { params: { collection_id: id, include_links: 0 } }

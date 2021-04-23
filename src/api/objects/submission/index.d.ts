@@ -25,9 +25,12 @@ declare namespace Api {
 
   interface BaseSubmission extends Thing, Votable, Authored, Created {
     approved_at_utc: number | null;
+    priority_id?: null;
     subreddit: string;
     user_reports: unknown[];
+    adserver_click_url?: null;
     saved: boolean;
+    promoted_by?: null;
     mod_reason_title: null;
     gilded: number;
     clicked: boolean;
@@ -39,12 +42,14 @@ declare namespace Api {
     hidden: boolean;
     pwls: 0 | 6;
     link_flair_css_class: "" | null;
+    impression_id?: null;
     thumbnail_height: number | null;
     top_awarded_type: null;
     parent_whitelist_status: WhitelistStatus;
     hide_score: boolean;
     quarantine: boolean;
-    link_flair_text_color: "dark";
+    href_url?: string;
+    link_flair_text_color: "light" | "dark";
     upvote_ratio: number;
     subreddit_type: SubredditType;
     total_awards_received: number;
@@ -56,6 +61,7 @@ declare namespace Api {
       scrubber_media_url: string;
     };
     secure_media?: SecureMedia | null;
+    outbound_link?: {};
     is_reddit_media_domain: boolean;
     is_meta: boolean;
     category: null;
@@ -66,13 +72,20 @@ declare namespace Api {
     thumbnail: "default" | "self" | "nsfw" | "spoiler" | string;
     edited: number | false;
     gildings: Gildings;
+    sk_ad_network_data?: null;
     post_hint?: "image";
+    promoted_url?: null;
+    adserver_imp_pixel?: null;
+    is_blank?: false;
     content_categories: null;
     mod_note: null;
     crosspost_parent_list: Submission[];
     created: number;
     link_flair_type: FlairType;
-    wls: 6;
+    wls: 6 | null;
+    third_party_tracking?: null;
+    impression_id_str?: null;
+    mobile_ad_url?: string;
     removed_by_category: null;
     banned_by: string | null;
     domain: string;
@@ -90,13 +103,17 @@ declare namespace Api {
     all_awardings: Award[];
     awarders: [];
     media_only: boolean;
+    third_party_trackers?: unknown[];
     link_flair_template_id: string;
     can_gild: boolean;
     spoiler: boolean;
     locked: boolean;
+    call_to_action?: string;
     treatment_tags: [];
     rte_mode?: "markdown";
+    promoted?: boolean;
     visited: boolean;
+    eventsOnRender?: unknown[];
     removed_by: null;
     num_reports: null;
     distinguished: Distinguish;
@@ -113,6 +130,7 @@ declare namespace Api {
     num_comments: number;
     send_replies: true;
     media: null;
+    events?: unknown[];
     contest_mode: boolean;
     poll_data?: Poll;
     permalink: string;

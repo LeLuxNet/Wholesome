@@ -9,6 +9,7 @@ export default class Comment
   implements Fetchable<FullComment | null> {
   submission: Submission;
 
+  /** @internal */
   constructor(r: Reddit, id: string, submission: Submission) {
     super(r, id, `t1_${id}`);
 

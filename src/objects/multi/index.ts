@@ -25,6 +25,7 @@ export class Multi implements Deletable, Fetchable<Multi> {
 
   subreddits: Subreddit[];
 
+  /** @internal */
   constructor(r: Reddit, data: Api.Multi) {
     this.r = r;
 

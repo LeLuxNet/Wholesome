@@ -16,6 +16,7 @@ export class Message implements Identified {
 
   body: Content;
 
+  /** @internal */
   constructor(r: Reddit, data: Api.Message) {
     this.r = r;
 

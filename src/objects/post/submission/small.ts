@@ -7,6 +7,7 @@ import FullSubmission from "./full";
 export default class Submission
   extends Post
   implements Fetchable<FullSubmission> {
+  /** @internal */
   constructor(r: Reddit, id: string) {
     super(r, id, `t3_${id}`);
   }
@@ -38,6 +39,7 @@ export default class Submission
   }
 
   async markOc(oc: boolean = true) {
+    this.r.needScopes("modposts");
     await this.r.api.post("api/set_original_content", {
       fullname: this.fullId,
       should_set_oc: oc,
@@ -45,14 +47,21 @@ export default class Submission
   }
 
   async markNsfw(nsfw: boolean = true) {
+    this.r.needScopes("modposts");
     await this.r.api.post(`api/${nsfw ? "" : "un"}marknsfw`, {
       id: this.fullId,
     });
   }
 
   async markSpoiler(spoiler: boolean = true) {
+    this.r.needScopes("modposts");
     await this.r.api.post(`api/${spoiler ? "" : "un"}spoiler`, {
       id: this.fullId,
     });
+  }
+
+  async markVisited() {
+    this.r.needScopes("save");
+    await this.r.api.post("api/store_visits", { links: this.fullId });
   }
 }
