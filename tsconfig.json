@@ -6,7 +6,6 @@
     "outDir": "dist",
     "rootDir": "src",
     "moduleResolution": "node",
-    "removeComments": true,
     "downlevelIteration": true,
     "strict": true,
     "strictNullChecks": true,
@@ -20,7 +19,7 @@
     "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "typeRoots": ["src/typings", "node_modules/@types"]
+    "typeRoots": ["src/types", "node_modules/@types"]
   },
   "exclude": ["dist", "src/test", "**/**.test.ts"]
 }

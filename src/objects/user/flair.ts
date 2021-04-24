@@ -19,6 +19,7 @@ export interface TextFlair {
 
 export interface EmojiFlair {
   type: "emoji";
+  /** The emoji name surrounded by colons */
   emoji: string;
   image: BaseImage;
 }

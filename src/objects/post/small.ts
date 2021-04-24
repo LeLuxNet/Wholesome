@@ -33,7 +33,16 @@ class _Post implements Deletable, Identified {
 
   /**
    * Casting a vote on a submission or comment
-   * @param dir The direction to vote
+   *
+   * **Note: votes must be cast by humans.**
+   * That is, API clients proxying a human's action one-for-one are OK, but bots deciding how to vote on content or amplifying a human's vote are not.
+   * See {@link https://www.reddit.com/rules|the reddit rules} for more details on what constitutes vote cheating.
+   *
+   * @param dir The direction of the vote
+   *
+   *  1 = upvote \
+   *  0 = unvote \
+   * -1 = downvote
    */
   async vote(dir: VoteDirection) {
     this.r.needScopes("vote");

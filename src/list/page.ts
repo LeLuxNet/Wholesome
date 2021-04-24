@@ -4,12 +4,13 @@ import Reddit from "../reddit";
 
 export default class Page<I extends Identified, T = any> {
   r: Reddit;
-  config: AxiosRequestConfig;
 
+  private config: AxiosRequestConfig;
   private map: (d: T) => I;
 
   items: I[];
 
+  /** @internal */
   constructor(
     r: Reddit,
     config: AxiosRequestConfig,
@@ -23,9 +24,7 @@ export default class Page<I extends Identified, T = any> {
     this.items = items;
   }
 
-  /**
-   * Refetch the current page
-   */
+  /** Refetch the current page */
   fetch() {
     return fetchPage(
       this.r,
@@ -39,6 +38,7 @@ export default class Page<I extends Identified, T = any> {
 
   /**
    * Fetch next page after this
+   *
    * @param count count of items
    */
   next(count: number) {
@@ -54,6 +54,7 @@ export default class Page<I extends Identified, T = any> {
 
   /**
    * Fetch previous page before this
+   *
    * @param count count of items
    */
   prev(count: number) {

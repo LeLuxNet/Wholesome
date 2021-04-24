@@ -60,14 +60,11 @@ export const r = createReddit();
 const { CLIENT_ID, CLIENT_SECRET, USERNAME, PASSWORD } = process.env;
 export var ar: Promise<Reddit> | undefined =
   CLIENT_ID && CLIENT_SECRET && USERNAME && PASSWORD
-    ? Promise.resolve(createReddit())
+    ? Promise.resolve(createReddit()).then(async (r) => {
+        await r.login({
+          client: { id: CLIENT_ID!, secret: CLIENT_SECRET! },
+          auth: { username: USERNAME!, password: PASSWORD! },
+        });
+        return r;
+      })
     : undefined;
-if (ar) {
-  ar = ar.then(async (r) => {
-    await r.login({
-      client: { id: CLIENT_ID!, secret: CLIENT_SECRET! },
-      auth: { username: USERNAME!, password: PASSWORD! },
-    });
-    return r;
-  });
-}

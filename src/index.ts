@@ -41,10 +41,14 @@ export {
   Widgets,
 } from "./objects/subreddit/widget";
 export {
+  EmojiFlair,
   Flair,
   FlairPart,
   FullUser,
+  Self,
   SubmissionUser,
+  TextFlair,
   Trophy,
   User,
 } from "./objects/user";
+export { Preferences } from "./objects/user/self/prefs";

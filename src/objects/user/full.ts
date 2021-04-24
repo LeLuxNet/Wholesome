@@ -23,6 +23,8 @@ export class FullUser extends User implements Identified {
 
   verifiedEmail: boolean;
 
+  robotIndexable: boolean;
+
   karma: number;
   submissionKarma: number;
   commentKarma: number;
@@ -75,6 +77,8 @@ export class FullUser extends User implements Identified {
     this.admin = data.is_employee;
 
     this.verifiedEmail = data.has_verified_email;
+
+    this.robotIndexable = !data.hide_from_robots;
 
     this.karma = data.total_karma;
     this.submissionKarma = data.link_karma;

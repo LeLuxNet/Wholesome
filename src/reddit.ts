@@ -8,9 +8,8 @@ import errorInterceptor from "./http/error";
 import fieldInterceptor from "./http/fields";
 import { Collection } from "./objects/collection";
 import { Submission } from "./objects/post";
-import Self from "./objects/self";
 import { Subreddit } from "./objects/subreddit";
-import { User } from "./objects/user";
+import { Self, User } from "./objects/user";
 
 interface RedditConstructor {
   userAgent: string;
@@ -124,7 +123,10 @@ export default class Reddit {
 
       refresh(res.data);
     } else {
-      setTimeout(() => (this.auth = undefined)).unref();
+      setTimeout(
+        () => (this.auth = undefined),
+        res.data.expires_in * 1000
+      ).unref();
     }
 
     this.auth = {
