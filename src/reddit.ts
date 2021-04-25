@@ -6,10 +6,12 @@ import bodyInterceptor from "./http/body";
 import debugInterceptor from "./http/debug";
 import errorInterceptor from "./http/error";
 import fieldInterceptor from "./http/fields";
+import { get, GetOptions } from "./list/get";
 import { Collection } from "./objects/collection";
-import { Submission } from "./objects/post";
-import { Subreddit } from "./objects/subreddit";
-import { Self, User } from "./objects/user";
+import { FullSubmission, Submission } from "./objects/post";
+import { FullSubreddit, Subreddit } from "./objects/subreddit";
+import { SubmissionSearchOptions } from "./objects/subreddit/small";
+import { FullUser, Self, User } from "./objects/user";
 
 interface RedditConstructor {
   userAgent: string;
@@ -237,4 +239,45 @@ export default class Reddit {
     );
     return res.data.subreddit_names.map((n) => this.subreddit(n));
   }
+
+  async searchSubmission(query: string, options?: SubmissionSearchOptions) {
+    return get<FullSubmission, Api.SubmissionWrap>(
+      this,
+      {
+        url: "search.json",
+        params: { q: query, sort: options?.sort },
+      },
+      (d) => new FullSubmission(this, d.data),
+      options
+    );
+  }
+
+  /** Search subreddits by title and description */
+  async searchSubreddit(query: string, options?: SearchOptions) {
+    return get<FullSubreddit, Api.SubredditWrap>(
+      this,
+      {
+        url: "subreddits/search.json",
+        params: { q: query, sort: options?.sort },
+      },
+      (d) => new FullSubreddit(this, d.data),
+      options
+    );
+  }
+
+  async searchUser(query: string, options?: SearchOptions) {
+    return get<FullUser, Api.UserWrap>(
+      this,
+      {
+        url: "users/search.json",
+        params: { q: query, sort: options?.sort },
+      },
+      (d) => new FullUser(this, d.data),
+      options
+    );
+  }
+}
+
+export interface SearchOptions extends GetOptions {
+  sort?: "relevance" | "activity";
 }

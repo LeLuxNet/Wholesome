@@ -243,6 +243,19 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     );
   }
 
+  async searchSubmission(query: string, options?: SubmissionSearchOptions) {
+    return get<FullSubmission, Api.SubmissionWrap>(
+      this.r,
+      {
+        url: "r/{name}/search.json",
+        fields: { name: this.name },
+        params: { q: query, sort: options?.sort },
+      },
+      (d) => new FullSubmission(this.r, d.data),
+      options
+    );
+  }
+
   submitLink(title: string, url: string, options?: NewSubmissionOptions) {
     return submit(this, title, { kind: "link", url }, options);
   }
@@ -333,4 +346,8 @@ async function submit(
 
 function createStyleImage(url: string | null): BaseImage | null {
   return url ? { native: { url } } : null;
+}
+
+export interface SubmissionSearchOptions extends GetOptions {
+  sort?: "relevance" | "hot" | "top" | "new" | "comments";
 }
