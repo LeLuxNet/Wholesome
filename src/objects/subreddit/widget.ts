@@ -238,3 +238,23 @@ export interface Widgets {
   menu: MenuWidget | null;
   sidebar: SidebarWidget[];
 }
+
+export function parseWidgets(
+  r: Reddit,
+  { items, layout }: Api.SubredditWidgets
+): Widgets {
+  return {
+    id: parseIdWidget(r, items[layout.idCardWidget] as Api.IdCardWidget),
+    moderator: parseModWidget(
+      r,
+      items[layout.moderatorWidget] as Api.ModWidget
+    ),
+    menu:
+      layout.topbar.order.length === 0
+        ? null
+        : parseMenuWidget(r, items[layout.topbar.order[0]] as Api.MenuWidget),
+    sidebar: layout.sidebar.order.map((i) =>
+      parseSidebarWidget(r, items[i] as Api.SidebarWidget)
+    ),
+  };
+}

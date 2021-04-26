@@ -32,6 +32,10 @@ export default class FullSubreddit extends Subreddit implements Identified {
 
   hasMenu: boolean;
 
+  submitLinkLabel: string | null;
+  submitTextLabel: string | null;
+  submitTextText: Content;
+
   enabledMediaPreview: boolean;
   enabledWiki: boolean;
   enabledEmojis: boolean;
@@ -97,6 +101,13 @@ export default class FullSubreddit extends Subreddit implements Identified {
     this.favorite = data.user_has_favorited || false;
 
     this.hasMenu = data.has_menu_widget;
+
+    this.submitLinkLabel = data.submit_link_label;
+    this.submitTextLabel = data.submit_text_label;
+    this.submitTextText = {
+      markdown: data.submit_text,
+      html: data.submit_text_html,
+    };
 
     this.enabledMediaPreview = data.show_media_preview;
     this.enabledWiki = data.wiki_enabled || false;

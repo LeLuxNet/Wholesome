@@ -10,13 +10,7 @@ import { FullSubmission, Submission } from "../post";
 import { parseRule, Rule } from "./rule";
 import { Style } from "./style";
 import { Traffics } from "./traffic";
-import {
-  parseIdWidget,
-  parseMenuWidget,
-  parseModWidget,
-  parseSidebarWidget,
-  Widgets,
-} from "./widget";
+import { parseWidgets } from "./widget";
 
 export type Times = "hour" | "day" | "week" | "month" | "year" | "all";
 
@@ -52,32 +46,26 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     return new FullSubreddit(this.r, res.data.data);
   }
 
-  async widgets(): Promise<Widgets> {
-    this.r.needScopes("structuredstyles");
-    const res = await this.r.api.get<Api.SubredditWidgets>(
-      `r/{name}/api/widgets`,
-      { fields: { name: this.name } }
-    );
+  async widgets() {
+    if (
+      this.r.auth &&
+      (this.r.auth.scopes === "*" || this.r.auth.scopes.has("structuredstyles"))
+    ) {
+      this.r.needScopes("structuredstyles");
+      const res = await this.r.api.get<Api.SubredditWidgets>(
+        "r/{name}/api/widgets",
+        { fields: { name: this.name } }
+      );
 
-    const { items, layout } = res.data;
+      return parseWidgets(this.r, res.data);
+    } else {
+      const res = await this.r.api.get<Api.Style>(
+        "api/v1/structured_styles/{name}.json",
+        { fields: { name: this.name } }
+      );
 
-    return {
-      id: parseIdWidget(this.r, items[layout.idCardWidget] as Api.IdCardWidget),
-      moderator: parseModWidget(
-        this.r,
-        items[layout.moderatorWidget] as Api.ModWidget
-      ),
-      menu:
-        layout.topbar.order.length === 0
-          ? null
-          : parseMenuWidget(
-              this.r,
-              items[layout.topbar.order[0]] as Api.MenuWidget
-            ),
-      sidebar: layout.sidebar.order.map((i) =>
-        parseSidebarWidget(this.r, items[i] as Api.SidebarWidget)
-      ),
-    };
+      return parseWidgets(this.r, res.data.data.content.widgets);
+    }
   }
 
   /** Get structured subreddit styles */
@@ -89,12 +77,19 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     const s = res.data.data.style;
 
     return {
+      widgets: parseWidgets(this.r, res.data.data.content.widgets),
+
       icon: createStyleImage(s.communityIcon),
 
       upvoteInactive: createStyleImage(s.postUpvoteIconInactive),
       upvoteActive: createStyleImage(s.postUpvoteIconActive),
+      upvoteColor: s.postUpvoteCountColor,
+
       downvoteInactive: createStyleImage(s.postDownvoteIconInactive),
       downvoteActive: createStyleImage(s.postDownvoteIconActive),
+      downvoteColor: s.postDownvoteCountColor,
+
+      backgroundColor: s.backgroundColor,
     };
   }
 

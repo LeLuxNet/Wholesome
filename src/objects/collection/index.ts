@@ -41,11 +41,19 @@ export class Collection implements Deletable {
     this.subreddit = r.subreddit(urlParts[4]);
   }
 
-  async setTitle(title: string) {
+  async updateTitle(title: string) {
     this.r.needScopes("modposts");
     await this.r.api.post("api/v1/collections/update_collection_title", {
       collection_id: this.id,
       title,
+    });
+  }
+
+  async updateDescription(description: string) {
+    this.r.needScopes("modposts");
+    await this.r.api.post("api/v1/collections/update_collection_description", {
+      collection_id: this.id,
+      description,
     });
   }
 

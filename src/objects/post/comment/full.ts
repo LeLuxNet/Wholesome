@@ -1,3 +1,4 @@
+import { Content } from "../../..";
 import Action from "../../../media/actions";
 import Reddit from "../../../reddit";
 import { Subreddit } from "../../subreddit";
@@ -36,6 +37,9 @@ export default class FullComment extends Comment implements FullPost {
   deleted: boolean;
   approved: Action | null;
   removed: Action | null;
+
+  /** The comment body */
+  body: Content;
 
   /** @internal */
   constructor(r: Reddit, data: Api.Comment, submission?: Submission) {
@@ -86,5 +90,10 @@ export default class FullComment extends Comment implements FullPost {
             by: r.user(data.banned_by),
             at: new Date(data.banned_at_utc! * 1000),
           };
+
+    this.body = {
+      markdown: data.body,
+      html: data.body_html,
+    };
   }
 }

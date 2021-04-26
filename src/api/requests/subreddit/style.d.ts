@@ -2,7 +2,9 @@
 declare namespace Api {
   export interface Style {
     data: {
-      content: unknown;
+      content: {
+        widgets: SubredditWidgets;
+      };
       style: StyleStyle;
       flairTemplate: { [id: string]: StyleFlair };
     };
@@ -18,7 +20,7 @@ declare namespace Api {
     postUpvoteIconInactive: string | null;
     highlightColor: string;
     menuBackgroundOpacity: string | null;
-    postUpvoteCountColor: string;
+    postUpvoteCountColor: string | null;
     bannerHeight: "large";
     postBackgroundColor: string;
     mobileBannerImage: string | null;
@@ -30,7 +32,7 @@ declare namespace Api {
     postBackgroundImagePosition: null;
     backgroundImage: null;
     backgroundImagePosition: ImagePosition;
-    backgroundColor: string;
+    backgroundColor: string | null;
     submenuBackgroundStyle: "default" | null;
     bannerBackgroundImagePosition: ImagePosition | null;
     menuLinkColorInactive: string | null;
@@ -39,7 +41,7 @@ declare namespace Api {
     sidebarWidgetHeaderColor: string | null;
     bannerPositionedImagePosition: ImagePosition | null;
     bannerBackgroundImage: string | null;
-    postDownvoteCountColor: string;
+    postDownvoteCountColor: string | null;
     postPlaceholderImagePosition: ImagePosition | null;
     menuLinkColorHover: string;
     primaryColor: string;

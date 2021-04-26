@@ -22,26 +22,18 @@ export default class FullSubmission extends Submission implements FullPost {
   /** The title of the submission. */
   title: string;
 
-  /** The user who posted this submission or null if he's 'u/[deleted]' */
   author: SubmissionUser | null;
-
-  /** The subreddit this submission was posted on. */
   subreddit: Subreddit;
 
-  /** The date submission was created. */
   created: Date;
-  /** The date this submission body was edited or `null` if it wasn't. */
   edited: Date | null;
 
-  /** The URL this submission can be accessed. To get the link this submission container see {@link link}. */
+  /** The URL this submission can be accessed. To get the link this submission contains see {@link link}. */
   url: string;
 
-  /** The *fuzzed* score the submission has or `null` if it's {@link scoreHidden|hidden}. */
   score: number | null;
-  /** Whether the score is hidden. */
   scoreHidden: boolean;
   upvoteRatio: number;
-  /** The vote the user casted on this submission. Use {@link vote} to change it. */
   voted: VoteDirection;
 
   awardCount: number;

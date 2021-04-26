@@ -128,8 +128,6 @@ export default class Self extends User {
     this.r.needScopes("identity");
     const { data } = await this.r.api.get<Api.Prefs>("api/v1/me/prefs");
 
-    console.log(data);
-
     return {
       language: data.lang,
 
