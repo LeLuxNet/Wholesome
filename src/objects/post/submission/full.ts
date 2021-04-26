@@ -1,6 +1,5 @@
 import { get, GetOptions } from "../../../list/get";
 import { stream, StreamCallback, StreamOptions } from "../../../list/stream";
-import Action from "../../../media/actions";
 import Content from "../../../media/content";
 import Embed from "../../../media/embed";
 import Event from "../../../media/event";
@@ -11,33 +10,17 @@ import Promotion from "../../../media/promotion";
 import Reddit from "../../../reddit";
 import { Collection } from "../../collection";
 import { Subreddit } from "../../subreddit";
-import { SubmissionUser } from "../../user";
 import { Flair, flairPart } from "../../user/flair";
-import FullPost, { DistinguishKinds } from "../full";
-import { VoteDirection } from "../small";
-import { GivenAward } from "./award";
-import Submission from "./small";
+import FullPost from "../full";
+import { _Submission } from "./small";
 
-export default class FullSubmission extends Submission implements FullPost {
+export default class FullSubmission
+  extends _Submission(FullPost)
+  implements FullPost {
   /** The title of the submission. */
   title: string;
 
-  author: SubmissionUser | null;
-  subreddit: Subreddit;
-
-  created: Date;
-  edited: Date | null;
-
-  /** The URL this submission can be accessed. To get the link this submission contains see {@link link}. */
-  url: string;
-
-  score: number | null;
-  scoreHidden: boolean;
   upvoteRatio: number;
-  voted: VoteDirection;
-
-  awardCount: number;
-  awards: GivenAward[];
 
   oc: boolean;
   spoiler: boolean;
@@ -49,18 +32,9 @@ export default class FullSubmission extends Submission implements FullPost {
 
   commentCount: number;
 
-  saved: boolean;
   hidden: boolean;
   pinned: boolean;
-  archived: boolean;
-  locked: boolean;
-  stickied: boolean;
   quarantine: boolean;
-  distinguished: DistinguishKinds;
-
-  deleted: boolean;
-  approved: Action | null;
-  removed: Action | null;
 
   /** The crosspost this submission contains */
   crosspost: FullSubmission | null;
@@ -96,26 +70,11 @@ export default class FullSubmission extends Submission implements FullPost {
 
   /** @internal */
   constructor(r: Reddit, data: Api.Submission) {
-    super(r, data.id);
+    super(r, data, data.hide_score);
 
     this.title = data.title;
 
-    this.author =
-      data.author_fullname === undefined ? null : new SubmissionUser(r, data);
-    this.subreddit = r.subreddit(data.subreddit);
-
-    this.created = new Date(data.created_utc * 1000);
-    this.edited = data.edited ? new Date(data.edited * 1000) : null;
-
-    this.url = r.linkUrl + data.permalink;
-
-    this.score = data.hide_score ? null : data.score;
-    this.scoreHidden = data.hide_score;
     this.upvoteRatio = data.upvote_ratio;
-    this.voted = data.likes === null ? 0 : data.likes ? 1 : -1;
-
-    this.awardCount = data.total_awards_received;
-    this.awards = data.all_awardings.map((a) => new GivenAward(a));
 
     this.oc = data.is_original_content;
     this.spoiler = data.spoiler;
@@ -133,31 +92,9 @@ export default class FullSubmission extends Submission implements FullPost {
 
     this.commentCount = data.num_comments;
 
-    this.saved = data.saved;
     this.hidden = data.hidden;
     this.pinned = data.pinned;
-    this.archived = data.archived;
-    this.locked = data.locked;
-    this.stickied = data.stickied;
     this.quarantine = data.quarantine;
-    this.distinguished =
-      data.distinguished === "moderator" ? "mod" : data.distinguished;
-
-    this.deleted = this.author === null;
-    this.approved =
-      data.approved_by === null
-        ? null
-        : {
-            by: r.user(data.approved_by),
-            at: new Date(data.approved_at_utc! * 1000),
-          };
-    this.removed =
-      data.banned_by === null
-        ? null
-        : {
-            by: r.user(data.banned_by),
-            at: new Date(data.banned_at_utc! * 1000),
-          };
 
     this.crosspost =
       data.crosspost_parent_list === undefined

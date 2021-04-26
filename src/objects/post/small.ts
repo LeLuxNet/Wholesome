@@ -1,13 +1,14 @@
 import Deletable from "../../interfaces/deletable";
 import Identified from "../../interfaces/identified";
-import Replyable from "../../mixins/replyable";
 import Reddit from "../../reddit";
 import { DistinguishKinds } from "./full";
 import { Award } from "./submission/award";
 
 export type VoteDirection = 1 | 0 | -1;
 
-class _Post implements Deletable, Identified {
+export type PostConstructor = new (...args: any[]) => Post;
+
+export default class Post implements Deletable, Identified {
   r: Reddit;
 
   id: string;
@@ -109,5 +110,3 @@ class _Post implements Deletable, Identified {
     await this.r.api.post("api/comment", { thing_id: this.fullId, text: body });
   }
 }
-
-export default class Post extends Replyable(_Post) {}

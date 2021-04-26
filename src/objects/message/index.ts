@@ -33,4 +33,9 @@ export class Message implements Identified {
       html: data.body_html,
     };
   }
+
+  async reply(body: string) {
+    this.r.needScopes("privatemessages");
+    await this.r.api.post("api/comment", { thing_id: this.fullId, text: body });
+  }
 }
