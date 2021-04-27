@@ -1,9 +1,9 @@
+import { Subreddit } from ".";
 import Content from "../../media/content";
 import { Image } from "../../media/image";
 import Reddit from "../../reddit";
 import { User } from "../user";
 import { parseRule, Rule } from "./rule";
-import Subreddit from "./small";
 
 export type SidebarWidget =
   | RulesWidget

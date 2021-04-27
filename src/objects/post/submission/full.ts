@@ -12,11 +12,11 @@ import { Collection } from "../../collection";
 import { Subreddit } from "../../subreddit";
 import { Flair, flairPart } from "../../user/flair";
 import FullPost from "../full";
-import { _Submission } from "./small";
+import Submission, { _Submission } from "./small";
 
 export default class FullSubmission
   extends _Submission(FullPost)
-  implements FullPost {
+  implements Submission {
   /** The title of the submission. */
   title: string;
 
@@ -207,13 +207,16 @@ export default class FullSubmission
       var body: Content | null = null;
       if (this.body) {
         const htmlParts = this.body.html.split("\n");
-        htmlParts.splice(-2, 1);
+        if (htmlParts.length !== 2) {
+          htmlParts.splice(-2, 1);
 
-        body = {
-          markdown: this.body.markdown.split("\n").slice(0, -2).join("\n"),
-          html: htmlParts.join("\n"),
-        };
+          body = {
+            markdown: this.body.markdown.split("\n").slice(0, -2).join("\n"),
+            html: htmlParts.join("\n"),
+          };
+        }
       }
+
       const userVote = data.poll_data.user_selection;
       var voted: PollOption | null = null;
 
