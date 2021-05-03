@@ -10,13 +10,9 @@ declare namespace Api {
     | "mail"
     | "flair";
 
-  export interface Moderator {
-    name: string;
+  export interface Moderator extends Relation {
     author_flair_text: string | null;
     mod_permissions: ModPermission[];
-    date: number;
-    rel_id: string;
-    id: string;
     author_flair_css_class: string | null;
   }
 }

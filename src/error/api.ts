@@ -9,7 +9,9 @@ export class ApiError extends Error {
     status?: number,
     description?: string
   ) {
-    super(message);
+    const msg = `${message} (${code})`;
+    super(description ? `${msg}: ${description}` : msg);
+
     this.name = "RedditApiError";
 
     this.code = code;

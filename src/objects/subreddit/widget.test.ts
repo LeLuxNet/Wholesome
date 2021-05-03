@@ -41,7 +41,7 @@ import { ar } from "../../test/setup";
     expect(w.moderator.kind).toBe("mods");
 
     expect(w.moderator.modCount).toBe(w.moderator.mods.length);
-    expect(w.moderator.modCount).toBe(2);
+    expect(w.moderator.modCount).toBe(1);
   });
 
   it("should be rules widget", async () => {

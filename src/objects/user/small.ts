@@ -1,3 +1,5 @@
+import { AxiosResponse } from "axios";
+import { ApiError } from "../../error/api";
 import Fetchable from "../../interfaces/fetchable";
 import { get, GetOptions } from "../../list/get";
 import { stream, StreamCallback, StreamOptions } from "../../list/stream";
@@ -19,6 +21,10 @@ export class User implements Fetchable<FullUser> {
   constructor(r: Reddit, name: string) {
     this.r = r;
     this.name = name;
+  }
+
+  is(u: User) {
+    return this.name.toLowerCase() === u.name.toLowerCase();
   }
 
   get url() {
@@ -46,6 +52,31 @@ export class User implements Fetchable<FullUser> {
       { months },
       { fields: { name: this.name } }
     );
+  }
+
+  async friend(friend: boolean = true, note?: string): Promise<void> {
+    this.r.needScopes("subscribe");
+
+    var req: Promise<AxiosResponse>;
+    if (friend) {
+      req = this.r.api.put(
+        "api/v1/me/friends/{name}",
+        { note },
+        {
+          fields: { name: this.name },
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    } else {
+      req = this.r.api.delete("api/v1/me/friends/{name}", {
+        fields: { name: this.name },
+      });
+    }
+
+    await req.catch((err) => {
+      if (err instanceof ApiError && err.code === "NOT_FRIEND") return;
+      throw err;
+    });
   }
 
   async trophies() {

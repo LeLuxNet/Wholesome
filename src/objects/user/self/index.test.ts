@@ -17,4 +17,18 @@ import { ar } from "../../../test/setup";
     p = await s.prefs();
     expect(p.nightmode).toBe(true);
   });
+
+  it("should add and remove friend", async () => {
+    const u = (await ar!).user("ginnyTheCar");
+
+    await u.friend(false);
+    var friends = await s.friends();
+    expect(friends.find((f) => f.is(u))).toBeUndefined();
+
+    await u.friend();
+    friends = await s.friends();
+    expect(friends.find((f) => f.is(u))).toBeDefined();
+
+    await u.friend(false);
+  });
 });

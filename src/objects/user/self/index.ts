@@ -25,6 +25,11 @@ export default class Self extends User {
     }
   }
 
+  async friends(): Promise<User[]> {
+    const res = await this.r.api.get<Api.Friends>("prefs/friends.json");
+    return res.data[0].data.children.map((c) => this.r.user(c.name));
+  }
+
   subreddits(options?: GetOptions) {
     this.r.needScopes("mysubreddits");
     return get<FullSubreddit, Api.SubredditWrap>(
