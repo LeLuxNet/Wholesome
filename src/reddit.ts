@@ -43,7 +43,7 @@ export default class Reddit {
     this.api.interceptors.request.use(bodyInterceptor);
     this.api.interceptors.request.use(authInterceptor(this));
 
-    this.api.interceptors.response.use(errorInterceptor);
+    errorInterceptor(this.api);
   }
 
   async login(data: AuthData) {

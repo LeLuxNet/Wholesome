@@ -7,6 +7,7 @@ import { stream, StreamCallback, StreamOptions } from "../../list/stream";
 import { BaseImage } from "../../media/image";
 import Reddit from "../../reddit";
 import { FullSubmission, Submission } from "../post";
+import { Requirements } from "./requirement";
 import { parseRule, Rule } from "./rule";
 import { Style } from "./style";
 import { Traffics } from "./traffic";
@@ -121,6 +122,38 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
       { fields: { name: this.name } }
     );
     return res.data.rules.map(parseRule);
+  }
+
+  async requirements(): Promise<Requirements> {
+    const res = await this.r.api.get<Api.SubredditRequirements>(
+      "https://www.reddit.com/api/v1/{name}/post_requirements.json",
+      { fields: { name: this.name } }
+    );
+
+    return {
+      guideline: res.data.guidelines_text,
+
+      titleLengthMin: res.data.title_text_min_length,
+      titleLengthMax: res.data.title_text_max_length,
+      titleRequired: res.data.title_required_strings,
+      titleBlacklist: res.data.title_blacklisted_strings,
+      titleRegexes: res.data.title_regexes,
+
+      bodyLengthMin: res.data.body_text_min_length,
+      bodyLengthMax: res.data.body_text_max_length,
+      bodyRequired: res.data.body_required_strings,
+      bodyBlacklist: res.data.body_blacklisted_strings,
+      bodyRegexes: res.data.body_regexes,
+
+      domainBlacklist:
+        res.data.link_restriction_policy === "blacklist"
+          ? res.data.domain_blacklist
+          : null,
+      domainWhitelist:
+        res.data.link_restriction_policy === "whitelist"
+          ? res.data.domain_whitelist
+          : null,
+    };
   }
 
   async traffic(): Promise<Traffics> {

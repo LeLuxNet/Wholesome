@@ -7,4 +7,11 @@ declare namespace Api {
   }
 
   export type Error = [code: string, message: string, field: string];
+
+  export interface Error2 {
+    reason: string;
+    message: string;
+    explanation?: string;
+    error?: number;
+  }
 }
