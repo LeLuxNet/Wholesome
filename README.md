@@ -7,6 +7,6 @@ A Reddit API wrapper
 ```js
 const r = new Reddit({ userAgent: "Wholesome Example" });
 
-const page = await r.subreddit("askreddit").feed("hot").get();
+const page = await r.subreddit("askreddit").hot();
 page.items.forEach((p) => console.log(p.title));
 ```

@@ -10,6 +10,16 @@ function pageItems(p: Page<Identified, any>) {
   return p.items.map((i) => i.fullId);
 }
 
+var page: Page<FullSubmission>;
+beforeAll(async () => {
+  page = await fetchPage<FullSubmission, Api.SubmissionWrap>(
+    r,
+    { url: "r/earthporn/top.json" },
+    (d) => new FullSubmission(r, d.data),
+    20
+  );
+});
+
 it("should have right item count", async () => {
   const p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
     r,
@@ -23,32 +33,18 @@ it("should have right item count", async () => {
 });
 
 it("should get next items", async () => {
-  const p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
-    r,
-    { url: "r/earthporn/top.json" },
-    (d) => new FullSubmission(r, d.data),
-    20
-  );
+  const p2 = await page.next(20);
 
-  const p2 = await p.next(20);
-
-  expect(pageItems(p).length + pageItems(p2).length).toBe(
-    unique([...pageItems(p), ...pageItems(p2)]).length
+  expect(pageItems(page).length + pageItems(p2).length).toBe(
+    unique([...pageItems(page), ...pageItems(p2)]).length
   );
 });
 
 it("should refetch same items", async () => {
-  const p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
-    r,
-    { url: "r/earthporn/new.json" },
-    (d) => new FullSubmission(r, d.data),
-    80
-  );
+  const p2 = await page.fetch();
 
-  const p2 = await p.fetch();
-
-  expect(pageItems(p).length).toBe(
-    unique([...pageItems(p), ...pageItems(p2)]).length
+  expect(pageItems(page).length).toBe(
+    unique([...pageItems(page), ...pageItems(p2)]).length
   );
 });
 
@@ -73,8 +69,16 @@ it("should have no previous items", async () => {
     5
   );
 
-  const pr = await p.prev(10);
+  const p2 = await p.prev(10);
 
   expect(p.items.length).toBe(5);
-  expect(pr.items.length).toBe(0);
+  expect(p2.items.length).toBe(0);
+});
+
+it("should be able to load more after empty page", async () => {
+  const p2 = await page.prev(10);
+  expect(p2.items.length).toBe(0);
+
+  const p3 = await p2.prev(10);
+  expect(p3.items.length).toBe(0);
 });

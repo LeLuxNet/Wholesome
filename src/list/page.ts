@@ -2,11 +2,25 @@ import { AxiosRequestConfig } from "axios";
 import Identified from "../interfaces/identified";
 import Reddit from "../reddit";
 
+/**
+ * A page reddit returns from listings
+ *
+ * @example
+ * ```js
+ * const page = await r.subreddit("askreddit").hot({ count: 10 });
+ * console.log(page.items.length); // 10
+ *
+ * const nextPage = await page.next(20);
+ * console.log(nextPage.items.length); // 20
+ * ```
+ */
 export default class Page<I extends Identified, T = any> {
   r: Reddit;
 
   private config: AxiosRequestConfig;
   private map: (d: T) => I;
+  private before: string;
+  private after: string;
 
   items: I[];
 
@@ -15,11 +29,16 @@ export default class Page<I extends Identified, T = any> {
     r: Reddit,
     config: AxiosRequestConfig,
     map: (d: T) => I,
-    items: I[]
+    items: I[],
+    before: string,
+    after: string
   ) {
     this.r = r;
+
     this.config = config;
     this.map = map;
+    this.before = before;
+    this.after = after;
 
     this.items = items;
   }
@@ -31,8 +50,8 @@ export default class Page<I extends Identified, T = any> {
       this.config,
       this.map,
       undefined,
-      this.items[0].fullId,
-      this.items[this.items.length - 1].fullId
+      this.before,
+      this.after
     );
   }
 
@@ -48,7 +67,7 @@ export default class Page<I extends Identified, T = any> {
       this.map,
       count,
       undefined,
-      this.items[this.items.length - 1].fullId
+      this.after
     );
   }
 
@@ -58,13 +77,7 @@ export default class Page<I extends Identified, T = any> {
    * @param count count of items
    */
   prev(count: number) {
-    return fetchPage(
-      this.r,
-      this.config,
-      this.map,
-      count,
-      this.items[0].fullId
-    );
+    return fetchPage(this.r, this.config, this.map, count, this.before);
   }
 }
 
@@ -96,7 +109,25 @@ export async function fetchPage<I extends Identified, T>(
     children.push(...c);
     count -= c.length;
     if (c.length !== limit || count <= 0) {
-      return new Page(r, config, map, children);
+      if (children.length === 0) {
+        return new Page(
+          r,
+          config,
+          map,
+          children,
+          (before || after)!,
+          (after || before)!
+        );
+      }
+
+      return new Page(
+        r,
+        config,
+        map,
+        children,
+        children[0].fullId,
+        children[children.length - 1].fullId
+      );
     }
 
     if (before === undefined) {
