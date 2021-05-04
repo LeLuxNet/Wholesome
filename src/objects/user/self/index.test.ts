@@ -23,11 +23,11 @@ import { ar } from "../../../test/setup";
 
     await u.friend(false);
     var friends = await s.friends();
-    expect(friends.find((f) => f.is(u))).toBeUndefined();
+    expect(friends.find((f) => f.user.is(u))).toBeUndefined();
 
     await u.friend();
     friends = await s.friends();
-    expect(friends.find((f) => f.is(u))).toBeDefined();
+    expect(friends.find((f) => f.user.is(u))).toBeDefined();
 
     await u.friend(false);
   });

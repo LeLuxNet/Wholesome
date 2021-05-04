@@ -1,9 +1,16 @@
 import { Subreddit } from ".";
+import Deletable from "../../interfaces/deletable";
 import Content from "../../media/content";
 import { Image } from "../../media/image";
-import Reddit from "../../reddit";
 import { User } from "../user";
 import { parseRule, Rule } from "./rule";
+
+export interface Widgets {
+  id: IdWidget;
+  moderator: ModWidget;
+  menu: MenuWidget | null;
+  sidebar: SidebarWidget[];
+}
 
 export type SidebarWidget =
   | RulesWidget
@@ -15,29 +22,62 @@ export type SidebarWidget =
   | FlairWidget
   | CustomWidget;
 
-export interface IdWidget {
+class Widget implements Deletable {
+  subreddit: Subreddit;
   id: string;
-  kind: "id";
+
+  constructor(subreddit: Subreddit, id: string) {
+    this.subreddit = subreddit;
+    this.id = id;
+  }
+
+  async delete() {
+    this.subreddit.r.needScopes("structuredstyles");
+    await this.subreddit.r.api.delete("r/{sub}/api/widget/{id}", {
+      fields: { sub: this.subreddit.name, id: this.id },
+    });
+  }
+}
+
+export class IdWidget extends Widget {
   description: string | null;
 
   memberCount: number;
   memberText: string | null;
   activeMemberCount: number;
   activeMemberText: string | null;
+
+  constructor(sub: Subreddit, data: Api.IdCardWidget) {
+    super(sub, data.id);
+    this.description = data.description || null;
+
+    this.memberCount = data.subscribersCount;
+    this.memberText = data.subscribersText || null;
+    this.activeMemberCount = data.currentlyViewingCount;
+    this.activeMemberText = data.currentlyViewingText || null;
+  }
 }
 
-export interface ModWidget {
-  id: string;
-  kind: "mods";
+export class ModWidget extends Widget {
   modCount: number;
   mods: User[];
+
+  constructor(sub: Subreddit, data: Api.ModWidget) {
+    super(sub, data.id);
+    this.modCount = data.totalMods;
+    this.mods = data.mods.map((u) => new User(sub.r, u.name));
+  }
 }
 
-export interface MenuWidget {
-  id: string;
-  kind: "menu";
+export class MenuWidget extends Widget {
   items: MenuItem[];
   showWiki: boolean;
+
+  constructor(sub: Subreddit, data: Api.MenuWidget) {
+    super(sub, data.id);
+    this.items = data.data.map(mapMenuItem);
+    this.showWiki = data.showWiki;
+  }
 }
 interface MenuItem {
   text: string;
@@ -45,26 +85,57 @@ interface MenuItem {
   children?: MenuItem[];
 }
 
-export interface RulesWidget {
-  id: string;
-  kind: "rules";
+function mapMenuItem(item: Api.MenuItem): MenuItem {
+  if ("url" in item) {
+    return { text: item.text, url: item.url };
+  }
+  return { text: item.text, children: item.children.map(mapMenuItem) };
+}
+
+export class RulesWidget extends Widget {
   compact: boolean;
   rules: Rule[];
+
+  constructor(sub: Subreddit, data: Api.SubredditRulesWidget) {
+    super(sub, data.id);
+    this.compact = data.display === "compact";
+    this.rules = data.data.map(parseRule);
+  }
 }
 
-export interface TextWidget {
-  id: string;
-  kind: "text";
+export class TextWidget extends Widget {
   title: string;
   text: Content;
+
+  constructor(sub: Subreddit, data: Api.TextareaWidget) {
+    super(sub, data.id);
+    this.title = data.shortName;
+    this.text = { markdown: data.text, html: data.textHtml };
+  }
 }
 
-export interface ButtonWidget {
-  id: string;
-  kind: "button";
+export class ButtonWidget extends Widget {
   title: string;
   description: Content | null;
   buttons: Button[];
+
+  constructor(sub: Subreddit, data: Api.ButtonWidget) {
+    super(sub, data.id);
+    this.title = data.shortName;
+    this.description =
+      data.descriptionHtml === null
+        ? null
+        : { markdown: data.description, html: data.descriptionHtml };
+    this.buttons = data.buttons.map((b) => ({
+      url: "linkUrl" in b ? b.linkUrl : b.url,
+      text: b.text,
+      color: "color" in b ? b.color : null,
+      image:
+        "height" in b
+          ? { native: { url: b.url, height: b.height, width: b.width } }
+          : null,
+    }));
+  }
 }
 interface Button {
   url: string;
@@ -73,188 +144,108 @@ interface Button {
   image: Image | null;
 }
 
-export interface ImageWidget {
-  id: string;
-  kind: "image";
+export class ImageWidget extends Widget {
   title: string;
   images: Image[];
+
+  constructor(sub: Subreddit, data: Api.ImageWidget) {
+    super(sub, data.id);
+    this.title = data.shortName;
+    this.images = data.data.map((d) => ({
+      url: d.linkUrl,
+      native: { url: d.url, width: d.width, height: d.height },
+    }));
+  }
 }
 
-export interface SubredditsWidget {
-  id: string;
-  kind: "subreddits";
+export class SubredditsWidget extends Widget {
   title: string;
   subreddits: Subreddit[];
+
+  constructor(sub: Subreddit, data: Api.CommunityListWidget) {
+    super(sub, data.id);
+    this.title = data.shortName;
+    this.subreddits = data.data.map((s) => new Subreddit(sub.r, s.name));
+  }
 }
 
-export interface CalendarWidget {
-  id: string;
-  kind: "calendar";
+export class CalendarWidget extends Widget {
   title: string;
+
+  constructor(sub: Subreddit, data: Api.CalendarWidget) {
+    super(sub, data.id);
+    this.title = data.shortName;
+    // TODO: Add calendar
+  }
 }
 
-export interface FlairWidget {
-  id: string;
-  kind: "flair";
+export class FlairWidget extends Widget {
   title: string;
+
+  constructor(sub: Subreddit, data: Api.PostFlairWidget) {
+    super(sub, data.id);
+    this.title = data.shortName;
+    // TODO: Add flair
+  }
 }
 
-export interface CustomWidget {
-  id: string;
-  kind: "custom";
+export class CustomWidget extends Widget {
   title: string;
   text: Content;
   height: number;
   stylesheet: string;
   stylesheetUrl: string;
-}
 
-export function parseIdWidget(r: Reddit, widget: Api.IdCardWidget): IdWidget {
-  return {
-    id: widget.id,
-    kind: "id",
-    description: widget.description || null,
-
-    memberCount: widget.subscribersCount,
-    memberText: widget.subscribersText || null,
-    activeMemberCount: widget.currentlyViewingCount,
-    activeMemberText: widget.currentlyViewingText || null,
-  };
-}
-
-export function parseModWidget(r: Reddit, widget: Api.ModWidget): ModWidget {
-  return {
-    id: widget.id,
-    kind: "mods",
-    modCount: widget.totalMods,
-    mods: widget.mods.map((u) => new User(r, u.name)),
-  };
-}
-
-export function parseMenuWidget(r: Reddit, widget: Api.MenuWidget): MenuWidget {
-  return {
-    id: widget.id,
-    kind: "menu",
-    items: widget.data.map(mapMenuItem),
-    showWiki: widget.showWiki,
-  };
-}
-function mapMenuItem(item: Api.MenuItem): MenuItem {
-  if ("url" in item) {
-    return { text: item.text, url: item.url };
+  constructor(sub: Subreddit, data: Api.CustomWidget) {
+    super(sub, data.id);
+    this.title = data.shortName;
+    this.text = { markdown: data.text, html: data.textHtml };
+    this.height = data.height;
+    this.stylesheet = data.css;
+    this.stylesheetUrl = data.stylesheetUrl;
   }
-  return { text: item.text, children: item.children.map(mapMenuItem) };
 }
 
 export function parseSidebarWidget(
-  r: Reddit,
-  widget: Api.SidebarWidget
+  sub: Subreddit,
+  data: Api.SidebarWidget
 ): SidebarWidget {
-  switch (widget.kind) {
+  switch (data.kind) {
     case "subreddit-rules":
-      return {
-        id: widget.id,
-        kind: "rules",
-        compact: widget.display === "compact",
-        rules: widget.data.map(parseRule),
-      };
+      return new RulesWidget(sub, data);
     case "textarea":
-      return {
-        id: widget.id,
-        kind: "text",
-        title: widget.shortName,
-        text: { markdown: widget.text, html: widget.textHtml },
-      };
+      return new TextWidget(sub, data);
     case "button":
-      return {
-        id: widget.id,
-        kind: "button",
-        title: widget.shortName,
-        description:
-          widget.descriptionHtml === null
-            ? null
-            : { markdown: widget.description, html: widget.descriptionHtml },
-        buttons: widget.buttons.map((b) => {
-          return {
-            url: "linkUrl" in b ? b.linkUrl : b.url,
-            text: b.text,
-            color: "color" in b ? b.color : null,
-            image:
-              "height" in b
-                ? { native: { url: b.url, height: b.height, width: b.width } }
-                : null,
-          };
-        }),
-      };
+      return new ButtonWidget(sub, data);
     case "image":
-      return {
-        id: widget.id,
-        kind: "image",
-        title: widget.shortName,
-        images: widget.data.map((d) => {
-          return {
-            url: d.linkUrl,
-            native: { url: d.url, height: d.height, width: d.width },
-          };
-        }),
-      };
+      return new ImageWidget(sub, data);
     case "community-list":
-      return {
-        id: widget.id,
-        kind: "subreddits",
-        title: widget.shortName,
-        subreddits: widget.data.map((s) => new Subreddit(r, s.name)),
-      };
+      return new SubredditsWidget(sub, data);
     case "calendar":
-      // TODO: Add calendar
-      return {
-        id: widget.id,
-        kind: "calendar",
-        title: widget.shortName,
-      };
+      return new CalendarWidget(sub, data);
     case "post-flair":
-      // TODO: Add flair
-      return {
-        id: widget.id,
-        kind: "flair",
-        title: widget.shortName,
-      };
+      return new FlairWidget(sub, data);
     case "custom":
-      return {
-        id: widget.id,
-        kind: "custom",
-        title: widget.shortName,
-        height: widget.height,
-        text: { markdown: widget.text, html: widget.textHtml },
-        stylesheet: widget.css,
-        stylesheetUrl: widget.stylesheetUrl,
-      };
+      return new CustomWidget(sub, data);
   }
 }
 
-export interface Widgets {
-  id: IdWidget;
-  moderator: ModWidget;
-  menu: MenuWidget | null;
-  sidebar: SidebarWidget[];
-}
-
 export function parseWidgets(
-  r: Reddit,
+  sub: Subreddit,
   { items, layout }: Api.SubredditWidgets
 ): Widgets {
   return {
-    id: parseIdWidget(r, items[layout.idCardWidget] as Api.IdCardWidget),
-    moderator: parseModWidget(
-      r,
+    id: new IdWidget(sub, items[layout.idCardWidget] as Api.IdCardWidget),
+    moderator: new ModWidget(
+      sub,
       items[layout.moderatorWidget] as Api.ModWidget
     ),
     menu:
       layout.topbar.order.length === 0
         ? null
-        : parseMenuWidget(r, items[layout.topbar.order[0]] as Api.MenuWidget),
+        : new MenuWidget(sub, items[layout.topbar.order[0]] as Api.MenuWidget),
     sidebar: layout.sidebar.order.map((i) =>
-      parseSidebarWidget(r, items[i] as Api.SidebarWidget)
+      parseSidebarWidget(sub, items[i] as Api.SidebarWidget)
     ),
   };
 }

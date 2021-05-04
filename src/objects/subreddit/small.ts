@@ -72,14 +72,14 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
         { fields: { name: this.name } }
       );
 
-      return parseWidgets(this.r, res.data);
+      return parseWidgets(this, res.data);
     } else {
       const res = await this.r.api.get<Api.Style>(
         "api/v1/structured_styles/{name}.json",
         { fields: { name: this.name } }
       );
 
-      return parseWidgets(this.r, res.data.data.content.widgets);
+      return parseWidgets(this, res.data.data.content.widgets);
     }
   }
 
@@ -92,7 +92,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     const s = res.data.data.style;
 
     return {
-      widgets: parseWidgets(this.r, res.data.data.content.widgets),
+      widgets: parseWidgets(this, res.data.data.content.widgets),
 
       icon: createStyleImage(s.communityIcon),
 
