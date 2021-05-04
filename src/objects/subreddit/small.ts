@@ -7,6 +7,8 @@ import { stream, StreamCallback, StreamOptions } from "../../list/stream";
 import { BaseImage } from "../../media/image";
 import Reddit from "../../reddit";
 import { FullSubmission, Submission } from "../post";
+import { User } from "../user";
+import { ModPermission, ModRelation } from "./moderator";
 import { Requirements } from "./requirement";
 import { parseRule, Rule } from "./rule";
 import { Style } from "./style";
@@ -16,6 +18,18 @@ import { parseWidgets } from "./widget";
 export type Times = "hour" | "day" | "week" | "month" | "year" | "all";
 
 export type TimeOptions = GetOptions & { time?: Times };
+
+export interface BanOptions {
+  message?: string;
+
+  reason?: string;
+
+  /** A note only visible to other moderators */
+  modNote?: string;
+
+  /** Duration of the ban in days */
+  duration?: number;
+}
 
 export default class Subreddit implements Fetchable<FullSubreddit> {
   r: Reddit;
@@ -94,17 +108,104 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     };
   }
 
-  async moderators() {
+  async moderators(): Promise<ModRelation[]> {
     const res = await this.r.api.get<Api.SubredditModerators>(
       "r/{name}/about/moderators",
       { fields: { name: this.name } }
     );
-    return res.data.data.children.map((m) => {
-      return {
-        user: this.r.user(m.name),
-        date: new Date(m.date),
-      };
-    });
+
+    return res.data.data.children.map((r) => ({
+      id: r.rel_id.slice(3),
+      fullId: r.rel_id,
+
+      user: this.r.user(r.name),
+      since: new Date(r.date * 1000),
+
+      permissions: r.mod_permissions,
+    }));
+  }
+
+  async inviteModerator(user: User, permissions?: ModPermission[]) {
+    this.r.needScopes("modothers");
+    await this.r.api.post(
+      "r/{name}/api/friend",
+      {
+        type: "moderator_invite",
+        name: user.name,
+        permissions: permissions?.join(","),
+      },
+      { fields: { name: this.name } }
+    );
+  }
+
+  async setModeratorPermissions(user: User, permissions: ModPermission[]) {
+    this.r.needScopes("modothers");
+    await this.r.api.post(
+      "r/{name}/api/setpermissions",
+      { name: user.name, permissions: permissions?.join(",") },
+      { fields: { name: this.name } }
+    );
+  }
+
+  async removeModeratorInvite(user: User) {
+    this.r.needScopes("modothers");
+    await this.r.api.post(
+      "r/{name}/api/unfriend",
+      { type: "moderator_invite", name: user.name },
+      { fields: { name: this.name } }
+    );
+  }
+
+  async removeModerator(user: User) {
+    this.r.needScopes("modothers");
+    await this.r.api.post(
+      "r/{name}/api/unfriend",
+      { type: "moderator", name: user.name },
+      { fields: { name: this.name } }
+    );
+  }
+
+  async mute(user: User) {
+    this.r.needScopes("modcontributors");
+    await this.r.api.post(
+      "r/{name}/api/friend",
+      { type: "muted", name: user.name },
+      { fields: { name: this.name } }
+    );
+  }
+
+  async unmute(user: User) {
+    this.r.needScopes("modcontributors");
+    await this.r.api.post(
+      "r/{name}/api/unfriend",
+      { type: "muted", name: user.name },
+      { fields: { name: this.name } }
+    );
+  }
+
+  async ban(user: User, options: BanOptions = {}) {
+    this.r.needScopes("modcontributors");
+    await this.r.api.post(
+      "r/{name}/api/friend",
+      {
+        type: "banned",
+        name: user.name,
+        ban_message: options.message,
+        ban_reason: options.reason,
+        note: options.modNote,
+        duration: options.duration,
+      },
+      { fields: { name: this.name } }
+    );
+  }
+
+  async unban(user: User) {
+    this.r.needScopes("modothers");
+    await this.r.api.post(
+      "r/{name}/api/unfriend",
+      { type: "banned", name: user.name },
+      { fields: { name: this.name } }
+    );
   }
 
   async join(join: boolean = true) {

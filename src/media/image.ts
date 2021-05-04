@@ -15,7 +15,7 @@ interface BaseResolution {
   url: string;
 }
 
-type Resolution = BaseResolution & Dimensions;
+export type Resolution = BaseResolution & Dimensions;
 
 export interface Video extends Dimensions, Stream {
   /** The {@link https://en.wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP|DASH} URL */

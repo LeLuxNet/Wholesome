@@ -1,5 +1,6 @@
 import { get, GetOptions } from "../../../list/get";
 import { stream, StreamCallback, StreamOptions } from "../../../list/stream";
+import { Relation } from "../../../media/relation";
 import Reddit from "../../../reddit";
 import { Message } from "../../message";
 import { FullSubmission } from "../../post";
@@ -25,9 +26,15 @@ export default class Self extends User {
     }
   }
 
-  async friends(): Promise<User[]> {
+  async friends(): Promise<Relation[]> {
     const res = await this.r.api.get<Api.Friends>("prefs/friends.json");
-    return res.data[0].data.children.map((c) => this.r.user(c.name));
+    return res.data[0].data.children.map((r) => ({
+      id: r.rel_id.slice(3),
+      fullId: r.rel_id,
+
+      user: this.r.user(r.name),
+      since: new Date(r.date * 1000),
+    }));
   }
 
   subreddits(options?: GetOptions) {

@@ -5,8 +5,9 @@ export { Scope } from "./auth/scopes";
 export { default as Page } from "./list/page";
 export { default as Content } from "./media/content";
 export { default as Embed } from "./media/embed";
-export { Image, Stream, Video } from "./media/image";
+export { Image, Resolution, Stream, Video } from "./media/image";
 export { default as Poll } from "./media/poll";
+export { Relation } from "./media/relation";
 export { Collection } from "./objects/collection";
 export { Message } from "./objects/message";
 export {
@@ -19,6 +20,8 @@ export {
 } from "./objects/post";
 export {
   FullSubreddit,
+  ModPermission,
+  ModRelation,
   Rule,
   Style,
   Subreddit,

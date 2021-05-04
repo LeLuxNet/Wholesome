@@ -2,13 +2,14 @@
 declare namespace Api {
   export type ModPermission =
     | "all"
-    | "wiki"
-    | "chat_operator"
-    | "chat_config"
-    | "posts"
     | "access"
+    | "chat_config"
+    | "chat_operator"
+    | "config"
+    | "flair"
     | "mail"
-    | "flair";
+    | "posts"
+    | "wiki";
 
   export interface Moderator extends Relation {
     author_flair_text: string | null;
