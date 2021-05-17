@@ -1,5 +1,4 @@
 /// <reference path="../index.d.ts" />
-
 declare namespace Api {
   export interface AccessToken {
     access_token: string;

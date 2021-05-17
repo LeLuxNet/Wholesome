@@ -8,7 +8,7 @@ export async function upload(
   file: Stream,
   name: string,
   mimetype: string
-) {
+): Promise<string> {
   r.needScopes();
 
   const res = await r.api.post<Api.Media>("api/media/asset.json", {
@@ -16,7 +16,7 @@ export async function upload(
     mimetype,
   });
 
-  var key;
+  let key;
   const body = new FormData();
   res.data.args.fields.forEach(({ name, value }) => {
     body.append(name, value);

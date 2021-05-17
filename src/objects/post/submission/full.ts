@@ -1,4 +1,5 @@
 import { get, GetOptions } from "../../../list/get";
+import Page from "../../../list/page";
 import { stream, StreamCallback, StreamOptions } from "../../../list/stream";
 import Content from "../../../media/content";
 import Embed from "../../../media/embed";
@@ -16,7 +17,8 @@ import Submission, { _Submission } from "./small";
 
 export default class FullSubmission
   extends _Submission(FullPost)
-  implements Submission {
+  implements Submission
+{
   /** The title of the submission. */
   title: string;
 
@@ -107,13 +109,14 @@ export default class FullSubmission
       ? data.collections.map((c) => new Collection(this.r, c))
       : [];
 
-    this.event = data.event_start
-      ? {
-          from: new Date(data.event_start * 1000),
-          to: new Date(data.event_end! * 1000),
-          isLive: data.event_is_live!,
-        }
-      : null;
+    this.event =
+      data.event_start === undefined
+        ? null
+        : {
+            from: new Date(data.event_start * 1000),
+            to: new Date(data.event_end! * 1000),
+            isLive: data.event_is_live!,
+          };
 
     this.link =
       data.is_reddit_media_domain ||
@@ -161,20 +164,18 @@ export default class FullSubmission
         this.images = [mapPreview(img)];
       }
     } else if ("gallery_data" in data) {
-      this.images = data.gallery_data.items.map(
-        (i): Image => {
-          const img = data.media_metadata[i.media_id];
+      this.images = data.gallery_data.items.map((i): Image => {
+        const img = data.media_metadata[i.media_id];
 
-          return {
-            caption: i.caption,
-            captionLink: i.outbound_url,
-            native: { url: img.s.u, width: img.s.x, height: img.s.y },
-            resized: img.p.map((i) => {
-              return { url: i.u, width: i.x, height: i.y };
-            }),
-          };
-        }
-      );
+        return {
+          caption: i.caption,
+          captionLink: i.outbound_url,
+          native: { url: img.s.u, width: img.s.x, height: img.s.y },
+          resized: img.p.map((i) => {
+            return { url: i.u, width: i.x, height: i.y };
+          }),
+        };
+      });
     } else {
       this.images = [];
     }
@@ -204,7 +205,7 @@ export default class FullSubmission
 
     this.poll = null;
     if (data.poll_data) {
-      var body: Content | null = null;
+      let body: Content | null = null;
       if (this.body) {
         const htmlParts = this.body.html.split("\n");
         if (htmlParts.length !== 2) {
@@ -218,7 +219,7 @@ export default class FullSubmission
       }
 
       const userVote = data.poll_data.user_selection;
-      var voted: PollOption | null = null;
+      let voted: PollOption | null = null;
 
       const options = data.poll_data.options.map((o) => {
         const option = {
@@ -255,7 +256,7 @@ export default class FullSubmission
    * Returns all crossposts of this submission
    * @see {@link crosspostsStream}
    */
-  crossposts(options?: CrosspostsOptions) {
+  crossposts(options?: CrosspostsOptions): Promise<Page<FullSubmission>> {
     return this.duplicates({ ...options, crosspostsOnly: true });
   }
 
@@ -265,7 +266,7 @@ export default class FullSubmission
   crosspostsStream(
     fn: StreamCallback<FullSubmission>,
     options?: CrosspostsStreamOptions
-  ) {
+  ): Promise<void> {
     return this.duplicatesStream(fn, { ...options, crosspostsOnly: true });
   }
 
@@ -273,7 +274,7 @@ export default class FullSubmission
    * Returns all duplicates of this submission
    * @see {@link duplicatesStream}
    */
-  duplicates(options?: DuplicatesOptions) {
+  duplicates(options?: DuplicatesOptions): Promise<Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       {
@@ -296,7 +297,7 @@ export default class FullSubmission
   duplicatesStream(
     fn: StreamCallback<FullSubmission>,
     options?: DuplicatesStreamOptions
-  ) {
+  ): Promise<void> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
       {
@@ -347,7 +348,7 @@ function mapPreview(img: Api.PreviewImage) {
   };
 }
 
-function mapVideo(video: Api.Video) {
+function mapVideo(video: Api.Video): Video {
   const mp4 = video.fallback_url.slice(0, video.fallback_url.indexOf("?"));
 
   return {
@@ -359,5 +360,7 @@ function mapVideo(video: Api.Video) {
       video: mp4,
       audio: mp4.slice(0, mp4.indexOf("DASH")) + "DASH_audio.mp4",
     },
+    duration: video.duration,
+    bitrate: video.bitrate_kbps,
   };
 }

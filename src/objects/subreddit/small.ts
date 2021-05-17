@@ -3,6 +3,7 @@ import { FullSubreddit } from ".";
 import { upload } from "../../helper/upload";
 import Fetchable from "../../interfaces/fetchable";
 import { get, GetOptions } from "../../list/get";
+import Page from "../../list/page";
 import { stream, StreamCallback, StreamOptions } from "../../list/stream";
 import { BaseImage } from "../../media/image";
 import Reddit from "../../reddit";
@@ -13,7 +14,7 @@ import { Requirements } from "./requirement";
 import { parseRule, Rule } from "./rule";
 import { Style } from "./style";
 import { Traffics } from "./traffic";
-import { parseWidgets } from "./widget";
+import { parseWidgets, Widgets } from "./widget";
 
 export type Times = "hour" | "day" | "week" | "month" | "year" | "all";
 
@@ -35,7 +36,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   r: Reddit;
 
   name: string;
-  get key() {
+  get key(): string {
     return this.name;
   }
 
@@ -46,22 +47,22 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     this.name = name;
   }
 
-  get url() {
+  get url(): string {
     return `${this.r.linkUrl}/r/${encodeURIComponent(this.name)}`;
   }
 
-  get stylesheet() {
+  get stylesheet(): string {
     return `${this.url}/stylesheet.json`;
   }
 
-  async fetch() {
+  async fetch(): Promise<FullSubreddit> {
     const res = await this.r.api.get<Api.SubredditWrap>("r/{name}/about.json", {
       fields: { name: this.name },
     });
     return new FullSubreddit(this.r, res.data.data);
   }
 
-  async widgets() {
+  async widgets(): Promise<Widgets> {
     if (
       this.r.auth &&
       (this.r.auth.scopes === "*" || this.r.auth.scopes.has("structuredstyles"))
@@ -125,7 +126,10 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     }));
   }
 
-  async inviteModerator(user: User, permissions?: ModPermission[]) {
+  async inviteModerator(
+    user: User,
+    permissions?: ModPermission[]
+  ): Promise<void> {
     this.r.needScopes("modothers");
     await this.r.api.post(
       "r/{name}/api/friend",
@@ -136,54 +140,63 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
       },
       { fields: { name: this.name } }
     );
+    return;
   }
 
-  async setModeratorPermissions(user: User, permissions: ModPermission[]) {
+  async setModeratorPermissions(
+    user: User,
+    permissions: ModPermission[]
+  ): Promise<void> {
     this.r.needScopes("modothers");
     await this.r.api.post(
       "r/{name}/api/setpermissions",
       { name: user.name, permissions: permissions?.join(",") },
       { fields: { name: this.name } }
     );
+    return;
   }
 
-  async removeModeratorInvite(user: User) {
+  async removeModeratorInvite(user: User): Promise<void> {
     this.r.needScopes("modothers");
     await this.r.api.post(
       "r/{name}/api/unfriend",
       { type: "moderator_invite", name: user.name },
       { fields: { name: this.name } }
     );
+    return;
   }
 
-  async removeModerator(user: User) {
+  async removeModerator(user: User): Promise<void> {
     this.r.needScopes("modothers");
     await this.r.api.post(
       "r/{name}/api/unfriend",
       { type: "moderator", name: user.name },
       { fields: { name: this.name } }
     );
+    return;
   }
 
-  async mute(user: User) {
+  async mute(user: User): Promise<void> {
     this.r.needScopes("modcontributors");
     await this.r.api.post(
       "r/{name}/api/friend",
       { type: "muted", name: user.name },
       { fields: { name: this.name } }
     );
+    return;
   }
 
-  async unmute(user: User) {
+  async unmute(user: User): Promise<void> {
     this.r.needScopes("modcontributors");
     await this.r.api.post(
       "r/{name}/api/unfriend",
       { type: "muted", name: user.name },
       { fields: { name: this.name } }
     );
+    return;
   }
 
-  async ban(user: User, options: BanOptions = {}) {
+  async ban(user: User, options: BanOptions = {}): Promise<void> {
     this.r.needScopes("modcontributors");
     await this.r.api.post(
       "r/{name}/api/friend",
@@ -197,24 +210,27 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
       },
       { fields: { name: this.name } }
     );
+    return;
   }
 
-  async unban(user: User) {
+  async unban(user: User): Promise<void> {
     this.r.needScopes("modothers");
     await this.r.api.post(
       "r/{name}/api/unfriend",
       { type: "banned", name: user.name },
       { fields: { name: this.name } }
     );
+    return;
   }
 
-  async join(join: boolean = true) {
+  async join(join = true): Promise<void> {
     this.r.needScopes("subscribe");
     await this.r.api.post("api/subscribe", {
       action: join ? "sub" : "unsub",
       skip_initial_defaults: join ? true : undefined,
       sr_name: this.name,
     });
+    return;
   }
 
   async rules(): Promise<Rule[]> {
@@ -289,7 +305,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     };
   }
 
-  async sticky(num: 1 | 2 = 1) {
+  async sticky(num: 1 | 2 = 1): Promise<FullSubmission> {
     const res = await this.r.api.get<Api.GetSubmission>(
       "r/{name}/about/sticky.json",
       { fields: { name: this.name }, params: { num } }
@@ -297,7 +313,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     return new FullSubmission(this.r, res.data[0].data.children[0].data);
   }
 
-  async randomSubmission() {
+  async randomSubmission(): Promise<FullSubmission> {
     const res = await this.r.api.get<Api.GetSubmission>(
       "r/{name}/random.json",
       { fields: { name: this.name } }
@@ -305,7 +321,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     return new FullSubmission(this.r, res.data[0].data.children[0].data);
   }
 
-  hot(options?: GetOptions) {
+  hot(options?: GetOptions): Promise<Page<FullSubmission>> {
     // TODO: 'g' param
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
@@ -315,7 +331,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     );
   }
 
-  new(options?: GetOptions) {
+  new(options?: GetOptions): Promise<Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       { url: "r/{sub}/new.json", fields: { sub: this.name } },
@@ -324,7 +340,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     );
   }
 
-  top(options?: TimeOptions) {
+  top(options?: TimeOptions): Promise<Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       {
@@ -337,7 +353,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     );
   }
 
-  rising(options?: GetOptions) {
+  rising(options?: GetOptions): Promise<Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       { url: "r/{sub}/rising.json", fields: { sub: this.name } },
@@ -346,7 +362,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     );
   }
 
-  controversial(options?: TimeOptions) {
+  controversial(options?: TimeOptions): Promise<Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       {
@@ -362,7 +378,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   submissionsStream(
     fn: StreamCallback<FullSubmission>,
     options?: StreamOptions
-  ) {
+  ): Promise<void> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
       { url: "r/{sub}/new.json", fields: { sub: this.name } },
@@ -372,7 +388,10 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     );
   }
 
-  async searchSubmission(query: string, options?: SubmissionSearchOptions) {
+  async searchSubmission(
+    query: string,
+    options?: SubmissionSearchOptions
+  ): Promise<Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       {
@@ -385,11 +404,19 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     );
   }
 
-  submitLink(title: string, url: string, options?: NewSubmissionOptions) {
+  submitLink(
+    title: string,
+    url: string,
+    options?: NewSubmissionOptions
+  ): Promise<Submission> {
     return submit(this, title, { kind: "link", url }, options);
   }
 
-  submitText(title: string, body?: string, options?: NewSubmissionOptions) {
+  submitText(
+    title: string,
+    body?: string,
+    options?: NewSubmissionOptions
+  ): Promise<Submission> {
     return submit(this, title, { kind: "self", text: body }, options);
   }
 
@@ -399,9 +426,9 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     name: string,
     mimetype: string,
     options?: NewSubmissionOptions
-  ) {
+  ): Promise<Submission> {
     const url = await upload(this.r, file, name, mimetype);
-    this.submitLink(title, url, options);
+    return this.submitLink(title, url, options);
   }
 
   submitPoll(
@@ -410,7 +437,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     items: string[],
     duration: number,
     options?: NewSubmissionOptions
-  ) {
+  ): Promise<Submission> {
     return submit(
       this,
       title,
@@ -424,7 +451,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     title: string,
     submission: Submission,
     options?: NewSubmissionOptions
-  ) {
+  ): Promise<Submission> {
     return submit(
       this,
       title,

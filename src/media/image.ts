@@ -1,4 +1,4 @@
-interface Dimensions {
+export interface Dimensions {
   /** The width in pixels */
   width: number;
   /** The height in pixels */
@@ -10,7 +10,7 @@ export interface Stream {
   hls: string;
 }
 
-interface BaseResolution {
+export interface BaseResolution {
   /** The URL of the image */
   url: string;
 }
@@ -28,6 +28,12 @@ export interface Video extends Dimensions, Stream {
     /** The URL of the mp4 video file with only audio */
     audio: string;
   };
+
+  /** The duration of the video in seconds */
+  duration: number;
+
+  /** The video bitrate in kbps */
+  bitrate: number;
 }
 
 export interface BaseImage {

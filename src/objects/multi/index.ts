@@ -57,7 +57,7 @@ export class Multi implements Deletable, Fetchable<Multi> {
     this.subreddits = data.subreddits.map((s) => r.subreddit(s.name));
   }
 
-  async fetch() {
+  async fetch(): Promise<Multi> {
     const res = await this.r.api.get<Api.MultiWrap>(`api/multi${this.key}`);
     return new Multi(this.r, res.data.data);
   }
@@ -74,21 +74,21 @@ export class Multi implements Deletable, Fetchable<Multi> {
     console.log(res.data);
   }
 
-  async delete() {
+  async delete(): Promise<void> {
     this.r.needScopes("subscribe");
     await this.r.api.delete("api/multi/{name}", {
       fields: { name: this.name },
     });
   }
 
-  async addSubreddit(sub: Subreddit) {
+  async addSubreddit(sub: Subreddit): Promise<void> {
     this.r.needScopes("subscribe");
     await this.r.api.put(`api/multi${this.key}/r/{sub}`, undefined, {
       fields: { sub: sub.name },
     });
   }
 
-  async removeSubreddit(sub: Subreddit) {
+  async removeSubreddit(sub: Subreddit): Promise<void> {
     this.r.needScopes("subscribe");
     await this.r.api.delete(`api/multi${this.key}/r/{sub}`, {
       fields: { sub: sub.name },

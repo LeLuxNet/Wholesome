@@ -2,7 +2,7 @@ import { FullSubmission } from "../../..";
 import { r } from "../../../test/setup";
 
 describe("image", () => {
-  var s: FullSubmission;
+  let s: FullSubmission;
   beforeAll(async () => (s = await r.submission("m3gyry").fetch()));
 
   it("should have image", () => expect(s.images[0]).rightSize());
@@ -21,7 +21,7 @@ describe("image", () => {
 
 describe("poll", () => {
   describe("no body", () => {
-    var s: FullSubmission;
+    let s: FullSubmission;
     beforeAll(async () => (s = await r.submission("ew8evp").fetch()));
 
     it("should have trimmed body", () => {
@@ -50,7 +50,7 @@ describe("poll", () => {
   });
 
   describe("body", () => {
-    var s: FullSubmission;
+    let s: FullSubmission;
     beforeAll(async () => (s = await r.submission("fo7p5b").fetch()));
 
     it("should have trimmed body", () => {

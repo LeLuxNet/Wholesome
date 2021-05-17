@@ -14,7 +14,7 @@ declare namespace Api {
     copied_from: null;
     icon_url: string;
     subreddits: MultiSubreddit[];
-    visibility: "private" | "public";
+    visibility: "public" | "private";
     over_18: boolean;
     path: string;
     owner: string;

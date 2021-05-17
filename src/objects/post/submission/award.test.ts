@@ -1,7 +1,7 @@
 import { FullSubmission } from "../../..";
 import { r } from "../../../test/setup";
 
-var s: FullSubmission;
+let s: FullSubmission;
 beforeAll(async () => (s = await r.submission("msblc3").fetch()));
 
 it("should have correct award count", () => {

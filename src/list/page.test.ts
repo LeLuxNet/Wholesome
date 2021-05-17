@@ -6,11 +6,11 @@ import Page, { fetchPage } from "./page";
 
 jest.setTimeout(60 * 1000);
 
-function pageItems(p: Page<Identified, any>) {
+function pageItems(p: Page<Identified>) {
   return p.items.map((i) => i.fullId);
 }
 
-var page: Page<FullSubmission>;
+let page: Page<FullSubmission>;
 beforeAll(async () => {
   page = await fetchPage<FullSubmission, Api.SubmissionWrap>(
     r,
@@ -49,7 +49,7 @@ it("should refetch same items", async () => {
 });
 
 it("should be able to call next multiple times", async () => {
-  var p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
+  let p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
     r,
     { url: "r/earthporn/top.json" },
     (d) => new FullSubmission(r, d.data),
@@ -62,7 +62,7 @@ it("should be able to call next multiple times", async () => {
 });
 
 it("should have no previous items", async () => {
-  var p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
+  const p = await fetchPage<FullSubmission, Api.SubmissionWrap>(
     r,
     { url: "r/earthporn/top.json" },
     (d) => new FullSubmission(r, d.data),

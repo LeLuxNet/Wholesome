@@ -48,7 +48,7 @@ export class Award {
           ))
       );
 
-      var lastTier = this.icon;
+      let lastTier = this.icon;
       for (let i = 0; i < this._tierIcons!.length; i++) {
         if (this._tierIcons![i] === undefined) {
           this._tierIcons![i] = lastTier;
@@ -59,7 +59,7 @@ export class Award {
     }
   }
 
-  tierIcon(count: number) {
+  tierIcon(count: number): Image {
     if (this._tierIcons === undefined) {
       return this.icon;
     } else if (count >= this._tierIcons.length) {
@@ -82,7 +82,7 @@ export class GivenAward extends Award {
 }
 
 function image(u: string, w: number, r: Api.Image[]) {
-  var size = w;
+  let size = w;
   if (u.startsWith("https://www.redditstatic.com")) {
     const parts = u.split("_");
     size = parseInt(parts[parts.length - 1].split(".")[0]);

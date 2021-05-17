@@ -1,7 +1,7 @@
 import { CommentTree, FullComment } from "../../..";
 import { r } from "../../../test/setup";
 
-var c: CommentTree;
+let c: CommentTree;
 beforeAll(async () => {
   c = await r.submission("87").comments();
 });

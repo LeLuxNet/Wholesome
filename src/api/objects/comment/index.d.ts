@@ -40,7 +40,7 @@ declare namespace Api {
     collapsed_reason: null;
     associated_award: null;
     stickied: boolean;
-    subreddit_type: SubredditType;
+    subreddit_type: SubredditType | "user";
     can_gild: boolean;
     top_awarded_type: null;
     score_hidden: boolean;

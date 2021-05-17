@@ -34,7 +34,7 @@ export class Message implements Identified {
     };
   }
 
-  async reply(body: string) {
+  async reply(body: string): Promise<void> {
     this.r.needScopes("privatemessages");
     await this.r.api.post("api/comment", { thing_id: this.fullId, text: body });
   }

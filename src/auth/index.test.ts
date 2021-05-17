@@ -8,8 +8,8 @@ const { CLIENT_ID, CLIENT_SECRET } = process.env;
     const r = createReddit();
     await r.login({
       client: {
-        id: CLIENT_ID!,
-        secret: CLIENT_SECRET!,
+        id: CLIENT_ID as string,
+        secret: CLIENT_SECRET as string,
       },
     });
 

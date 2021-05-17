@@ -12,7 +12,7 @@ import {
 import { ar } from "../../test/setup";
 
 (ar ? describe : describe.skip)("widget", () => {
-  var w: Widgets;
+  let w: Widgets;
   beforeAll(async () => {
     const r = await ar!;
     w = await r.subreddit("wholesome_testing").widgets();

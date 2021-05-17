@@ -1,7 +1,7 @@
 import { Collection } from "../..";
 import { r } from "../../test/setup";
 
-var c: Collection;
+let c: Collection;
 beforeAll(async () => {
   c = await r.collection("84359211-be58-4c98-87cd-26bc10c59fb3");
 });

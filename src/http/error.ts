@@ -1,7 +1,7 @@
 import { AxiosError, AxiosInstance } from "axios";
 import { ApiError } from "../error/api";
 
-export default function errorInterceptor(api: AxiosInstance) {
+export default function errorInterceptor(api: AxiosInstance): void {
   api.interceptors.response.use(
     (res) => {
       if (typeof res.data !== "object") return res;

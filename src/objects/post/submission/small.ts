@@ -4,6 +4,7 @@ import CommentTree from "../comment/tree";
 import Post, { PostConstructor } from "../small";
 import FullSubmission from "./full";
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function _Submission<T extends PostConstructor>(base: T) {
   class _Submission extends base implements Fetchable<FullSubmission> {
     get shortUrl() {
@@ -26,7 +27,7 @@ export function _Submission<T extends PostConstructor>(base: T) {
       return new CommentTree(this.r, this, this, res.data[1].data.children);
     }
 
-    async follow(follow: boolean = true) {
+    async follow(follow = true) {
       this.r.needScopes("subscribe");
       await this.r.api.post("api/follow_post", {
         follow,
@@ -34,7 +35,7 @@ export function _Submission<T extends PostConstructor>(base: T) {
       });
     }
 
-    async markOc(oc: boolean = true) {
+    async markOc(oc = true) {
       this.r.needScopes("modposts");
       await this.r.api.post("api/set_original_content", {
         fullname: this.fullId,
@@ -42,14 +43,14 @@ export function _Submission<T extends PostConstructor>(base: T) {
       });
     }
 
-    async markNsfw(nsfw: boolean = true) {
+    async markNsfw(nsfw = true) {
       this.r.needScopes("modposts");
       await this.r.api.post(`api/${nsfw ? "" : "un"}marknsfw`, {
         id: this.fullId,
       });
     }
 
-    async markSpoiler(spoiler: boolean = true) {
+    async markSpoiler(spoiler = true) {
       this.r.needScopes("modposts");
       await this.r.api.post(`api/${spoiler ? "" : "un"}spoiler`, {
         id: this.fullId,

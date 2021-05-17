@@ -6,8 +6,10 @@ declare module "axios" {
   }
 }
 
-export default function fieldInterceptor(config: AxiosRequestConfig) {
-  config.url = config.url?.replace(/{([^}]+)}/g, (match, p) => {
+export default function fieldInterceptor(
+  config: AxiosRequestConfig
+): AxiosRequestConfig {
+  config.url = config.url?.replace(/{([^}]+)}/g, (_, p) => {
     if (config.fields === undefined) {
       throw "Fields needed if using template in URL";
     }

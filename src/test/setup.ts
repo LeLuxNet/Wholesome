@@ -4,7 +4,7 @@ import Reddit, { Image } from "..";
 
 declare global {
   namespace jest {
-    interface Matchers<R> {
+    interface Matchers {
       rightSize(): CustomMatcherResult;
     }
   }
@@ -15,7 +15,10 @@ jest.setTimeout(30 * 1000);
 export async function getSize(url: string): Promise<[number, number]> {
   const res = await axios.get(url, { responseType: "arraybuffer" });
   const meta = await sharp(res.data).metadata();
-  return [meta.width!, meta.height!];
+  if (meta.width === undefined && meta.height === undefined) {
+    throw "The metadata has to have width and height";
+  }
+  return [meta.width, meta.height];
 }
 
 expect.extend({
@@ -49,7 +52,7 @@ expect.extend({
   },
 });
 
-export function createReddit() {
+export function createReddit(): Reddit {
   return new Reddit({
     userAgent: "Wholesome Test",
   });
@@ -58,7 +61,7 @@ export function createReddit() {
 export const r = createReddit();
 
 const { CLIENT_ID, CLIENT_SECRET, USERNAME, PASSWORD } = process.env;
-export var ar: Promise<Reddit> | undefined =
+export const ar: Promise<Reddit> | undefined =
   CLIENT_ID && CLIENT_SECRET && USERNAME && PASSWORD
     ? Promise.resolve(createReddit()).then(async (r) => {
         await r.login({

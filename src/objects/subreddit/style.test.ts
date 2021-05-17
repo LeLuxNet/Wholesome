@@ -1,7 +1,7 @@
 import { FullSubreddit } from "../..";
 import { r } from "../../test/setup";
 
-var s: FullSubreddit;
+let s: FullSubreddit;
 beforeAll(async () => {
   s = await r.subreddit("dankmemes").fetch();
 });

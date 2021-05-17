@@ -5,6 +5,25 @@ import Reddit from "../../reddit";
 import { Collection } from "../collection";
 import Subreddit from "./small";
 
+export type SubredditType =
+  | "public" /** Everyone can read and post */
+  | "publicRestricted" /** Everyone can read; not everyone can post */
+  | "private" /** Private */
+  | "archived" /** Archived ([r/reddit.com](https://www.reddit.com/r/reddit.com)) */
+  | "premiumOnly" /** Only for users with reddit premium ([r/lounge](https://www.reddit.com/r/lounge)) */
+  | "premiumRestricted" /** Everyone can read; only users with reddit premium can post ([r/goldbenefits](https://www.reddit.com/r/goldbenefits)) */
+  | "adminOnly" /** Only for reddit admins */;
+
+const subredditTypeMap: { [raw: string]: SubredditType } = {
+  public: "public",
+  restricted: "publicRestricted",
+  private: "private",
+  archived: "archived",
+  gold_only: "premiumOnly",
+  gold_restricted: "premiumRestricted",
+  employees_only: "adminOnly",
+};
+
 export default class FullSubreddit extends Subreddit implements Identified {
   id: string;
   fullId: string;
@@ -12,6 +31,7 @@ export default class FullSubreddit extends Subreddit implements Identified {
   title: string;
   shortDescription: Content;
   description: Content;
+  type: SubredditType;
   category: string | null;
 
   memberCount: number;
@@ -24,6 +44,7 @@ export default class FullSubreddit extends Subreddit implements Identified {
   keyColor: string | null;
   bannerColor: string | null;
 
+  /** The time the subreddit was created at */
   created: Date;
   nsfw: boolean;
   language: string;
@@ -32,8 +53,11 @@ export default class FullSubreddit extends Subreddit implements Identified {
 
   hasMenu: boolean;
 
+  /** The text seen on the link submit button in the sidebar */
   submitLinkLabel: string | null;
+  /** The text seen on the text submit button in the sidebar */
   submitTextLabel: string | null;
+  /** The text visible above the text input on the submit page */
   submitTextText: Content;
 
   enabledMediaPreview: boolean;
@@ -67,6 +91,7 @@ export default class FullSubreddit extends Subreddit implements Identified {
       markdown: data.description,
       html: data.description_html,
     };
+    this.type = subredditTypeMap[data.subreddit_type];
     this.category = data.advertiser_category || null;
 
     this.memberCount = data.subscribers;
@@ -125,7 +150,7 @@ export default class FullSubreddit extends Subreddit implements Identified {
     this.allowVideos = data.allow_videos;
   }
 
-  async collections() {
+  async collections(): Promise<Collection[]> {
     const res = await this.r.api.get<Api.SubmissionCollection[]>(
       "api/v1/collections/subreddit_collections.json",
       { params: { sr_fullname: this.fullId } }

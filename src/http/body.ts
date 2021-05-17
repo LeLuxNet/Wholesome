@@ -1,7 +1,9 @@
 import { AxiosRequestConfig } from "axios";
 import { stringify } from "querystring";
 
-export default function bodyInterceptor(config: AxiosRequestConfig) {
+export default function bodyInterceptor(
+  config: AxiosRequestConfig
+): AxiosRequestConfig {
   if (
     config.method === "get" ||
     config.headers["Content-Type"] !== undefined ||

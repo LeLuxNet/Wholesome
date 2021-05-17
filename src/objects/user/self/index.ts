@@ -1,4 +1,5 @@
 import { get, GetOptions } from "../../../list/get";
+import Page from "../../../list/page";
 import { stream, StreamCallback, StreamOptions } from "../../../list/stream";
 import { Relation } from "../../../media/relation";
 import Reddit from "../../../reddit";
@@ -37,7 +38,7 @@ export default class Self extends User {
     }));
   }
 
-  subreddits(options?: GetOptions) {
+  subreddits(options?: GetOptions): Promise<Page<FullSubreddit>> {
     this.r.needScopes("mysubreddits");
     return get<FullSubreddit, Api.SubredditWrap>(
       this.r,
@@ -47,7 +48,10 @@ export default class Self extends User {
     );
   }
 
-  subredditsStream(fn: StreamCallback<FullSubreddit>, options?: StreamOptions) {
+  subredditsStream(
+    fn: StreamCallback<FullSubreddit>,
+    options?: StreamOptions
+  ): Promise<void> {
     this.r.needScopes("mysubreddits");
     return stream<FullSubreddit, Api.SubredditWrap>(
       this.r,
@@ -58,7 +62,10 @@ export default class Self extends User {
     );
   }
 
-  messagesStream(fn: StreamCallback<Message>, options?: StreamOptions) {
+  messagesStream(
+    fn: StreamCallback<Message>,
+    options?: StreamOptions
+  ): Promise<void> {
     this.r.needScopes("privatemessages");
     return stream<Message, Api.MessageWrap>(
       this.r,
@@ -69,7 +76,7 @@ export default class Self extends User {
     );
   }
 
-  voted(dir: 1 | -1, options?: GetOptions) {
+  voted(dir: 1 | -1, options?: GetOptions): Promise<Page<FullSubmission>> {
     return get<FullSubmission, Api.Submission>(
       this.r,
       {
@@ -85,7 +92,7 @@ export default class Self extends User {
     dir: 1 | -1,
     fn: StreamCallback<FullSubmission>,
     options?: StreamOptions
-  ) {
+  ): Promise<void> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
       {
@@ -98,7 +105,7 @@ export default class Self extends User {
     );
   }
 
-  saved(options?: GetOptions) {
+  saved(options?: GetOptions): Promise<Page<FullSubmission>> {
     return get<FullSubmission, Api.Submission>(
       this.r,
       { url: "user/{name}/saved", fields: { name: this.name } },
@@ -107,7 +114,10 @@ export default class Self extends User {
     );
   }
 
-  savedStream(fn: StreamCallback<FullSubmission>, options?: StreamOptions) {
+  savedStream(
+    fn: StreamCallback<FullSubmission>,
+    options?: StreamOptions
+  ): Promise<void> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
       { url: "user/{name}/saved", fields: { name: this.name } },
@@ -117,7 +127,7 @@ export default class Self extends User {
     );
   }
 
-  hidden(options?: GetOptions) {
+  hidden(options?: GetOptions): Promise<Page<FullSubmission>> {
     return get<FullSubmission, Api.Submission>(
       this.r,
       { url: "user/{name}/hidden", fields: { name: this.name } },
@@ -126,7 +136,10 @@ export default class Self extends User {
     );
   }
 
-  hiddenStream(fn: StreamCallback<FullSubmission>, options?: StreamOptions) {
+  hiddenStream(
+    fn: StreamCallback<FullSubmission>,
+    options?: StreamOptions
+  ): Promise<void> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
       { url: "user/{name}/hidden", fields: { name: this.name } },
@@ -227,7 +240,7 @@ export default class Self extends User {
     };
   }
 
-  async updatePrefs(prefs: Optional<Preferences>) {
+  async updatePrefs(prefs: Optional<Preferences>): Promise<void> {
     this.r.needScopes("account");
 
     const data: { [K in keyof Api.Prefs]: Api.Prefs[K] | undefined } = {

@@ -51,7 +51,7 @@ declare namespace Api {
     href_url?: string;
     link_flair_text_color: "light" | "dark";
     upvote_ratio: number;
-    subreddit_type: SubredditType;
+    subreddit_type: SubredditType | "user";
     total_awards_received: number;
     media_embed: {};
     thumbnail_width: number | null;

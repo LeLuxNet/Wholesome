@@ -7,6 +7,7 @@ import debugInterceptor from "./http/debug";
 import errorInterceptor from "./http/error";
 import fieldInterceptor from "./http/fields";
 import { get, GetOptions } from "./list/get";
+import Page from "./list/page";
 import { Collection } from "./objects/collection";
 import { FullSubmission, Submission } from "./objects/post";
 import { FullSubreddit, Subreddit } from "./objects/subreddit";
@@ -26,7 +27,7 @@ export default class Reddit {
 
   auth?: Auth;
 
-  linkUrl: string = "https://www.reddit.com";
+  linkUrl = "https://www.reddit.com";
 
   constructor(data: RedditConstructor) {
     this.api = axios.create({
@@ -46,10 +47,10 @@ export default class Reddit {
     errorInterceptor(this.api);
   }
 
-  async login(data: AuthData) {
-    var body: any;
+  async login(data: AuthData): Promise<void> {
+    let body: object;
     const config: AxiosRequestConfig = { skipAuth: true };
-    var username: string | undefined;
+    let username: string | undefined;
 
     if ("code" in data) {
       config.auth = {
@@ -151,7 +152,7 @@ export default class Reddit {
     redirectUri: string,
     scopes: Scope[],
     temporary?: boolean
-  ) {
+  ): string {
     return `https://www.reddit.com/api/v1/authorize?client_id=${encodeURIComponent(
       clientId
     )}&response_type=code&state=+&redirect_uri=${encodeURIComponent(
@@ -162,7 +163,7 @@ export default class Reddit {
   }
 
   /** @internal */
-  needScopes(...scopes: Scope[]) {
+  needScopes(...scopes: Scope[]): void {
     const auth = this.needAuth;
     if (auth.scopes === "*") return;
 
@@ -178,13 +179,13 @@ export default class Reddit {
   }
 
   /** @internal */
-  get needAuth() {
+  get needAuth(): Auth {
     if (!this.auth) throw "You need to be authenticated to use this function";
     return this.auth;
   }
 
   /** @internal */
-  get needUsername() {
+  get needUsername(): string {
     if (!this.auth || !this.auth.username)
       throw "You need to be authenticated with a user";
     return this.auth.username;
@@ -201,30 +202,30 @@ export default class Reddit {
    * console.log(s.title); // The Downing Street Memo
    * ```
    */
-  submission(id: string) {
+  submission(id: string): Submission {
     if (id.startsWith("t3_")) id = id.slice(3);
     return new Submission(this, id);
   }
 
-  subreddit(name: string) {
+  subreddit(name: string): Subreddit {
     return new Subreddit(this, name);
   }
 
   /** The r/all *pseudo* subreddit */
-  get all() {
+  get all(): Subreddit {
     return this.subreddit("all");
   }
 
-  user(name: string) {
+  user(name: string): User {
     return new User(this, name);
   }
 
-  get self() {
+  get self(): Self | null {
     if (!this.auth) return null;
     return new Self(this, this.auth.username);
   }
 
-  async collection(id: string) {
+  async collection(id: string): Promise<Collection> {
     const res = await this.api.get<Api.Collection>(
       "api/v1/collections/collection.json",
       { params: { collection_id: id, include_links: 0 } }
@@ -232,7 +233,7 @@ export default class Reddit {
     return new Collection(this, res.data);
   }
 
-  async trendingSubreddits() {
+  async trendingSubreddits(): Promise<Subreddit[]> {
     // This endpoint only exists on www.reddit.com not on oauth.reddit.com
     const res = await this.api.get<Api.TrendingSubreddits>(
       "https://www.reddit.com/api/trending_subreddits.json"
@@ -240,7 +241,10 @@ export default class Reddit {
     return res.data.subreddit_names.map((n) => this.subreddit(n));
   }
 
-  async searchSubmission(query: string, options?: SubmissionSearchOptions) {
+  async searchSubmission(
+    query: string,
+    options?: SubmissionSearchOptions
+  ): Promise<Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this,
       {
@@ -253,7 +257,10 @@ export default class Reddit {
   }
 
   /** Search subreddits by title and description */
-  async searchSubreddit(query: string, options?: SearchOptions) {
+  async searchSubreddit(
+    query: string,
+    options?: SearchOptions
+  ): Promise<Page<FullSubreddit>> {
     return get<FullSubreddit, Api.SubredditWrap>(
       this,
       {
@@ -265,7 +272,10 @@ export default class Reddit {
     );
   }
 
-  async searchUser(query: string, options?: SearchOptions) {
+  async searchUser(
+    query: string,
+    options?: SearchOptions
+  ): Promise<Page<FullUser>> {
     return get<FullUser, Api.UserWrap>(
       this,
       {

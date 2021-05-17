@@ -12,16 +12,12 @@ export async function get<I extends Identified, T>(
   config: AxiosRequestConfig,
   map: (d: T) => I,
   options: GetOptions | undefined
-) {
+): Promise<Page<I, T>> {
   const children: I[] = [];
-  var after: string | undefined;
-  var count = options?.count || 25;
+  let after: string | undefined;
+  let count = options?.count || 25;
 
-  while (true) {
-    if (count <= 0) {
-      return new Page(r, config, map, children);
-    }
-
+  while (count > 0) {
     const res = await r.api.get<Api.ListingRes<T>>(config.url!, {
       ...config,
       params: {
@@ -32,8 +28,17 @@ export async function get<I extends Identified, T>(
     });
     const data = res.data instanceof Array ? res.data[1] : res.data;
     children.push(...data.data.children.map(map));
-    after = data.data.after!;
+    after = children[children.length - 1].fullId;
 
     count -= 100;
   }
+
+  return new Page(
+    r,
+    config,
+    map,
+    children,
+    children[0].fullId,
+    children[children.length - 1].fullId
+  );
 }

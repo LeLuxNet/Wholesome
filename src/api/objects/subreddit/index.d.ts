@@ -1,6 +1,13 @@
 /// <reference path="../../index.d.ts" />
 declare namespace Api {
-  export type SubredditType = "public" | "restricted" | "private" | "archived";
+  export type SubredditType =
+    | "gold_restricted"
+    | "archived"
+    | "restricted"
+    | "private"
+    | "employees_only"
+    | "gold_only"
+    | "public";
 
   export interface SubredditWrap {
     kind: "t5";

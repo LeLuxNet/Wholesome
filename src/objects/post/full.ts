@@ -1,7 +1,7 @@
 import Action from "../../media/actions";
 import Reddit from "../../reddit";
 import { Subreddit } from "../subreddit";
-import { SubmissionUser } from "../user";
+import { SubmissionUser, User } from "../user";
 import Post, { VoteDirection } from "./small";
 import { GivenAward } from "./submission/award";
 
@@ -10,8 +10,8 @@ export type DistinguishKinds = "mod" | "admin" | "special" | null;
 export default class FullPost extends Post {
   /** The user who posted this or null if he's 'u/[deleted]' */
   author: SubmissionUser | null;
-  /** The subreddit it was posted on. */
-  subreddit: Subreddit;
+  /** The subreddit it was posted on or a user if it was posted directly on it's profile */
+  subreddit: Subreddit | User;
 
   /** The date this thing was created. */
   created: Date;
@@ -49,7 +49,10 @@ export default class FullPost extends Post {
 
     this.author =
       data.author_fullname === undefined ? null : new SubmissionUser(r, data);
-    this.subreddit = r.subreddit(data.subreddit);
+    this.subreddit =
+      data.subreddit_type === "user"
+        ? r.user(data.subreddit.slice(2))
+        : r.subreddit(data.subreddit);
 
     this.created = new Date(data.created_utc * 1000);
     this.edited = data.edited ? new Date(data.edited * 1000) : null;

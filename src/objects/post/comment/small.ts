@@ -4,6 +4,7 @@ import Post, { PostConstructor } from "../small";
 import Submission from "../submission/small";
 import FullComment from "./full";
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function _Comment<T extends PostConstructor>(base: T) {
   class _Comment extends base implements Fetchable<FullComment | null> {
     submission: Submission;

@@ -62,7 +62,7 @@ export default class CommentTree<T = Submission | FullComment> {
    *
    * @returns the comment or `null` if it has been deleted
    */
-  fetchMissing() {
+  fetchMissing(): Promise<(FullComment | null)[]> {
     const res: Promise<FullComment | null>[] = [];
     this.allComments.forEach((c) => {
       if (!(c instanceof FullComment)) {

@@ -2,7 +2,7 @@ import Self from ".";
 import { ar } from "../../../test/setup";
 
 (ar ? describe : describe.skip)("self", () => {
-  var s: Self;
+  let s: Self;
   beforeAll(async () => {
     const r = await ar!;
     s = r.self!;
@@ -10,7 +10,7 @@ import { ar } from "../../../test/setup";
 
   it("should set preferences", async () => {
     await s.updatePrefs({ nightmode: false });
-    var p = await s.prefs();
+    let p = await s.prefs();
     expect(p.nightmode).toBe(false);
 
     await s.updatePrefs({ nightmode: true });
@@ -22,7 +22,7 @@ import { ar } from "../../../test/setup";
     const u = (await ar!).user("ginnyTheCar");
 
     await u.friend(false);
-    var friends = await s.friends();
+    let friends = await s.friends();
     expect(friends.find((f) => f.user.is(u))).toBeUndefined();
 
     await u.friend();

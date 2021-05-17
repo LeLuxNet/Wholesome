@@ -4,7 +4,7 @@ import Reddit from "../reddit";
 
 export type StreamCallback<I extends Identified> = (
   data: I,
-  end: Function
+  end: () => void
 ) => void;
 
 export interface StreamOptions {
@@ -17,7 +17,7 @@ export async function stream<I extends Identified, T>(
   map: (d: T) => I,
   fn: StreamCallback<I>,
   options: StreamOptions | undefined
-) {
+): Promise<void> {
   r.api
     .get<Api.ListingRes<T>>(config.url!, {
       ...config,
@@ -26,7 +26,7 @@ export async function stream<I extends Identified, T>(
     .then((res) => {
       const data = res.data instanceof Array ? res.data[1] : res.data;
       const first = map(data.data.children[0]);
-      var before = first.fullId;
+      let before = first.fullId;
 
       const interval = setInterval(async () => {
         const res = await r.api.get<Api.ListingRes<T>>(config.url!, {

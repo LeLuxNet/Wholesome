@@ -44,7 +44,7 @@ export default class Page<I extends Identified, T = any> {
   }
 
   /** Refetch the current page */
-  fetch() {
+  fetch(): Promise<Page<I, T>> {
     return fetchPage(
       this.r,
       this.config,
@@ -60,7 +60,7 @@ export default class Page<I extends Identified, T = any> {
    *
    * @param count count of items
    */
-  next(count: number) {
+  next(count: number): Promise<Page<I, T>> {
     return fetchPage(
       this.r,
       this.config,
@@ -76,7 +76,7 @@ export default class Page<I extends Identified, T = any> {
    *
    * @param count count of items
    */
-  prev(count: number) {
+  prev(count: number): Promise<Page<I, T>> {
     return fetchPage(this.r, this.config, this.map, count, this.before);
   }
 }
@@ -88,13 +88,14 @@ export async function fetchPage<I extends Identified, T>(
   count?: number,
   before?: string,
   after?: string
-) {
+): Promise<Page<I, T>> {
   const children: I[] = [];
   count = count || Number.MAX_VALUE;
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const limit = Math.min(count, 100);
-    const res = await r.api.get<Api.ListingRes<T>>(config.url!, {
+    const res = await r.api.get<Api.ListingRes<T>>(config.url as string, {
       ...config,
       params: {
         ...config.params,
