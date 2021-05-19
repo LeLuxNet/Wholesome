@@ -11,7 +11,9 @@ it("should have name", () => expect(s.name).toBe("gifs"));
 it("should have url", () =>
   expect(s.url).toBe("https://www.reddit.com/r/gifs"));
 it("should have stylesheet", () =>
-  expect(s.stylesheet).toBe("https://www.reddit.com/r/gifs/stylesheet.json"));
+  expect(s.stylesheetURL).toBe(
+    "https://www.reddit.com/r/gifs/stylesheet.json"
+  ));
 
 it("should have icon", () => expect(s.icon).rightSize());
 

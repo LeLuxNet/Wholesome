@@ -194,7 +194,7 @@ export class CustomWidget extends Widget {
   text: Content;
   height: number;
   stylesheet: string;
-  stylesheetUrl: string;
+  stylesheetURL: string;
 
   constructor(sub: Subreddit, data: Api.CustomWidget) {
     super(sub, data.id);
@@ -202,7 +202,7 @@ export class CustomWidget extends Widget {
     this.text = { markdown: data.text, html: data.textHtml };
     this.height = data.height;
     this.stylesheet = data.css;
-    this.stylesheetUrl = data.stylesheetUrl;
+    this.stylesheetURL = data.stylesheetUrl;
   }
 }
 

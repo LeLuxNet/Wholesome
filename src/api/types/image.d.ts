@@ -5,10 +5,4 @@ declare namespace Api {
     width: number;
     height: number;
   }
-
-  export interface MediaImage {
-    y: number; // height
-    x: number; // width
-    u: string;
-  }
 }

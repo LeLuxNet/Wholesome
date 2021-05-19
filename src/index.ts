@@ -7,6 +7,7 @@ export {
   BaseImage,
   BaseResolution,
   Dimensions,
+  GIF,
   Image,
   Resolution,
   Stream,
@@ -62,5 +63,6 @@ export {
   User,
 } from "./objects/user";
 export { Preferences } from "./objects/user/self/prefs";
+export { RedditConstructor } from "./reddit";
 export { Reddit };
 export default Reddit;

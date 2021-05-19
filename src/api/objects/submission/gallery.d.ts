@@ -12,13 +12,36 @@ declare namespace Api {
   }
 
   interface MediaMetadata {
-    [id: string]: {
-      status: "valid";
-      e: "Image";
-      m: string;
-      p: MediaImage[];
-      s: MediaImage;
-      id: string;
-    };
+    [id: string]: MediaImage | MediaGIF;
+  }
+
+  interface MediaImageBase {
+    status: "valid";
+    m: string;
+    p: MediaResolution[];
+    id: string;
+  }
+
+  interface MediaImage extends MediaImageBase {
+    e: "Image";
+    s: MediaResolution;
+  }
+
+  interface MediaGIF extends MediaImageBase {
+    e: "AnimatedImage";
+    s: MediaGIFResolution;
+  }
+
+  export interface MediaResolution {
+    y: number; // height
+    x: number; // width
+    u: string;
+  }
+
+  export interface MediaGIFResolution {
+    y: number; // height
+    x: number; // width
+    gif: string;
+    mp4: string;
   }
 }

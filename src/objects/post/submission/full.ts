@@ -4,8 +4,7 @@ import { stream, StreamCallback, StreamOptions } from "../../../list/stream";
 import Content from "../../../media/content";
 import Embed from "../../../media/embed";
 import Event from "../../../media/event";
-import GIF from "../../../media/gif";
-import { Image, Stream, Video } from "../../../media/image";
+import { GIF, Image, Stream, Video } from "../../../media/image";
 import Poll, { PollOption } from "../../../media/poll";
 import Promotion from "../../../media/promotion";
 import Reddit from "../../../reddit";
@@ -61,8 +60,7 @@ export default class FullSubmission
   body: Content | null;
   thumbnail: Image | null;
 
-  images: Image[];
-  gif: GIF | null;
+  images: (Image | GIF)[];
   video: Video | null;
   rpan: Stream | null;
 
@@ -144,7 +142,6 @@ export default class FullSubmission
             },
           };
 
-    this.gif = null;
     this.video = null;
     this.embed = null;
 
@@ -152,11 +149,12 @@ export default class FullSubmission
       const img = data.preview.images[0];
 
       if (img.variants.gif !== undefined) {
-        this.gif = {
-          gif: mapPreview(img.variants.gif),
-          mp4: mapPreview(img.variants.mp4),
-        };
-        this.images = [this.gif.gif];
+        this.images = [
+          {
+            ...mapPreview(img.variants.gif),
+            mp4: mapPreview(img.variants.mp4),
+          },
+        ];
         if (data.preview.reddit_video_preview !== undefined) {
           this.video = mapVideo(data.preview.reddit_video_preview);
         }
@@ -167,14 +165,26 @@ export default class FullSubmission
       this.images = data.gallery_data.items.map((i): Image => {
         const img = data.media_metadata[i.media_id];
 
-        return {
+        const res = {
           caption: i.caption,
           captionLink: i.outbound_url,
-          native: { url: img.s.u, width: img.s.x, height: img.s.y },
+          native: {
+            url: "u" in img.s ? img.s.u : img.s.gif,
+            width: img.s.x,
+            height: img.s.y,
+          },
           resized: img.p.map((i) => {
             return { url: i.u, width: i.x, height: i.y };
           }),
         };
+
+        if ("mp4" in img.s) {
+          (<GIF>res).mp4 = {
+            native: { url: img.s.mp4, width: img.s.x, height: img.s.y },
+          };
+        }
+
+        return res;
       });
     } else {
       this.images = [];

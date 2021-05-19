@@ -10,6 +10,7 @@
     "@typescript-eslint/no-non-null-assertion": 1,
     "@typescript-eslint/explicit-module-boundary-types": 2,
     "@typescript-eslint/triple-slash-reference": 0,
-    "@typescript-eslint/ban-types": 1
+    "@typescript-eslint/ban-types": 1,
+    "no-console": 2
   }
 }

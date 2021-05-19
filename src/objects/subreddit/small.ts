@@ -51,7 +51,14 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     return `${this.r.linkUrl}/r/${encodeURIComponent(this.name)}`;
   }
 
-  get stylesheet(): string {
+  async stylesheet(): Promise<string> {
+    const res = await this.r.api.get<string>("/r/{name}/stylesheet.json", {
+      fields: { name: this.name },
+    });
+    return res.data;
+  }
+
+  get stylesheetURL(): string {
     return `${this.url}/stylesheet.json`;
   }
 

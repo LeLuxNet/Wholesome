@@ -4,7 +4,8 @@ import Reddit, { Image } from "..";
 
 declare global {
   namespace jest {
-    interface Matchers {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    interface Matchers<R> {
       rightSize(): CustomMatcherResult;
     }
   }
@@ -15,10 +16,7 @@ jest.setTimeout(30 * 1000);
 export async function getSize(url: string): Promise<[number, number]> {
   const res = await axios.get(url, { responseType: "arraybuffer" });
   const meta = await sharp(res.data).metadata();
-  if (meta.width === undefined && meta.height === undefined) {
-    throw "The metadata has to have width and height";
-  }
-  return [meta.width, meta.height];
+  return [meta.width!, meta.height!];
 }
 
 expect.extend({

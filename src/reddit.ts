@@ -14,10 +14,9 @@ import { FullSubreddit, Subreddit } from "./objects/subreddit";
 import { SubmissionSearchOptions } from "./objects/subreddit/small";
 import { FullUser, Self, User } from "./objects/user";
 
-interface RedditConstructor {
+export interface RedditConstructor {
   userAgent: string;
 
-  browser?: boolean;
   debug?: boolean;
 }
 
@@ -32,7 +31,11 @@ export default class Reddit {
   constructor(data: RedditConstructor) {
     this.api = axios.create({
       baseURL: "https://www.reddit.com",
-      headers: data.browser ? undefined : { "User-Agent": data.userAgent },
+      headers:
+        // @ts-ignore
+        typeof window === "undefined"
+          ? undefined
+          : { "User-Agent": data.userAgent },
       params: { raw_json: 1 },
     });
 
