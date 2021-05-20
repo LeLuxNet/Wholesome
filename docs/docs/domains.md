@@ -1,3 +1,8 @@
+---
+id: domains
+title: Domains
+---
+
 # Domains
 
 This document lists all domains Wholesome uses to communicate with Reddit.

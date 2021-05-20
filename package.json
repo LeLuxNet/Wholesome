@@ -10,8 +10,7 @@
     "prepare": "npm run build",
     "test": "jest --coverage",
     "lint": "eslint \"src/**/*.ts\" && prettier --check \"src/**/*.ts\"",
-    "lint:fix": "prettier --write \"src/**/*.ts\" && eslint --fix .",
-    "docs": "typedoc src/index.ts"
+    "lint:fix": "prettier --write \"src/**/*.ts\" && eslint --fix ."
   },
   "dependencies": {
     "axios": "^0.21.1",

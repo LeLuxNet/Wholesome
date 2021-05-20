@@ -1,5 +1,7 @@
+.docusaurus
 .vscode
 coverage
+build
 dist
-docs
+docs/docs/api
 node_modules

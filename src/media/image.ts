@@ -61,7 +61,8 @@ export interface Image extends BaseImage {
 export interface GIF extends Image {
   /** Using the mp4 version of a GIF is in most cases beneficial because of better compression and smaller file sizes.
    *
-   *  @example ```html
+   *  @example
+   * ```html
    * <!-- slow -->
    * <img src={image.native.url} alt={image.caption} />
    *
