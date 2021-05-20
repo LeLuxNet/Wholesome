@@ -1,3 +1,5 @@
+const path = require("path");
+
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: "Wholesome",
@@ -63,6 +65,12 @@ module.exports = {
         sidebar: {
           sidebarFile: null,
         },
+      },
+    ],
+    [
+      path.resolve(__dirname, "try-it-out.js"),
+      {
+        url: "https://unpkg.com/wholesome/dist/browser.js",
       },
     ],
   ],

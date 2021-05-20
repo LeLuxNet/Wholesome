@@ -66,3 +66,7 @@ export { Preferences } from "./objects/user/self/prefs";
 export { RedditConstructor } from "./reddit";
 export { Reddit };
 export default Reddit;
+
+if ((process as any).browser) {
+  (global as any).wholesome = Reddit;
+}

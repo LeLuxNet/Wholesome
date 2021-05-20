@@ -34,8 +34,8 @@ export default class Reddit {
       headers:
         // @ts-ignore
         typeof window === "undefined"
-          ? undefined
-          : { "User-Agent": data.userAgent },
+          ? { "User-Agent": data.userAgent }
+          : undefined,
       params: { raw_json: 1 },
     });
 
@@ -210,8 +210,8 @@ export default class Reddit {
     return new Submission(this, id);
   }
 
-  subreddit(name: string): Subreddit {
-    return new Subreddit(this, name);
+  subreddit(...names: string[]): Subreddit {
+    return new Subreddit(this, names.join("+"));
   }
 
   /** The r/all *pseudo* subreddit */

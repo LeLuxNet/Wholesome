@@ -26,6 +26,7 @@ class Widget implements Deletable {
   subreddit: Subreddit;
   id: string;
 
+  /** @internal */
   constructor(subreddit: Subreddit, id: string) {
     this.subreddit = subreddit;
     this.id = id;
@@ -47,6 +48,7 @@ export class IdWidget extends Widget {
   activeMemberCount: number;
   activeMemberText: string | null;
 
+  /** @internal */
   constructor(sub: Subreddit, data: Api.IdCardWidget) {
     super(sub, data.id);
     this.description = data.description || null;
@@ -62,6 +64,7 @@ export class ModWidget extends Widget {
   modCount: number;
   mods: User[];
 
+  /** @internal */
   constructor(sub: Subreddit, data: Api.ModWidget) {
     super(sub, data.id);
     this.modCount = data.totalMods;
@@ -73,6 +76,7 @@ export class MenuWidget extends Widget {
   items: MenuItem[];
   showWiki: boolean;
 
+  /** @internal */
   constructor(sub: Subreddit, data: Api.MenuWidget) {
     super(sub, data.id);
     this.items = data.data.map(mapMenuItem);
@@ -96,6 +100,7 @@ export class RulesWidget extends Widget {
   compact: boolean;
   rules: Rule[];
 
+  /** @internal */
   constructor(sub: Subreddit, data: Api.SubredditRulesWidget) {
     super(sub, data.id);
     this.compact = data.display === "compact";
@@ -107,6 +112,7 @@ export class TextWidget extends Widget {
   title: string;
   text: Content;
 
+  /** @internal */
   constructor(sub: Subreddit, data: Api.TextareaWidget) {
     super(sub, data.id);
     this.title = data.shortName;
@@ -119,6 +125,7 @@ export class ButtonWidget extends Widget {
   description: Content | null;
   buttons: Button[];
 
+  /** @internal */
   constructor(sub: Subreddit, data: Api.ButtonWidget) {
     super(sub, data.id);
     this.title = data.shortName;
@@ -148,6 +155,7 @@ export class ImageWidget extends Widget {
   title: string;
   images: Image[];
 
+  /** @internal */
   constructor(sub: Subreddit, data: Api.ImageWidget) {
     super(sub, data.id);
     this.title = data.shortName;
@@ -162,6 +170,7 @@ export class SubredditsWidget extends Widget {
   title: string;
   subreddits: Subreddit[];
 
+  /** @internal */
   constructor(sub: Subreddit, data: Api.CommunityListWidget) {
     super(sub, data.id);
     this.title = data.shortName;
@@ -172,6 +181,7 @@ export class SubredditsWidget extends Widget {
 export class CalendarWidget extends Widget {
   title: string;
 
+  /** @internal */
   constructor(sub: Subreddit, data: Api.CalendarWidget) {
     super(sub, data.id);
     this.title = data.shortName;
@@ -182,6 +192,7 @@ export class CalendarWidget extends Widget {
 export class FlairWidget extends Widget {
   title: string;
 
+  /** @internal */
   constructor(sub: Subreddit, data: Api.PostFlairWidget) {
     super(sub, data.id);
     this.title = data.shortName;
@@ -196,6 +207,7 @@ export class CustomWidget extends Widget {
   stylesheet: string;
   stylesheetURL: string;
 
+  /** @internal */
   constructor(sub: Subreddit, data: Api.CustomWidget) {
     super(sub, data.id);
     this.title = data.shortName;
