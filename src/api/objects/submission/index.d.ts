@@ -53,7 +53,7 @@ declare namespace Api {
     upvote_ratio: number;
     subreddit_type: SubredditType | "user";
     total_awards_received: number;
-    media_embed: {};
+    media_embed: unknown;
     thumbnail_width: number | null;
     is_original_content: boolean;
     rpan_video?: {
@@ -61,11 +61,11 @@ declare namespace Api {
       scrubber_media_url: string;
     };
     secure_media?: SecureMedia | null;
-    outbound_link?: {};
+    outbound_link?: unknown;
     is_reddit_media_domain: boolean;
     is_meta: boolean;
     category: null;
-    secure_media_embed: {};
+    secure_media_embed: unknown;
     link_flair_text: string;
     can_mod_post: boolean;
     approved_by: string | null;
@@ -146,7 +146,7 @@ declare namespace Api {
   type WhitelistStatus = "no_ads" | "all_ads";
 
   type SecureMedia =
-    | {}
+    | Record<string, never>
     | { reddit_video: Video }
     | { oembed: Embed; type: string };
 

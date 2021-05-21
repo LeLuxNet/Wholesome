@@ -25,3 +25,9 @@ it("should allow gifs", () => {
   expect(s.allowImages).toBe(true);
   expect(s.allowGifs).toBe(true);
 });
+
+it("should be sticky", async () => {
+  const submission = await s.sticky(1);
+
+  expect(submission.stickied).toBe(true);
+});

@@ -13,6 +13,7 @@ export default class FullComment extends _Comment(FullPost) implements Comment {
 
   /** @internal */
   constructor(r: Reddit, data: Api.Comment, submission?: Submission) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     super(r, data, data.score_hidden, submission || r.submission(data.link_id));
 

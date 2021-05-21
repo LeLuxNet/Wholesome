@@ -67,6 +67,6 @@ export { RedditConstructor } from "./reddit";
 export { Reddit };
 export default Reddit;
 
-if ((process as any).browser) {
-  (global as any).wholesome = Reddit;
+if (process.browser) {
+  global.wholesome = Reddit;
 }

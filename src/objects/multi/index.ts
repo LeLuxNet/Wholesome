@@ -62,16 +62,16 @@ export class Multi implements Deletable, Fetchable<Multi> {
     return new Multi(this.r, res.data.data);
   }
 
-  async copy(name: string) {
+  async copy(name: string): Promise<Multi> {
     this.r.needScopes("subscribe");
-    const res = await this.r.api.post("api/multi/copy", {
+    const res = await this.r.api.post<Api.MultiWrap>("api/multi/copy", {
       display_name: name,
       from: this.key,
       to: `user/${encodeURIComponent(
         this.r.needUsername
       )}/m/${encodeURIComponent(name)}`,
     });
-    console.log(res.data);
+    return new Multi(this.r, res.data.data);
   }
 
   async delete(): Promise<void> {

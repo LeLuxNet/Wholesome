@@ -36,6 +36,7 @@ export function _Comment<T extends PostConstructor>(base: T) {
 
 export default class Comment extends _Comment(Post) {
   constructor(r: Reddit, id: string, submission: Submission) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     super(r, id, `t1_${id}`, submission);
   }

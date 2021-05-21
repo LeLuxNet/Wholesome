@@ -20,6 +20,8 @@ export interface RedditConstructor {
   debug?: boolean;
 }
 
+declare const window: unknown;
+
 export default class Reddit {
   /** @internal */
   api: AxiosInstance;
@@ -32,7 +34,6 @@ export default class Reddit {
     this.api = axios.create({
       baseURL: "https://www.reddit.com",
       headers:
-        // @ts-ignore
         typeof window === "undefined"
           ? { "User-Agent": data.userAgent }
           : undefined,

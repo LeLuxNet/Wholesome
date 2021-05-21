@@ -34,14 +34,13 @@ export default class FullSubmission
   commentCount: number;
 
   hidden: boolean;
-  pinned: boolean;
   quarantine: boolean;
 
   /** The crosspost this submission contains */
   crosspost: FullSubmission | null;
 
   /**
-   * How often this submission has been crossposted
+   * How often this submission has been crossposted to other subreddits
    * @see {@link crossposts} to fetch them
    */
   crosspostCount: number;
@@ -93,7 +92,6 @@ export default class FullSubmission
     this.commentCount = data.num_comments;
 
     this.hidden = data.hidden;
-    this.pinned = data.pinned;
     this.quarantine = data.quarantine;
 
     this.crosspost =

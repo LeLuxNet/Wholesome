@@ -12,6 +12,7 @@ export default function debugInterceptor(
   }
   url = buildURL(url, config.params, config.paramsSerializer);
 
+  // eslint-disable-next-line no-console
   console.log(config.method, url);
 
   return config;
