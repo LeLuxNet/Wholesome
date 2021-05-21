@@ -4,7 +4,7 @@ import { upload } from "../../helper/upload";
 import Fetchable from "../../interfaces/fetchable";
 import { get, GetOptions } from "../../list/get";
 import Page from "../../list/page";
-import { stream, StreamCallback, StreamOptions } from "../../list/stream";
+import { stream, StreamOptions } from "../../list/stream";
 import { BaseImage } from "../../media/image";
 import Reddit from "../../reddit";
 import { FullSubmission, Submission } from "../post";
@@ -382,15 +382,11 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     );
   }
 
-  submissionsStream(
-    fn: StreamCallback<FullSubmission>,
-    options?: StreamOptions
-  ): Promise<void> {
+  submissionsStream(options?: StreamOptions): AsyncIterator<FullSubmission> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
       { url: "r/{sub}/new.json", fields: { sub: this.name } },
       (d) => new FullSubmission(this.r, d.data),
-      fn,
       options
     );
   }

@@ -3,7 +3,7 @@ import { ApiError } from "../../error/api";
 import Fetchable from "../../interfaces/fetchable";
 import { get, GetOptions } from "../../list/get";
 import Page from "../../list/page";
-import { stream, StreamCallback, StreamOptions } from "../../list/stream";
+import { stream, StreamOptions } from "../../list/stream";
 import Reddit from "../../reddit";
 import { Multi } from "../multi";
 import { FullComment, FullSubmission } from "../post";
@@ -104,15 +104,11 @@ export class User implements Fetchable<FullUser> {
     );
   }
 
-  submissionsStream(
-    fn: StreamCallback<FullSubmission>,
-    options?: StreamOptions
-  ): Promise<void> {
+  submissionsStream(options?: StreamOptions): AsyncIterator<FullSubmission> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
       { url: "user/{name}/submitted.json", fields: { name: this.name } },
       (d) => new FullSubmission(this.r, d.data),
-      fn,
       options
     );
   }
@@ -126,15 +122,11 @@ export class User implements Fetchable<FullUser> {
     );
   }
 
-  commentsStream(
-    fn: StreamCallback<FullComment>,
-    options?: StreamOptions
-  ): Promise<void> {
+  commentsStream(options?: StreamOptions): AsyncIterator<FullComment> {
     return stream<FullComment, Api.CommentWrap>(
       this.r,
       { url: "user/{name}/comments.json", fields: { name: this.name } },
       (d) => new FullComment(this.r, d.data),
-      fn,
       options
     );
   }

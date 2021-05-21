@@ -1,6 +1,6 @@
 import { get, GetOptions } from "../../../list/get";
 import Page from "../../../list/page";
-import { stream, StreamCallback, StreamOptions } from "../../../list/stream";
+import { stream, StreamOptions } from "../../../list/stream";
 import Content from "../../../media/content";
 import Embed from "../../../media/embed";
 import Event from "../../../media/event";
@@ -268,14 +268,10 @@ export default class FullSubmission
     return this.duplicates({ ...options, crosspostsOnly: true });
   }
 
-  /**
-   * @param fn function that gets called once a new crosspost arrives
-   */
   crosspostsStream(
-    fn: StreamCallback<FullSubmission>,
     options?: CrosspostsStreamOptions
-  ): Promise<void> {
-    return this.duplicatesStream(fn, { ...options, crosspostsOnly: true });
+  ): AsyncIterator<FullSubmission> {
+    return this.duplicatesStream({ ...options, crosspostsOnly: true });
   }
 
   /**
@@ -299,13 +295,9 @@ export default class FullSubmission
     );
   }
 
-  /**
-   * @param fn function that gets called once a new duplicate arrives
-   */
   duplicatesStream(
-    fn: StreamCallback<FullSubmission>,
     options?: DuplicatesStreamOptions
-  ): Promise<void> {
+  ): AsyncIterator<FullSubmission> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
       {
@@ -318,7 +310,6 @@ export default class FullSubmission
         },
       },
       (d) => new FullSubmission(this.r, d.data),
-      fn,
       options
     );
   }
