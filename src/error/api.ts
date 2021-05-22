@@ -1,4 +1,6 @@
-export class ApiError extends Error {
+import { WholesomeError } from "./base";
+
+export class ApiError extends WholesomeError {
   code: string;
   status?: number;
   description?: string;
@@ -10,9 +12,7 @@ export class ApiError extends Error {
     description?: string
   ) {
     const msg = `${message} (${code})`;
-    super(description ? `${msg}: ${description}` : msg);
-
-    this.name = "RedditApiError";
+    super("RedditApiError", description ? `${msg}: ${description}` : msg);
 
     this.code = code;
     this.status = status;

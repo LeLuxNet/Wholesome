@@ -1,6 +1,6 @@
 {
   "name": "wholesome",
-  "version": "0.1.7",
+  "version": "0.1.10",
   "description": "A Reddit API wrapper",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",

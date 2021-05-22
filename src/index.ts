@@ -23,6 +23,7 @@ export {
   CommentTree,
   FullComment,
   FullSubmission,
+  GivenAward,
   Submission,
 } from "./objects/post";
 export {
@@ -67,6 +68,6 @@ export { RedditConstructor } from "./reddit";
 export { Reddit };
 export default Reddit;
 
-if (process.browser) {
+if (typeof process !== "undefined" && process.browser) {
   global.wholesome = Reddit;
 }

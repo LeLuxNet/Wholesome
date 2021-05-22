@@ -1,24 +1,21 @@
 import { Stream } from "stream";
 import { FullSubreddit } from ".";
+import { UnrealSubreddit } from "../../error";
 import { upload } from "../../helper/upload";
 import Fetchable from "../../interfaces/fetchable";
 import { get, GetOptions } from "../../list/get";
 import Page from "../../list/page";
-import { stream, StreamOptions } from "../../list/stream";
 import { BaseImage } from "../../media/image";
 import Reddit from "../../reddit";
 import { FullSubmission, Submission } from "../post";
 import { User } from "../user";
+import Feed from "./feed";
 import { ModPermission, ModRelation } from "./moderator";
 import { Requirements } from "./requirement";
 import { parseRule, Rule } from "./rule";
 import { Style } from "./style";
 import { Traffics } from "./traffic";
 import { parseWidgets, Widgets } from "./widget";
-
-export type Times = "hour" | "day" | "week" | "month" | "year" | "all";
-
-export type TimeOptions = GetOptions & { time?: Times };
 
 export interface BanOptions {
   message?: string;
@@ -32,9 +29,10 @@ export interface BanOptions {
   duration?: number;
 }
 
-export default class Subreddit implements Fetchable<FullSubreddit> {
-  r: Reddit;
-
+export default class Subreddit
+  extends Feed
+  implements Fetchable<FullSubreddit>
+{
   name: string;
   get key(): string {
     return this.name;
@@ -42,7 +40,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
 
   /** @internal */
   constructor(r: Reddit, name: string) {
-    this.r = r;
+    super(r, name);
 
     this.name = name;
   }
@@ -51,15 +49,16 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     return `${this.r.linkUrl}/r/${encodeURIComponent(this.name)}`;
   }
 
-  async stylesheet(): Promise<string> {
-    const res = await this.r.api.get<string>("/r/{name}/stylesheet.json", {
-      fields: { name: this.name },
-    });
-    return res.data;
+  isReal(): boolean {
+    return (
+      !this.name.includes("+") &&
+      !["all", "popular", "friends", "mod"].includes(this.name.toLowerCase())
+    );
   }
 
-  get stylesheetURL(): string {
-    return `${this.url}/stylesheet.json`;
+  private _checkReal(): void {
+    if (this.isReal()) return;
+    throw new UnrealSubreddit();
   }
 
   async fetch(): Promise<FullSubreddit> {
@@ -69,7 +68,16 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     return new FullSubreddit(this.r, res.data.data);
   }
 
+  async stylesheet(): Promise<string> {
+    this._checkReal();
+    const res = await this.r.api.get<string>("/r/{name}/stylesheet.json", {
+      fields: { name: this.name },
+    });
+    return res.data;
+  }
+
   async widgets(): Promise<Widgets> {
+    this._checkReal();
     if (
       this.r.auth &&
       (this.r.auth.scopes === "*" || this.r.auth.scopes.has("structuredstyles"))
@@ -93,6 +101,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
 
   /** Get structured subreddit styles */
   async style(): Promise<Style> {
+    this._checkReal();
     const res = await this.r.api.get<Api.Style>(
       "api/v1/structured_styles/{name}.json",
       { fields: { name: this.name } }
@@ -117,6 +126,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   async moderators(): Promise<ModRelation[]> {
+    this._checkReal();
     const res = await this.r.api.get<Api.SubredditModerators>(
       "r/{name}/about/moderators",
       { fields: { name: this.name } }
@@ -137,6 +147,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     user: User,
     permissions?: ModPermission[]
   ): Promise<void> {
+    this._checkReal();
     this.r.needScopes("modothers");
     await this.r.api.post(
       "r/{name}/api/friend",
@@ -154,6 +165,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     user: User,
     permissions: ModPermission[]
   ): Promise<void> {
+    this._checkReal();
     this.r.needScopes("modothers");
     await this.r.api.post(
       "r/{name}/api/setpermissions",
@@ -164,6 +176,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   async removeModeratorInvite(user: User): Promise<void> {
+    this._checkReal();
     this.r.needScopes("modothers");
     await this.r.api.post(
       "r/{name}/api/unfriend",
@@ -174,6 +187,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   async removeModerator(user: User): Promise<void> {
+    this._checkReal();
     this.r.needScopes("modothers");
     await this.r.api.post(
       "r/{name}/api/unfriend",
@@ -184,6 +198,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   async mute(user: User): Promise<void> {
+    this._checkReal();
     this.r.needScopes("modcontributors");
     await this.r.api.post(
       "r/{name}/api/friend",
@@ -194,6 +209,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   async unmute(user: User): Promise<void> {
+    this._checkReal();
     this.r.needScopes("modcontributors");
     await this.r.api.post(
       "r/{name}/api/unfriend",
@@ -204,6 +220,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   async ban(user: User, options: BanOptions = {}): Promise<void> {
+    this._checkReal();
     this.r.needScopes("modcontributors");
     await this.r.api.post(
       "r/{name}/api/friend",
@@ -221,6 +238,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   async unban(user: User): Promise<void> {
+    this._checkReal();
     this.r.needScopes("modothers");
     await this.r.api.post(
       "r/{name}/api/unfriend",
@@ -231,6 +249,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   async join(join = true): Promise<void> {
+    this._checkReal();
     this.r.needScopes("subscribe");
     await this.r.api.post("api/subscribe", {
       action: join ? "sub" : "unsub",
@@ -241,6 +260,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   async rules(): Promise<Rule[]> {
+    this._checkReal();
     const res = await this.r.api.get<Api.SubredditRules>(
       "r/{name}/about/rules.json",
       { fields: { name: this.name } }
@@ -249,6 +269,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   async requirements(): Promise<Requirements> {
+    this._checkReal();
     const res = await this.r.api.get<Api.SubredditRequirements>(
       "https://www.reddit.com/api/v1/{name}/post_requirements.json",
       { fields: { name: this.name } }
@@ -281,6 +302,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
   }
 
   async traffic(): Promise<Traffics> {
+    this._checkReal();
     this.r.needScopes("modconfig");
     const res = await this.r.api.get<Api.SubredditTraffic>(
       "r/{name}/about/traffic.json",
@@ -328,69 +350,6 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     return new FullSubmission(this.r, res.data[0].data.children[0].data);
   }
 
-  hot(options?: GetOptions): Promise<Page<FullSubmission>> {
-    // TODO: 'g' param
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
-      { url: "r/{sub}/hot.json", fields: { sub: this.name } },
-      (d) => new FullSubmission(this.r, d.data),
-      options
-    );
-  }
-
-  new(options?: GetOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
-      { url: "r/{sub}/new.json", fields: { sub: this.name } },
-      (d) => new FullSubmission(this.r, d.data),
-      options
-    );
-  }
-
-  top(options?: TimeOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
-      {
-        url: "r/{sub}/top.json",
-        fields: { sub: this.name },
-        params: { t: options?.time },
-      },
-      (d) => new FullSubmission(this.r, d.data),
-      options
-    );
-  }
-
-  rising(options?: GetOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
-      { url: "r/{sub}/rising.json", fields: { sub: this.name } },
-      (d) => new FullSubmission(this.r, d.data),
-      options
-    );
-  }
-
-  controversial(options?: TimeOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
-      {
-        url: "r/{sub}/controversial.json",
-        fields: { sub: this.name },
-        params: { t: options?.time },
-      },
-      (d) => new FullSubmission(this.r, d.data),
-      options
-    );
-  }
-
-  submissionsStream(options?: StreamOptions): AsyncIterator<FullSubmission> {
-    return stream<FullSubmission, Api.SubmissionWrap>(
-      this.r,
-      { url: "r/{sub}/new.json", fields: { sub: this.name } },
-      (d) => new FullSubmission(this.r, d.data),
-      options
-    );
-  }
-
   async searchSubmission(
     query: string,
     options?: SubmissionSearchOptions
@@ -412,6 +371,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     url: string,
     options?: NewSubmissionOptions
   ): Promise<Submission> {
+    this._checkReal();
     return submit(this, title, { kind: "link", url }, options);
   }
 
@@ -420,6 +380,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     body?: string,
     options?: NewSubmissionOptions
   ): Promise<Submission> {
+    this._checkReal();
     return submit(this, title, { kind: "self", text: body }, options);
   }
 
@@ -430,6 +391,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     mimetype: string,
     options?: NewSubmissionOptions
   ): Promise<Submission> {
+    this._checkReal();
     const url = await upload(this.r, file, name, mimetype);
     return this.submitLink(title, url, options);
   }
@@ -441,6 +403,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     duration: number,
     options?: NewSubmissionOptions
   ): Promise<Submission> {
+    this._checkReal();
     return submit(
       this,
       title,
@@ -455,6 +418,7 @@ export default class Subreddit implements Fetchable<FullSubreddit> {
     submission: Submission,
     options?: NewSubmissionOptions
   ): Promise<Submission> {
+    this._checkReal();
     return submit(
       this,
       title,

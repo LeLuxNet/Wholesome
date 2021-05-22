@@ -1,3 +1,2 @@
-import { promisify } from "util";
-
-export const sleep = promisify(setTimeout);
+export const sleep = (timeout: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, timeout));

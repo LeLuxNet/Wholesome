@@ -4,11 +4,10 @@ import Content from "../../media/content";
 import { Image } from "../../media/image";
 import Reddit from "../../reddit";
 import { Subreddit } from "../subreddit";
+import Feed from "../subreddit/feed";
 import { User } from "../user";
 
-export class Multi implements Deletable, Fetchable<Multi> {
-  r: Reddit;
-
+export class Multi extends Feed implements Deletable, Fetchable<Multi> {
   name: string;
   description: Content | null;
   url: string;
@@ -27,16 +26,13 @@ export class Multi implements Deletable, Fetchable<Multi> {
 
   /** @internal */
   constructor(r: Reddit, data: Api.Multi) {
-    this.r = r;
+    super(r, data.subreddits.map((s) => s.name).join("+"));
 
     this.name = data.display_name;
     this.description =
       data.description_html === ""
         ? null
-        : {
-            markdown: data.description_md,
-            html: data.description_html,
-          };
+        : { markdown: data.description_md, html: data.description_html };
     this.url = `https://www.reddit.com${data.path}`;
     this.key = data.path;
 

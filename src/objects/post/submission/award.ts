@@ -1,5 +1,7 @@
 import { Image } from "../../../media/image";
 
+const tierIconsSymbol = Symbol();
+
 export class Award {
   id: string;
   name: string;
@@ -15,7 +17,7 @@ export class Award {
 
   icon: Image;
 
-  private _tierIcons?: Image[];
+  [tierIconsSymbol]?: Image[];
 
   /** @internal */
   constructor(data: Api.Award) {
@@ -35,13 +37,11 @@ export class Award {
     this.icon = image(data.icon_url, data.icon_width, data.resized_icons);
 
     if (data.tiers_by_required_awardings !== null) {
-      Object.defineProperty(this, "_tierIcons", {
-        value: [],
-      });
+      const list: Image[] = [];
 
       Object.entries(data.tiers_by_required_awardings).forEach(
         ([key, i]) =>
-          (this._tierIcons![parseInt(key)] = image(
+          (list[parseInt(key)] = image(
             i.icon.url,
             i.icon.width,
             i.resized_icons
@@ -49,23 +49,26 @@ export class Award {
       );
 
       let lastTier = this.icon;
-      for (let i = 0; i < this._tierIcons!.length; i++) {
-        if (this._tierIcons![i] === undefined) {
-          this._tierIcons![i] = lastTier;
+      for (let i = 0; i < list.length; i++) {
+        if (list[i] === undefined) {
+          list[i] = lastTier;
         } else {
-          lastTier = this._tierIcons![i];
+          lastTier = list[i];
         }
       }
+
+      this[tierIconsSymbol] = list;
     }
   }
 
   tierIcon(count: number): Image {
-    if (this._tierIcons === undefined) {
+    const list = this[tierIconsSymbol];
+    if (list === undefined) {
       return this.icon;
-    } else if (count >= this._tierIcons.length) {
-      return this._tierIcons[this._tierIcons.length - 1];
+    } else if (count >= list.length) {
+      return list[list.length - 1];
     } else {
-      return this._tierIcons[count];
+      return list[count];
     }
   }
 }
