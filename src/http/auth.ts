@@ -11,7 +11,7 @@ export default function authInterceptor(r: Reddit) {
   return (config: AxiosRequestConfig): AxiosRequestConfig => {
     if (r.auth && !config.skipAuth) {
       config.baseURL = "https://oauth.reddit.com";
-      config.headers.authorization = `Bearer ${r.auth.accessToken}`;
+      config.headers.Authorization = `Bearer ${r.auth.accessToken}`;
     }
 
     return config;

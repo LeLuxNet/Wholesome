@@ -6,14 +6,14 @@ import isAbsoluteURL from "axios/lib/helpers/isAbsoluteURL";
 export default function debugInterceptor(
   config: AxiosRequestConfig
 ): AxiosRequestConfig {
-  let url = config.url || "";
+  let url = config.url!;
   if (config.baseURL && !isAbsoluteURL(url)) {
     url = combineURLs(config.baseURL, url);
   }
   url = buildURL(url, config.params, config.paramsSerializer);
 
   // eslint-disable-next-line no-console
-  console.log(config.method, url);
+  console.log(config.method!.toUpperCase(), url);
 
   return config;
 }

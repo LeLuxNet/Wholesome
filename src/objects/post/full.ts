@@ -33,7 +33,7 @@ export default class FullPost extends Post {
   saved: boolean;
   archived: boolean;
   locked: boolean;
-  stickied: boolean;
+  sticky: boolean;
   distinguished: DistinguishKinds;
 
   deleted: boolean;
@@ -69,7 +69,7 @@ export default class FullPost extends Post {
     this.saved = data.saved;
     this.archived = data.archived;
     this.locked = data.locked;
-    this.stickied = data.stickied;
+    this.sticky = data.stickied;
     this.distinguished =
       data.distinguished === "moderator" ? "mod" : data.distinguished;
 

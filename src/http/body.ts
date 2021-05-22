@@ -5,8 +5,8 @@ export default function bodyInterceptor(
   config: AxiosRequestConfig
 ): AxiosRequestConfig {
   if (
-    config.method === "get" ||
-    config.headers["Content-Type"] !== undefined ||
+    config.method?.toLowerCase() === "get" ||
+    (config.headers && config.headers["Content-Type"] !== undefined) ||
     config.data === undefined
   ) {
     return config;

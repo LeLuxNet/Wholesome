@@ -85,7 +85,7 @@ export class User implements Fetchable<FullUser> {
       "user/{name}/trophies.json",
       { fields: { name: this.name } }
     );
-    return res.data.data.trophies.map((d) => new Trophy(d.data));
+    return res.data.data.trophies.map((d) => new Trophy(this.r, d.data));
   }
 
   async multis(): Promise<Multi[]> {

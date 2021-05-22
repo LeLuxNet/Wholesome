@@ -8,7 +8,7 @@
     "start": "nodejs dist/index.js",
     "build": "tsc && browserify dist/index.js -o dist/browser.js && uglifyjs dist/browser.js -o dist/browser.js",
     "prepare": "npm run build",
-    "test": "jest --coverage",
+    "test": "jest",
     "lint": "eslint \"src/**/*.ts\" && prettier --check \"src/**/*.ts\"",
     "lint:fix": "prettier --write \"src/**/*.ts\" && eslint --fix ."
   },
@@ -50,7 +50,8 @@
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [
       "dist"
-    ]
+    ],
+    "collectCoverage": true
   },
   "keywords": [
     "reddit"

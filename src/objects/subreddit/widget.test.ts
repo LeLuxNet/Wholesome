@@ -21,7 +21,7 @@ import { ar } from "../../test/setup";
   it("should have menu widgets", async () => {
     expect(w.menu?.items.length).toBe(2);
     expect(w.menu?.items[0].text).toBe("Tab 1");
-    expect(w.menu?.items[0].children).toBe(undefined);
+    expect(w.menu?.items[0].children).toBeUndefined();
     expect(w.menu?.items[1].text).toBe("Tab 2");
     expect(w.menu?.items[1].children!.length).toBe(2);
     expect(w.menu?.items[1].children![0].text).toBe("Subtab 1");
@@ -59,7 +59,7 @@ import { ar } from "../../test/setup";
 
     expect(d.buttons[0].text).toBe("Button 1");
     expect(d.buttons[0].url).toBe("https://example.com");
-    expect(d.buttons[0].image).toBe(null);
+    expect(d.buttons[0].image).toBeNull();
 
     expect(d.buttons[1].text).toBe("Button 2");
     expect(d.buttons[1].url).toBe("https://example.com");
