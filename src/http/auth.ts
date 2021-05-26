@@ -7,6 +7,7 @@ declare module "axios" {
   }
 }
 
+/** @internal */
 export default function authInterceptor(r: Reddit) {
   return (config: AxiosRequestConfig): AxiosRequestConfig => {
     if (r.auth && !config.skipAuth) {

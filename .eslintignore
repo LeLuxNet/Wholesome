@@ -1,4 +1,5 @@
 .vscode
+build.ts
 coverage
 dist
 docs

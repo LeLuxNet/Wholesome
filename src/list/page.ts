@@ -6,7 +6,7 @@ import Reddit from "../reddit";
  * A page reddit returns from listings
  *
  * @example
- * ```js
+ * ```ts
  * const page = await r.subreddit("askreddit").hot({ count: 10 });
  * console.log(page.items.length); // 10
  *
@@ -55,8 +55,7 @@ export default class Page<I extends Identified, T = any> {
     );
   }
 
-  /**
-   * Fetch next page after this
+  /** Fetch next page after this
    *
    * @param count count of items
    */
@@ -71,8 +70,7 @@ export default class Page<I extends Identified, T = any> {
     );
   }
 
-  /**
-   * Fetch previous page before this
+  /** Fetch previous page before this
    *
    * @param count count of items
    */
@@ -81,6 +79,7 @@ export default class Page<I extends Identified, T = any> {
   }
 }
 
+/** @internal */
 export async function fetchPage<I extends Identified, T>(
   r: Reddit,
   config: AxiosRequestConfig,

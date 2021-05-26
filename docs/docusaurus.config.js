@@ -51,7 +51,7 @@ module.exports = {
           routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/LeLuxNet/Wholesome/edit/master/docs/",
-          // remarkPlugins: [require("wholesome.md")],
+          remarkPlugins: [require("wholesome.md")],
         },
       },
     ],
@@ -65,13 +65,9 @@ module.exports = {
         sidebar: {
           sidebarFile: null,
         },
+        watch: process.env.NODE_ENV !== "production",
       },
     ],
-    [
-      path.resolve(__dirname, "try-it-out.js"),
-      {
-        url: "https://unpkg.com/wholesome/dist/browser.js",
-      },
-    ],
+    [path.resolve(__dirname, "try-it-out.js"), { url: "/browser.js" }],
   ],
 };

@@ -158,7 +158,6 @@ export default class Subreddit
       },
       { fields: { name: this.name } }
     );
-    return;
   }
 
   async setModeratorPermissions(
@@ -172,7 +171,6 @@ export default class Subreddit
       { name: user.name, permissions: permissions?.join(",") },
       { fields: { name: this.name } }
     );
-    return;
   }
 
   async removeModeratorInvite(user: User): Promise<void> {
@@ -183,7 +181,6 @@ export default class Subreddit
       { type: "moderator_invite", name: user.name },
       { fields: { name: this.name } }
     );
-    return;
   }
 
   async removeModerator(user: User): Promise<void> {
@@ -194,7 +191,6 @@ export default class Subreddit
       { type: "moderator", name: user.name },
       { fields: { name: this.name } }
     );
-    return;
   }
 
   async mute(user: User): Promise<void> {
@@ -205,7 +201,6 @@ export default class Subreddit
       { type: "muted", name: user.name },
       { fields: { name: this.name } }
     );
-    return;
   }
 
   async unmute(user: User): Promise<void> {
@@ -216,7 +211,6 @@ export default class Subreddit
       { type: "muted", name: user.name },
       { fields: { name: this.name } }
     );
-    return;
   }
 
   async ban(user: User, options: BanOptions = {}): Promise<void> {
@@ -234,7 +228,6 @@ export default class Subreddit
       },
       { fields: { name: this.name } }
     );
-    return;
   }
 
   async unban(user: User): Promise<void> {
@@ -245,18 +238,43 @@ export default class Subreddit
       { type: "banned", name: user.name },
       { fields: { name: this.name } }
     );
-    return;
   }
 
-  async join(join = true): Promise<void> {
+  /** Join the subreddit
+   *
+   * @example
+   * ```ts
+   * r.subreddit("announcements").join();
+   * ```
+   * @scope `subscribe`
+   * @see {@link leave}
+   */
+  async join(): Promise<void> {
     this._checkReal();
     this.r.needScopes("subscribe");
     await this.r.api.post("api/subscribe", {
-      action: join ? "sub" : "unsub",
-      skip_initial_defaults: join ? true : undefined,
+      action: "sub",
+      skip_initial_defaults: true,
       sr_name: this.name,
     });
-    return;
+  }
+
+  /** Leave the subreddit
+   *
+   * @example
+   * ```ts
+   * r.subreddit("memes").leave();
+   * ```
+   * @scope `subscribe`
+   * @see {@link join}
+   */
+  async leave(): Promise<void> {
+    this._checkReal();
+    this.r.needScopes("subscribe");
+    await this.r.api.post("api/subscribe", {
+      action: "unsub",
+      sr_name: this.name,
+    });
   }
 
   async rules(): Promise<Rule[]> {
@@ -433,6 +451,7 @@ interface NewSubmissionOptions {
   nsfw?: boolean;
   spoiler?: boolean;
 }
+
 async function submit(
   subreddit: Subreddit,
   title: string,
@@ -447,8 +466,8 @@ async function submit(
       sr: subreddit.name,
       title,
 
-      spoiler: options?.spoiler,
       nsfw: options?.nsfw,
+      spoiler: options?.spoiler,
 
       ...data,
     },
@@ -461,7 +480,7 @@ async function submit(
   const submission = subreddit.r.submission(res.data.json.data.id);
 
   if (options?.oc) {
-    await submission.markOc();
+    await submission.setOc();
   }
 
   return submission;

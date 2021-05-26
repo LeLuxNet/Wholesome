@@ -22,5 +22,5 @@
     "resolveJsonModule": true,
     "declaration": true
   },
-  "exclude": ["dist", "src/test", "**/**.test.ts"]
+  "exclude": ["build.ts", "dist", "src/test", "**/**.test.ts"]
 }

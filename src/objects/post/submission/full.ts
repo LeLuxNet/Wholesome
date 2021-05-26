@@ -23,8 +23,20 @@ export default class FullSubmission
 
   upvoteRatio: number;
 
+  /** Whether this submission is marked as OC
+   *
+   * @see {@link setOc}
+   */
   oc: boolean;
+  /** Whether this submission is marked as a spoiler
+   *
+   * @see {@link setSpoiler}
+   */
   spoiler: boolean;
+  /** Whether this submission is marked as NSFW
+   *
+   * @see {@link setNsfw}
+   */
   nsfw: boolean;
 
   flair: Flair | null;
@@ -56,6 +68,10 @@ export default class FullSubmission
   link: string | null;
   rawLink: string;
 
+  /** The submission body.
+   *
+   * @see {@link edit}
+   */
   body: Content | null;
   thumbnail: Image | null;
 

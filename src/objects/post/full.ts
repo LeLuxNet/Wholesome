@@ -1,9 +1,9 @@
 import Action from "../../media/actions";
 import Reddit from "../../reddit";
+import { GivenAward } from "../award";
 import { Subreddit } from "../subreddit";
 import { SubmissionUser, User } from "../user";
 import Post, { VoteDirection } from "./small";
-import { GivenAward } from "./submission/award";
 
 export type DistinguishKinds = "mod" | "admin" | "special" | null;
 

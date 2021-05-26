@@ -1,8 +1,8 @@
 import Deletable from "../../interfaces/deletable";
 import Identified from "../../interfaces/identified";
 import Reddit from "../../reddit";
+import { Award } from "../award";
 import { DistinguishKinds } from "./full";
-import { Award } from "./submission/award";
 
 export type VoteDirection = 1 | 0 | -1;
 
@@ -35,14 +35,21 @@ export default class Post implements Deletable, Identified {
   /**
    * Casting a vote on a submission or comment
    *
-   * **Note: votes must be cast by humans.**
+   * :::note votes must be cast by humans.
+   *
    * That is, API clients proxying a human's action one-for-one are OK, but bots deciding how to vote on content or amplifying a human's vote are not.
    * See {@link https://www.reddit.com/rules|the reddit rules} for more details on what constitutes vote cheating.
    *
-   * @param dir The direction of the vote
+   * :::
    *
-   *  1 = upvote \
-   *  0 = unvote \
+   * @example Upvoting a submission
+   * ```ts
+   * r.submission("n0b6jn").vote(1);
+   * ```
+   * @param dir The direction of the vote<br/>
+   * <br/>
+   * 1 = upvote<br/>
+   * 0 = unvote<br/>
    * -1 = downvote
    */
   async vote(dir: VoteDirection): Promise<void> {
@@ -59,9 +66,10 @@ export default class Post implements Deletable, Identified {
     });
   }
 
-  /**
-   * Edit the body of a submission or comment
+  /** Edit the body of a submission or comment
+   *
    * @param body The new body in markdown
+   * @see {@link FullSubmission.body} {@link FullSubmission.edited}
    */
   async edit(body: string): Promise<void> {
     this.r.needScopes("edit");
@@ -71,25 +79,34 @@ export default class Post implements Deletable, Identified {
     });
   }
 
-  async save(save = true): Promise<void> {
+  async save(): Promise<void> {
     this.r.needScopes("save");
-    await this.r.api.post(`api/${save ? "save" : "unsave"}`, {
-      id: this.fullId,
-    });
+    await this.r.api.post("api/save", { id: this.fullId });
   }
 
-  async hide(save = true): Promise<void> {
+  async unsave(): Promise<void> {
+    this.r.needScopes("save");
+    await this.r.api.post("api/unsave", { id: this.fullId });
+  }
+
+  async hide(): Promise<void> {
     this.r.needScopes("report");
-    await this.r.api.post(`api/${save ? "hide" : "unhide"}`, {
-      id: this.fullId,
-    });
+    await this.r.api.post("api/hide", { id: this.fullId });
   }
 
-  async lock(lock = true): Promise<void> {
+  async unhide(): Promise<void> {
+    this.r.needScopes("report");
+    await this.r.api.post("api/unhide", { id: this.fullId });
+  }
+
+  async lock(): Promise<void> {
     this.r.needScopes("modposts");
-    await this.r.api.post(`api/${lock ? "lock" : "unlock"}`, {
-      id: this.fullId,
-    });
+    await this.r.api.post("api/lock", { id: this.fullId });
+  }
+
+  async unlock(): Promise<void> {
+    this.r.needScopes("modposts");
+    await this.r.api.post("api/unlock", { id: this.fullId });
   }
 
   async distinguish(kind: DistinguishKinds = "mod"): Promise<void> {

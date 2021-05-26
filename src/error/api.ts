@@ -1,10 +1,12 @@
 import { WholesomeError } from "./base";
 
+/** An error thrown by the Reddit API */
 export class ApiError extends WholesomeError {
   code: string;
   status?: number;
   description?: string;
 
+  /** @internal */
   constructor(
     code: string,
     message: string,

@@ -15,15 +15,14 @@ export {
 } from "./media/image";
 export { default as Poll } from "./media/poll";
 export { Relation } from "./media/relation";
+export { Award, GivenAward } from "./objects/award";
 export { Collection } from "./objects/collection";
 export { Message } from "./objects/message";
 export {
-  Award,
   Comment,
   CommentTree,
   FullComment,
   FullSubmission,
-  GivenAward,
   Submission,
 } from "./objects/post";
 export {

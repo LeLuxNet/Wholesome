@@ -7,6 +7,13 @@ import FullSubmission from "./full";
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function _Submission<T extends PostConstructor>(base: T) {
   class _Submission extends base implements Fetchable<FullSubmission> {
+    /** The short URL of this submission
+     *
+     * @example
+     * ```ts
+     * r.submission("mzrboj").shortURL // https://redd.it/mzrboj
+     * ```
+     */
     get shortUrl() {
       return `https://redd.it/${this.id}`;
     }
@@ -27,15 +34,38 @@ export function _Submission<T extends PostConstructor>(base: T) {
       return new CommentTree(this.r, this, this, res.data[1].data.children);
     }
 
-    async follow(follow = true) {
+    async follow() {
       this.r.needScopes("subscribe");
       await this.r.api.post("api/follow_post", {
-        follow,
+        follow: true,
         fullname: this.fullId,
       });
     }
 
-    async markOc(oc = true) {
+    async unfollow() {
+      this.r.needScopes("subscribe");
+      await this.r.api.post("api/follow_post", {
+        follow: false,
+        fullname: this.fullId,
+      });
+    }
+
+    /** Mark this submission as OC
+     *
+     * This method can only be used by the submission author.
+     *
+     * @example
+     * ```ts
+     * // Mark OC
+     * r.submission("i5nc5").setOc();
+     *
+     * // Unmark OC
+     * r.submission("i5nc5").setOc(false);
+     * ```
+     * @param oc Whether this submission should be marked as OC.
+     * @scope `modposts`
+     */
+    async setOc(oc = true) {
       this.r.needScopes("modposts");
       await this.r.api.post("api/set_original_content", {
         fullname: this.fullId,
@@ -43,21 +73,42 @@ export function _Submission<T extends PostConstructor>(base: T) {
       });
     }
 
-    async markNsfw(nsfw = true) {
+    /** Mark this submission as NSFW
+     *
+     * This method can only be used by the submission author or a subreddit moderator.
+     *
+     * @example
+     * ```ts
+     * // Mark NSFW
+     * r.submission("i5nc5").setNsfw();
+     *
+     * // Unmark NSFW
+     * r.submission("i5nc5").setNsfw(false);
+     * ```
+     * @param nsfw Whether this submission should be marked as NSFW.
+     * @scope `modposts`
+     */
+    async setNsfw(nsfw = true) {
       this.r.needScopes("modposts");
       await this.r.api.post(`api/${nsfw ? "" : "un"}marknsfw`, {
         id: this.fullId,
       });
     }
 
-    async markSpoiler(spoiler = true) {
+    async setSpoiler(spoiler = true) {
       this.r.needScopes("modposts");
       await this.r.api.post(`api/${spoiler ? "" : "un"}spoiler`, {
         id: this.fullId,
       });
     }
 
-    async markVisited() {
+    /** Mark a submission as visited
+     *
+     * This feature requires reddit premium.
+     *
+     * @see {@link visited}
+     */
+    async setVisited() {
       this.r.needScopes("save");
       await this.r.api.post("api/store_visits", { links: this.fullId });
     }

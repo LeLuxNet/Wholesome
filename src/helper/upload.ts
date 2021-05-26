@@ -3,6 +3,7 @@ import FormData from "form-data";
 import { Stream } from "stream";
 import Reddit from "../reddit";
 
+/** @internal */
 export async function upload(
   r: Reddit,
   file: Stream,

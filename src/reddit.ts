@@ -8,6 +8,8 @@ import errorInterceptor from "./http/error";
 import fieldInterceptor from "./http/fields";
 import { get, GetOptions } from "./list/get";
 import Page from "./list/page";
+import { Award } from "./objects/award";
+import { awardMap } from "./objects/award/data";
 import { Collection } from "./objects/collection";
 import { FullSubmission, Submission } from "./objects/post";
 import { FullSubreddit, Subreddit } from "./objects/subreddit";
@@ -203,12 +205,17 @@ export default class Reddit {
    * @example Get the title of a submission
    * ```ts
    * const s = await r.submission("87").fetch();
-   * console.log(s.title); // The Downing Street Memo
+   * s.title // The Downing Street Memo
    * ```
    */
   submission(id: string): Submission {
     if (id.startsWith("t3_")) id = id.slice(3);
     return new Submission(this, id);
+  }
+
+  async submissions(...ids: string[]): Promise<FullSubmission[]> {
+    // TODO: Optimize by batch fetching
+    return Promise.all(ids.map((id) => this.submission(id).fetch()));
   }
 
   subreddit(...names: string[]): Subreddit {
@@ -237,6 +244,14 @@ export default class Reddit {
     return new Collection(this, res.data);
   }
 
+  async award(id: string): Promise<Award | null> {
+    const sid = awardMap[id];
+    if (!sid) return null;
+
+    const submission = await this.submission(sid).fetch();
+    return submission.awards.find((a) => a.id === id) || null;
+  }
+
   async trendingSubreddits(): Promise<Subreddit[]> {
     // This endpoint only exists on www.reddit.com not on oauth.reddit.com
     const res = await this.api.get<Api.TrendingSubreddits>(
@@ -260,7 +275,11 @@ export default class Reddit {
     );
   }
 
-  /** Search subreddits by title and description */
+  /** Search subreddits by title and description
+   *
+   * @param query The query to search the subreddit by
+   * @param options Search options
+   */
   async searchSubreddit(
     query: string,
     options?: SearchOptions

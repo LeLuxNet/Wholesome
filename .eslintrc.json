@@ -1,8 +1,12 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint"],
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "plugins": ["@typescript-eslint", "jsdoc"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:jsdoc/recommended"
+  ],
   "rules": {
     "@typescript-eslint/no-namespace": 0,
     "@typescript-eslint/ban-ts-comment": 1,
@@ -12,6 +16,26 @@
     "@typescript-eslint/triple-slash-reference": 0,
     "@typescript-eslint/ban-types": 1,
     "@typescript-eslint/no-explicit-any": 0,
-    "no-console": 2
+    "no-console": 2,
+    "jsdoc/require-param-type": 0,
+    "jsdoc/require-returns": 0,
+    "jsdoc/no-multi-asterisks": 0,
+    "jsdoc/require-jsdoc": [
+      "warn",
+      {
+        "require": {
+          "ArrowFunctionExpression": true,
+          "ClassExpression": true,
+          "FunctionDeclaration": true,
+          "FunctionExpression": true,
+          "MethodDefinition": true
+        }
+      }
+    ]
+  },
+  "settings": {
+    "jsdoc": {
+      "ignoreInternal": true
+    }
   }
 }

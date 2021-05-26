@@ -1,4 +1,4 @@
-import { Image } from "../../../media/image";
+import { Image } from "../../media/image";
 
 const tierIconsSymbol = Symbol();
 
@@ -7,9 +7,12 @@ export class Award {
   name: string;
   description: string;
 
+  /** The amount of coins that have to be paid to give this award. */
   coinPrice: number;
+  /** The amount of coins the user receiving this award gets. */
   coinReward: number;
 
+  /** The days of reddit premium the user receiving this award gets. */
   daysOfPremium: number;
 
   startDate: Date | null;
@@ -17,6 +20,7 @@ export class Award {
 
   icon: Image;
 
+  /** @internal */
   [tierIconsSymbol]?: Image[];
 
   /** @internal */
@@ -61,14 +65,27 @@ export class Award {
     }
   }
 
-  tierIcon(count: number): Image {
+  /** Returns the icon of a specific tier.
+   * On awards that don't have multiple tiers it will just always return the {@link icon}.
+   * It only becomes useful when used on things like the "This" award that change the icon based on the count is has been awarded.
+   *
+   * @example
+   * ```ts
+   * const award = await r.award("award_68ba1ee3-9baf-4252-be52-b808c1e8bdc4"); // This award
+   *
+   * award.tierIcon(1); // https://i.redd.it/award_images/t5_22cerq/vu6om0xnb7e41_This.png
+   * award.tierIcon(3); // https://i.redd.it/award_images/t5_q0gj4/h9u2ml36hqq51_ThisGold.png
+   * ```
+   * @param tier The tier the icon should belong to.
+   */
+  tierIcon(tier: number): Image {
     const list = this[tierIconsSymbol];
     if (list === undefined) {
       return this.icon;
-    } else if (count >= list.length) {
+    } else if (tier >= list.length) {
       return list[list.length - 1];
     } else {
-      return list[count];
+      return list[tier];
     }
   }
 }

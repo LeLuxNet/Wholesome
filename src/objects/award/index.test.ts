@@ -1,5 +1,5 @@
-import { FullSubmission } from "../../..";
-import { r } from "../../../test/setup";
+import { FullSubmission } from "../..";
+import { r } from "../../test/setup";
 
 let s: FullSubmission;
 beforeAll(async () => (s = await r.submission("msblc3").fetch()));
@@ -25,4 +25,11 @@ it("should have tier award", () => {
   expect(a.tierIcon(2)).not.toEqual(a.tierIcon(3));
 
   expect(a.icon).toBe(a.tierIcon(a.count));
+});
+
+it("should get award by id", async () => {
+  const a = await r.award("award_68ba1ee3-9baf-4252-be52-b808c1e8bdc4");
+
+  expect(a.name).toBe("This");
+  expect(a.description).toBe("");
 });
