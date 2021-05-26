@@ -213,9 +213,25 @@ export default class Reddit {
     return new Submission(this, id);
   }
 
+  /**
+   * Get multiple submissions at once
+   *
+   * @param ids The ids with or without a prefix
+   *
+   * @example Get the titles of multiple submission at once
+   * ```ts
+   * const s = await r.submissions("87", "88");
+   * s[0].author?.name // kn0thing
+   * s[1].author?.name // spez
+   * ```
+   */
   async submissions(...ids: string[]): Promise<FullSubmission[]> {
-    // TODO: Optimize by batch fetching
-    return Promise.all(ids.map((id) => this.submission(id).fetch()));
+    ids = ids.map((i) => (i.startsWith("t3_") ? i : "t3_" + i));
+    const res = await this.api.get<Api.Listing<Api.SubmissionWrap>>(
+      "api/info.json",
+      { params: { id: ids.join(",") } }
+    );
+    return res.data.data.children.map((d) => new FullSubmission(this, d.data));
   }
 
   subreddit(...names: string[]): Subreddit {
@@ -248,8 +264,16 @@ export default class Reddit {
     const sid = awardMap[id];
     if (!sid) return null;
 
-    const submission = await this.submission(sid).fetch();
-    return submission.awards.find((a) => a.id === id) || null;
+    const res = await this.api.get<Api.Listing<Api.SubmissionWrap>>(
+      "api/info.json",
+      { params: { id: "t3_" + sid } }
+    );
+    for (const a of res.data.data.children[0].data.all_awardings) {
+      if (a.id === id) {
+        return new Award(a);
+      }
+    }
+    return null;
   }
 
   async trendingSubreddits(): Promise<Subreddit[]> {

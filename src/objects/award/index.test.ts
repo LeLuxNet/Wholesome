@@ -30,6 +30,6 @@ it("should have tier award", () => {
 it("should get award by id", async () => {
   const a = await r.award("award_68ba1ee3-9baf-4252-be52-b808c1e8bdc4");
 
-  expect(a.name).toBe("This");
-  expect(a.description).toBe("");
+  expect(a?.name).toBe("This");
+  expect(a?.description.startsWith("THIS right here!")).toBeTruthy();
 });
