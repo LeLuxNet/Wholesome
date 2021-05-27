@@ -7,13 +7,12 @@ import Reddit from "../reddit";
 export async function upload(
   r: Reddit,
   file: Stream,
-  name: string,
   mimetype: string
 ): Promise<string> {
   r.needScopes();
 
   const res = await r.api.post<Api.Media>("api/media/asset.json", {
-    filepath: name,
+    filepath: ".",
     mimetype,
   });
 
@@ -25,15 +24,9 @@ export async function upload(
   });
   body.append("file", file);
 
-  const length = await new Promise<number>((resolve, reject) =>
-    body.getLength((err, length) =>
-      err === null ? resolve(length) : reject(err)
-    )
-  );
-
   const url = `https:${res.data.args.action}`;
   await axios.post(url, body, {
-    headers: { ...body.getHeaders(), "Content-Length": length },
+    headers: body.getHeaders(),
   });
   return `${url}/${key}`;
 }

@@ -384,6 +384,42 @@ export default class Subreddit
     );
   }
 
+  /** Allows to view a quarantined subreddit
+   *
+   * @example
+   * ```ts
+   * const sub = r.subreddit("QUESTIONABLE");
+   *
+   * await sub.top(); // Throws error
+   *
+   * await sub.viewQuarantined();
+   * await sub.top(); // Works
+   *
+   * await sub.viewQuarantined(false);
+   * await sub.top(); // Throws error again
+   * ```
+   * @param view Whether the user should be able to access the quarantined subreddit
+   */
+  async viewQuarantined(view = true): Promise<void> {
+    await this.r.api.post(`api/quarantine_opt${view ? "in" : "out"}`, {
+      sr_name: this.name,
+    });
+  }
+
+  /** Submit a link to this subreddit
+   *
+   * @example
+   * ```ts
+   * await r
+   *   .subreddit("test")
+   *   .submitLink("A example page", "https://www.example.com", {
+   *     nsfw: true,
+   *   });
+   * ```
+   * @param title The title the submission has
+   * @param url The URL to submit
+   * @param options Options containing additional information about the submission
+   */
   submitLink(
     title: string,
     url: string,
@@ -393,6 +429,20 @@ export default class Subreddit
     return submit(this, title, { kind: "link", url }, options);
   }
 
+  /** Submit text to this subreddit
+   *
+   * @example
+   * ```ts
+   * await r
+   *   .subreddit("test")
+   *   .submitText("An important message", "Lorem ipsum dolor sit amet, ...", {
+   *     spoiler: true,
+   *   });
+   * ```
+   * @param title The title the submission has
+   * @param body The text in markdown format
+   * @param options Options containing additional information about the submission
+   */
   submitText(
     title: string,
     body?: string,
@@ -402,18 +452,56 @@ export default class Subreddit
     return submit(this, title, { kind: "self", text: body }, options);
   }
 
+  /** Submit a image or video to this subreddit.
+   *
+   * @example
+   * ```ts
+   * import { createReadStream } from "fs";
+   *
+   * await r
+   *   .subreddit("test")
+   *   .submitMedia(
+   *     "A beautiful painting",
+   *     createReadStream("painting.png"),
+   *     "image/png",
+   *     { oc: true }
+   *   );
+   * ```
+   * @param title The title the submission has
+   * @param file The file as a stream
+   * @param mimetype The mime type the file has. This could be something like `image/png` or `video/mp4`.
+   * @param options Options containing additional information about the submission
+   */
   async submitMedia(
     title: string,
     file: Stream,
-    name: string,
     mimetype: string,
     options?: NewSubmissionOptions
   ): Promise<Submission> {
     this._checkReal();
-    const url = await upload(this.r, file, name, mimetype);
+    const url = await upload(this.r, file, mimetype);
     return this.submitLink(title, url, options);
   }
 
+  /** Submit a submission containing a poll to this subreddit
+   *
+   * @example
+   * ```ts
+   * await r
+   *   .subreddit("test")
+   *   .submitPoll(
+   *     "Favorite color",
+   *     "What's your favorite color?",
+   *     ["red", "green", "blue", "yellow"],
+   *     3
+   *   );
+   * ```
+   * @param title The title the submission has
+   * @param body The text in markdown format
+   * @param items The available options people can vote for in the poll
+   * @param duration The number of days the poll will accept votes for. The accepted values range from 1 to 7, included.
+   * @param options Options containing additional information about the submission
+   */
   submitPoll(
     title: string,
     body: string | undefined,
@@ -446,7 +534,7 @@ export default class Subreddit
   }
 }
 
-interface NewSubmissionOptions {
+export interface NewSubmissionOptions {
   oc?: boolean;
   nsfw?: boolean;
   spoiler?: boolean;

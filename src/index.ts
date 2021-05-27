@@ -29,6 +29,7 @@ export {
   FullSubreddit,
   ModPermission,
   ModRelation,
+  NewSubmissionOptions,
   Rule,
   Style,
   Subreddit,
