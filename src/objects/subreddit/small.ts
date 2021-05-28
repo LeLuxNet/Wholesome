@@ -70,10 +70,48 @@ export default class Subreddit
 
   async stylesheet(): Promise<string> {
     this._checkReal();
-    const res = await this.r.api.get<string>("/r/{name}/stylesheet.json", {
+    const res = await this.r.api.get<string>("r/{name}/stylesheet.json", {
       fields: { name: this.name },
     });
     return res.data;
+  }
+
+  /**
+   * Set the new subreddit stylesheet
+   *
+   * ::: warning
+   *
+   * This will override the current stylesheet. To add something to the existing
+   * one check the example below.
+   *
+   * :::
+   *
+   * @example Override current stylesheet
+   *
+   * ```ts
+   * await r.subreddit("test").setStylesheet("body { display: none; }");
+   * ```
+   *
+   * @example Add something to the existing stylesheet
+   *
+   * ```ts
+   * const sub = r.subreddit("test");
+   *
+   * const oldStyle = await sub.stylesheet();
+   * const newStyle = (oldStyle || "") + "\nbody { display: none; }";
+   * await sub.setStylesheet(newStyle);
+   * ```
+   *
+   * @param content The new stylesheet content in CSS
+   */
+  async setStylesheet(content: string): Promise<void> {
+    this._checkReal();
+    this.r.needScopes("modconfig");
+    await await this.r.api.post(
+      "r/{name}/api/subreddit_stylesheet",
+      { op: "save", stylesheet_contents: content },
+      { fields: { name: this.name } }
+    );
   }
 
   async widgets(): Promise<Widgets> {
@@ -240,14 +278,17 @@ export default class Subreddit
     );
   }
 
-  /** Join the subreddit
+  /**
+   * Join the subreddit
    *
    * @example
+   *
    * ```ts
-   * r.subreddit("announcements").join();
+   *   r.subreddit("announcements").join();
+   *   ```;
    * ```
-   * @scope `subscribe`
-   * @see {@link leave}
+   *
+   * @scope `subscribe` @see {@link leave}
    */
   async join(): Promise<void> {
     this._checkReal();
@@ -259,14 +300,17 @@ export default class Subreddit
     });
   }
 
-  /** Leave the subreddit
+  /**
+   * Leave the subreddit
    *
    * @example
+   *
    * ```ts
-   * r.subreddit("memes").leave();
+   *   r.subreddit("memes").leave();
+   *   ```;
    * ```
-   * @scope `subscribe`
-   * @see {@link join}
+   *
+   * @scope `subscribe` @see {@link join}
    */
   async leave(): Promise<void> {
     this._checkReal();
@@ -384,20 +428,24 @@ export default class Subreddit
     );
   }
 
-  /** Allows to view a quarantined subreddit
+  /**
+   * Allows to view a quarantined subreddit
    *
    * @example
+   *
    * ```ts
-   * const sub = r.subreddit("QUESTIONABLE");
+   *   const sub = r.subreddit("QUESTIONABLE");
    *
-   * await sub.top(); // Throws error
+   *   await sub.top(); // Throws error
    *
-   * await sub.viewQuarantined();
-   * await sub.top(); // Works
+   *   await sub.viewQuarantined();
+   *   await sub.top(); // Works
    *
-   * await sub.viewQuarantined(false);
-   * await sub.top(); // Throws error again
+   *   await sub.viewQuarantined(false);
+   *   await sub.top(); // Throws error again
+   *   ```;
    * ```
+   *
    * @param view Whether the user should be able to access the quarantined subreddit
    */
   async viewQuarantined(view = true): Promise<void> {
@@ -406,18 +454,21 @@ export default class Subreddit
     });
   }
 
-  /** Submit a link to this subreddit
+  /**
+   * Submit a link to this subreddit
    *
    * @example
+   *
    * ```ts
-   * await r
-   *   .subreddit("test")
-   *   .submitLink("A example page", "https://www.example.com", {
-   *     nsfw: true,
-   *   });
+   *   await r
+   *     .subreddit("test")
+   *     .submitLink("A example page", "https://www.example.com", {
+   *       nsfw: true,
+   *     });
+   *   ```;
    * ```
-   * @param title The title the submission has
-   * @param url The URL to submit
+   *
+   * @param title The title the submission has @param url The URL to submit
    * @param options Options containing additional information about the submission
    */
   submitLink(
@@ -429,19 +480,22 @@ export default class Subreddit
     return submit(this, title, { kind: "link", url }, options);
   }
 
-  /** Submit text to this subreddit
+  /**
+   * Submit text to this subreddit
    *
    * @example
+   *
    * ```ts
-   * await r
-   *   .subreddit("test")
-   *   .submitText("An important message", "Lorem ipsum dolor sit amet, ...", {
-   *     spoiler: true,
-   *   });
+   *   await r
+   *     .subreddit("test")
+   *     .submitText("An important message", "Lorem ipsum dolor sit amet, ...", {
+   *       spoiler: true,
+   *     });
+   *   ```;
    * ```
-   * @param title The title the submission has
-   * @param body The text in markdown format
-   * @param options Options containing additional information about the submission
+   *
+   * @param title The title the submission has @param body The text in markdown
+   * format @param options Options containing additional information about the submission
    */
   submitText(
     title: string,
@@ -452,9 +506,11 @@ export default class Subreddit
     return submit(this, title, { kind: "self", text: body }, options);
   }
 
-  /** Submit a image or video to this subreddit.
+  /**
+   * Submit an image or video to this subreddit.
    *
-   * @example
+   * @example Submit an image from the local file system.
+   *
    * ```ts
    * import { createReadStream } from "fs";
    *
@@ -467,14 +523,17 @@ export default class Subreddit
    *     { oc: true }
    *   );
    * ```
+   *
    * @param title The title the submission has
-   * @param file The file as a stream
-   * @param mimetype The mime type the file has. This could be something like `image/png` or `video/mp4`.
+   * @param file The file's content in form of a `Stream` or `Buffer`.
+   * @param mimetype The
+   *   {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types|mime type}
+   *   the file has. This could be something like `image/png` or `video/mp4`.
    * @param options Options containing additional information about the submission
    */
   async submitMedia(
     title: string,
-    file: Stream,
+    file: Stream | Buffer,
     mimetype: string,
     options?: NewSubmissionOptions
   ): Promise<Submission> {
@@ -483,9 +542,11 @@ export default class Subreddit
     return this.submitLink(title, url, options);
   }
 
-  /** Submit a submission containing a poll to this subreddit
+  /**
+   * Submit a submission containing a poll to this subreddit
    *
    * @example
+   *
    * ```ts
    * await r
    *   .subreddit("test")
@@ -496,10 +557,12 @@ export default class Subreddit
    *     3
    *   );
    * ```
+   *
    * @param title The title the submission has
    * @param body The text in markdown format
    * @param items The available options people can vote for in the poll
-   * @param duration The number of days the poll will accept votes for. The accepted values range from 1 to 7, included.
+   * @param duration The number of days the poll will accept votes for. The
+   *   accepted values range from 1 to 7, included.
    * @param options Options containing additional information about the submission
    */
   submitPoll(

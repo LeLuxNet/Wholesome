@@ -6,7 +6,7 @@ import Reddit from "../reddit";
 /** @internal */
 export async function upload(
   r: Reddit,
-  file: Stream,
+  file: Stream | Buffer,
   mimetype: string
 ): Promise<string> {
   r.needScopes();

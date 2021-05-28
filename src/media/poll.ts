@@ -4,10 +4,7 @@ export default interface Poll {
   body: Content | null;
   url: string;
 
-  /**
-   * The option you have voted for
-   * {@see PollOption.voted}
-   */
+  /** The option you have voted for {@see PollOption.voted} */
   voted: PollOption | null;
   totalScore: number;
 

@@ -41,9 +41,10 @@ export default class CommentTree<T = Submission | FullComment> {
   }
 
   /**
-   * Fetch all not fetched comments and return them together with the {@link loadedComments} comments
+   * Fetch all not fetched comments and return them together with the
+   * {@link loadedComments} comments
    *
-   * @returns the comment or `null` if it has been deleted
+   * @returns The comment or `null` if it has been deleted
    */
   fetchAll(): Promise<(FullComment | null)[]> {
     return Promise.all(
@@ -60,7 +61,7 @@ export default class CommentTree<T = Submission | FullComment> {
   /**
    * Fetch all not fetched comments
    *
-   * @returns the comment or `null` if it has been deleted
+   * @returns The comment or `null` if it has been deleted
    */
   fetchMissing(): Promise<(FullComment | null)[]> {
     const res: Promise<FullComment | null>[] = [];

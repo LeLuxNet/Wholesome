@@ -9,9 +9,9 @@ export type SubredditType =
   | "public" /** Everyone can read and post */
   | "publicRestricted" /** Everyone can read; not everyone can post */
   | "private" /** Private */
-  | "archived" /** Archived ([r/reddit.com](https://www.reddit.com/r/reddit.com)) */
-  | "premiumOnly" /** Only for users with reddit premium ([r/lounge](https://www.reddit.com/r/lounge)) */
-  | "premiumRestricted" /** Everyone can read; only users with reddit premium can post ([r/goldbenefits](https://www.reddit.com/r/goldbenefits)) */
+  | "archived" /** Archived (r/reddit.com) */
+  | "premiumOnly" /** Only for users with reddit premium (r/lounge) */
+  | "premiumRestricted" /** Everyone can read; only users with reddit premium can post (r/goldbenefits) */
   | "adminOnly" /** Only for reddit admins */;
 
 const subredditTypeMap: { [raw: string]: SubredditType } = {

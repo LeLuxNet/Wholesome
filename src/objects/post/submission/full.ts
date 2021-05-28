@@ -23,17 +23,20 @@ export default class FullSubmission
 
   upvoteRatio: number;
 
-  /** Whether this submission is marked as OC
+  /**
+   * Whether this submission is marked as OC
    *
    * @see {@link setOc}
    */
   oc: boolean;
-  /** Whether this submission is marked as a spoiler
+  /**
+   * Whether this submission is marked as a spoiler
    *
    * @see {@link setSpoiler}
    */
   spoiler: boolean;
-  /** Whether this submission is marked as NSFW
+  /**
+   * Whether this submission is marked as NSFW
    *
    * @see {@link setNsfw}
    */
@@ -53,6 +56,7 @@ export default class FullSubmission
 
   /**
    * How often this submission has been crossposted to other subreddits
+   *
    * @see {@link crossposts} to fetch them
    */
   crosspostCount: number;
@@ -68,7 +72,8 @@ export default class FullSubmission
   link: string | null;
   rawLink: string;
 
-  /** The submission body.
+  /**
+   * The submission body.
    *
    * @see {@link edit}
    */
@@ -278,6 +283,7 @@ export default class FullSubmission
 
   /**
    * Returns all crossposts of this submission
+   *
    * @see {@link crosspostsStream}
    */
   crossposts(options?: CrosspostsOptions): Promise<Page<FullSubmission>> {
@@ -292,6 +298,7 @@ export default class FullSubmission
 
   /**
    * Returns all duplicates of this submission
+   *
    * @see {@link duplicatesStream}
    */
   duplicates(options?: DuplicatesOptions): Promise<Page<FullSubmission>> {

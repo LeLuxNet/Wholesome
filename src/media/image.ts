@@ -18,7 +18,10 @@ export interface BaseResolution {
 export type Resolution = BaseResolution & Dimensions;
 
 export interface Video extends Dimensions, Stream {
-  /** The {@link https://en.wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP|DASH} URL */
+  /**
+   * The
+   * {@link https://en.wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP|DASH} URL
+   */
   dash: string;
 
   /** The mp4 URL, split up into audio and video. */
@@ -26,10 +29,11 @@ export interface Video extends Dimensions, Stream {
     /** The URL of the video track in mp4 format. */
     video: string;
 
-    /** The URL of the audio track in mp4 format.
+    /**
+     * The URL of the audio track in mp4 format.
      *
-     * A request to this URL may result in an 403 status code.
-     * In this case the video has no audio.
+     * A request to this URL may result in an 403 status code. In this case the
+     * video has no audio.
      */
     audio: string;
   };
@@ -59,14 +63,17 @@ export interface Image extends BaseImage {
 }
 
 export interface GIF extends Image {
-  /** Using the mp4 version of a GIF is in most cases beneficial because of better compression and smaller file sizes.
+  /**
+   * Using the mp4 version of a GIF is in most cases beneficial because of
+   * better compression and smaller file sizes.
    *
-   *  @example
-   * ```html
-   * <!-- slow -->
+   * @example
+   *
+   * ```tsx
+   * // slow
    * <img src={image.native.url} alt={image.caption} />
    *
-   * <!-- better -->
+   * // better
    * <video autoplay loop muted>
    *   <source src={image.mp4.native.url} type="video/mp4" />
    * </video>

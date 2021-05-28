@@ -7,11 +7,13 @@ import FullSubmission from "./full";
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function _Submission<T extends PostConstructor>(base: T) {
   class _Submission extends base implements Fetchable<FullSubmission> {
-    /** The short URL of this submission
+    /**
+     * The short URL of this submission
      *
      * @example
+     *
      * ```ts
-     * r.submission("mzrboj").shortURL // https://redd.it/mzrboj
+     * r.submission("mzrboj").shortURL; // https://redd.it/mzrboj
      * ```
      */
     get shortUrl() {
@@ -50,11 +52,13 @@ export function _Submission<T extends PostConstructor>(base: T) {
       });
     }
 
-    /** Mark this submission as OC
+    /**
+     * Mark this submission as OC
      *
      * This method can only be used by the submission author.
      *
      * @example
+     *
      * ```ts
      * // Mark OC
      * r.submission("i5nc5").setOc();
@@ -62,8 +66,8 @@ export function _Submission<T extends PostConstructor>(base: T) {
      * // Unmark OC
      * r.submission("i5nc5").setOc(false);
      * ```
-     * @param oc Whether this submission should be marked as OC.
-     * @scope `modposts`
+     *
+     * @param oc Whether this submission should be marked as OC. @scope `modposts`
      */
     async setOc(oc = true) {
       this.r.needScopes("modposts");
@@ -73,11 +77,13 @@ export function _Submission<T extends PostConstructor>(base: T) {
       });
     }
 
-    /** Mark this submission as NSFW
+    /**
+     * Mark this submission as NSFW
      *
      * This method can only be used by the submission author or a subreddit moderator.
      *
      * @example
+     *
      * ```ts
      * // Mark NSFW
      * r.submission("i5nc5").setNsfw();
@@ -85,8 +91,8 @@ export function _Submission<T extends PostConstructor>(base: T) {
      * // Unmark NSFW
      * r.submission("i5nc5").setNsfw(false);
      * ```
-     * @param nsfw Whether this submission should be marked as NSFW.
-     * @scope `modposts`
+     *
+     * @param nsfw Whether this submission should be marked as NSFW. @scope `modposts`
      */
     async setNsfw(nsfw = true) {
       this.r.needScopes("modposts");
@@ -102,7 +108,8 @@ export function _Submission<T extends PostConstructor>(base: T) {
       });
     }
 
-    /** Mark a submission as visited
+    /**
+     * Mark a submission as visited
      *
      * This feature requires reddit premium.
      *

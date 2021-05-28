@@ -1,15 +1,21 @@
+import Deletable from "../../interfaces/deletable";
 import Identified from "../../interfaces/identified";
 import Content from "../../media/content";
 import Reddit from "../../reddit";
 import { User } from "../user";
 
-export class Message implements Identified {
+export class Message implements Identified, Deletable {
   r: Reddit;
 
   id: string;
   fullId: string;
 
-  subject: string;
+  /** Wether this message is a notification showing up in the notification tab */
+  get isNotification(): boolean {
+    return this.fullId.startsWith("t1_");
+  }
+
+  title: string;
   author: User;
 
   created: Date;
@@ -23,7 +29,7 @@ export class Message implements Identified {
     this.id = data.id;
     this.fullId = data.name;
 
-    this.subject = data.subject;
+    this.title = data.subject;
     this.author = this.r.user(data.author);
 
     this.created = new Date(data.created_utc * 1000);
@@ -37,5 +43,26 @@ export class Message implements Identified {
   async reply(body: string): Promise<void> {
     this.r.needScopes("privatemessages");
     await this.r.api.post("api/comment", { thing_id: this.fullId, text: body });
+  }
+
+  async delete(): Promise<void> {
+    this.r.needScopes("privatemessages");
+    await this.r.api.post("api/del_msg", { id: this.fullId });
+  }
+
+  /** Mark the message as read or unread */
+  async setRead(read = true): Promise<void> {
+    this.r.needScopes("privatemessages");
+    await this.r.api.post(`api/${read ? "" : "un"}read_message`, {
+      id: this.fullId,
+    });
+  }
+
+  /** Collapse or uncollapse the message */
+  async setCollapsed(collapsed = true): Promise<void> {
+    this.r.needScopes("privatemessages");
+    await this.r.api.post(`api/${collapsed ? "" : "un"}collapse_message`, {
+      id: this.fullId,
+    });
   }
 }

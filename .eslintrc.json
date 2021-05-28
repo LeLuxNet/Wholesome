@@ -20,11 +20,11 @@
     "jsdoc/require-param-type": 0,
     "jsdoc/require-returns": 0,
     "jsdoc/no-multi-asterisks": 0,
+    "jsdoc/tag-lines": 0,
     "jsdoc/require-jsdoc": [
       "warn",
       {
         "require": {
-          "ArrowFunctionExpression": true,
           "ClassExpression": true,
           "FunctionDeclaration": true,
           "FunctionExpression": true,

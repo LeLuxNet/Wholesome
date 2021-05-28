@@ -21,7 +21,7 @@ export default class Self extends User {
     if (!name) {
       Object.defineProperty(this, "name", {
         get: () => {
-          throw "Your self doesn't have a username";
+          throw "Your aren't logged in with a username or the 'identity' scope";
         },
       });
     }
@@ -58,6 +58,16 @@ export default class Self extends User {
     );
   }
 
+  messages(options?: GetOptions): Promise<Page<Message>> {
+    this.r.needScopes("privatemessages");
+    return get<Message, Api.MessageWrap>(
+      this.r,
+      { url: "message/inbox" },
+      (d) => new Message(this.r, d.data),
+      options
+    );
+  }
+
   messagesStream(options?: StreamOptions): AsyncIterator<Message> {
     this.r.needScopes("privatemessages");
     return stream<Message, Api.MessageWrap>(
@@ -66,6 +76,12 @@ export default class Self extends User {
       (d) => new Message(this.r, d.data),
       options
     );
+  }
+
+  /** Marks all messages as read */
+  async setMessagesRead(): Promise<void> {
+    this.r.needScopes("privatemessages");
+    await this.r.api.post("api/read_all_messages");
   }
 
   voted(dir: 1 | -1, options?: GetOptions): Promise<Page<FullSubmission>> {

@@ -40,6 +40,7 @@ export default class FullPost extends Post {
   approved: Action | null;
   removed: Action | null;
 
+  /** @internal */
   constructor(
     r: Reddit,
     data: Api.Submission | Api.Comment,

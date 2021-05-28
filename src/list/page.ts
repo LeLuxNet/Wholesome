@@ -6,12 +6,13 @@ import Reddit from "../reddit";
  * A page reddit returns from listings
  *
  * @example
+ *
  * ```ts
  * const page = await r.subreddit("askreddit").hot({ count: 10 });
- * console.log(page.items.length); // 10
+ * page.items.length; // 10
  *
  * const nextPage = await page.next(20);
- * console.log(nextPage.items.length); // 20
+ * nextPage.items.length; // 20
  * ```
  */
 export default class Page<I extends Identified, T = any> {
@@ -55,9 +56,10 @@ export default class Page<I extends Identified, T = any> {
     );
   }
 
-  /** Fetch next page after this
+  /**
+   * Fetch next page after this
    *
-   * @param count count of items
+   * @param count Count of items
    */
   next(count: number): Promise<Page<I, T>> {
     return fetchPage(
@@ -70,9 +72,10 @@ export default class Page<I extends Identified, T = any> {
     );
   }
 
-  /** Fetch previous page before this
+  /**
+   * Fetch previous page before this
    *
-   * @param count count of items
+   * @param count Count of items
    */
   prev(count: number): Promise<Page<I, T>> {
     return fetchPage(this.r, this.config, this.map, count, this.before);

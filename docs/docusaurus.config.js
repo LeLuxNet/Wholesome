@@ -42,6 +42,10 @@ module.exports = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} LeLuxNet`,
     },
+    prism: {
+      theme: require("prism-react-renderer/themes/github"),
+      darkTheme: require("prism-react-renderer/themes/dracula"),
+    },
   },
   presets: [
     [

@@ -200,13 +200,14 @@ export default class Reddit {
   /**
    * Get a submission
    *
-   * @param id The id with or without a prefix
-   *
    * @example Get the title of a submission
+   *
    * ```ts
    * const s = await r.submission("87").fetch();
-   * s.title // The Downing Street Memo
+   * s.title; // The Downing Street Memo
    * ```
+   *
+   * @param id The id with or without a prefix
    */
   submission(id: string): Submission {
     if (id.startsWith("t3_")) id = id.slice(3);
@@ -216,14 +217,15 @@ export default class Reddit {
   /**
    * Get multiple submissions at once
    *
-   * @param ids The ids with or without a prefix
-   *
    * @example Get the titles of multiple submission at once
+   *
    * ```ts
    * const s = await r.submissions("87", "88");
-   * s[0].author?.name // kn0thing
-   * s[1].author?.name // spez
+   * s[0].author?.name; // kn0thing
+   * s[1].author?.name; // spez
    * ```
+   *
+   * @param ids The ids with or without a prefix
    */
   async submissions(...ids: string[]): Promise<FullSubmission[]> {
     ids = ids.map((i) => (i.startsWith("t3_") ? i : "t3_" + i));
@@ -299,7 +301,8 @@ export default class Reddit {
     );
   }
 
-  /** Search subreddits by title and description
+  /**
+   * Search subreddits by title and description
    *
    * @param query The query to search the subreddit by
    * @param options Search options

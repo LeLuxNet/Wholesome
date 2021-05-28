@@ -95,7 +95,10 @@ export interface Preferences {
 
   /** Whether you take part in the beta */
   beta: boolean;
-  /** If the {@link https://new.reddit.com|redesign} should be used instead of the {@link https://old.reddit.com|original} one */
+  /**
+   * If the {@link https://new.reddit.com|redesign} should be used instead of the
+   * {@link https://old.reddit.com|original} one
+   */
   redesign: boolean;
 
   /** Whether nightmode should be active in the redesign */

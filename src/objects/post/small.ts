@@ -37,20 +37,21 @@ export default class Post implements Deletable, Identified {
    *
    * :::note votes must be cast by humans.
    *
-   * That is, API clients proxying a human's action one-for-one are OK, but bots deciding how to vote on content or amplifying a human's vote are not.
-   * See {@link https://www.reddit.com/rules|the reddit rules} for more details on what constitutes vote cheating.
+   * That is, API clients proxying a human's action one-for-one are OK, but bots
+   * deciding how to vote on content or amplifying a human's vote are not. See
+   * {@link https://www.reddit.com/rules|the reddit rules} for more details on
+   * what constitutes vote cheating.
    *
    * :::
    *
    * @example Upvoting a submission
+   *
    * ```ts
    * r.submission("n0b6jn").vote(1);
    * ```
-   * @param dir The direction of the vote<br/>
-   * <br/>
-   * 1 = upvote<br/>
-   * 0 = unvote<br/>
-   * -1 = downvote
+   *
+   * @param dir The direction of the vote<br/> <br/> 1 = upvote<br/> 0 =
+   *   unvote<br/> -1 = downvote
    */
   async vote(dir: VoteDirection): Promise<void> {
     this.r.needScopes("vote");
@@ -66,7 +67,8 @@ export default class Post implements Deletable, Identified {
     });
   }
 
-  /** Edit the body of a submission or comment
+  /**
+   * Edit the body of a submission or comment
    *
    * @param body The new body in markdown
    * @see {@link FullSubmission.body} {@link FullSubmission.edited}
