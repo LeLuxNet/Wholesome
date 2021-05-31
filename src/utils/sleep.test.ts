@@ -1,6 +1,6 @@
 import { sleep } from "./sleep";
 
-jest.useFakeTimers();
+jest.useFakeTimers("legacy");
 
 it("should sleep for 10 seconds", () => {
   sleep(10 * 1000);

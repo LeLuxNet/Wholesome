@@ -59,14 +59,14 @@ export default class Page<I extends Identified, T = any> {
   /**
    * Fetch next page after this
    *
-   * @param count Count of items
+   * @param limit The maximum count of items
    */
-  next(count: number): Promise<Page<I, T>> {
+  next(limit: number): Promise<Page<I, T>> {
     return fetchPage(
       this.r,
       this.config,
       this.map,
-      count,
+      limit,
       undefined,
       this.after
     );
@@ -75,10 +75,10 @@ export default class Page<I extends Identified, T = any> {
   /**
    * Fetch previous page before this
    *
-   * @param count Count of items
+   * @param limit The maximum count of items
    */
-  prev(count: number): Promise<Page<I, T>> {
-    return fetchPage(this.r, this.config, this.map, count, this.before);
+  prev(limit: number): Promise<Page<I, T>> {
+    return fetchPage(this.r, this.config, this.map, limit, this.before);
   }
 }
 
@@ -92,7 +92,7 @@ export async function fetchPage<I extends Identified, T>(
   after?: string
 ): Promise<Page<I, T>> {
   const children: I[] = [];
-  count = count || Number.MAX_VALUE;
+  count = count || Infinity;
 
   // eslint-disable-next-line no-constant-condition
   while (true) {

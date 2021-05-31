@@ -4,7 +4,7 @@ import Reddit from "../reddit";
 import Page from "./page";
 
 export interface GetOptions {
-  count?: number;
+  limit?: number;
 }
 
 export async function get<I extends Identified, T>(
@@ -15,14 +15,14 @@ export async function get<I extends Identified, T>(
 ): Promise<Page<I, T>> {
   const children: I[] = [];
   let after: string | undefined;
-  let count = options?.count || 25;
+  let limit = options?.limit || 25;
 
-  while (count > 0) {
+  while (limit > 0) {
     const res = await r.api.get<Api.ListingRes<T>>(config.url!, {
       ...config,
       params: {
         ...config.params,
-        limit: Math.min(count, 100),
+        limit: Math.min(limit, 100),
         after,
       },
     });
@@ -30,7 +30,7 @@ export async function get<I extends Identified, T>(
     children.push(...data.data.children.map(map));
     after = children[children.length - 1].fullId;
 
-    count -= 100;
+    limit -= 100;
   }
 
   return new Page(
