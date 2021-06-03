@@ -8,11 +8,16 @@ The first step of using Wholesome is creating a `Reddit` instance.
 
 ```ts
 const r = new Reddit({
-  userAgent: "<your user agent>",
+  userAgent: {
+    platform: "nodejs",
+    identifier: "wholesome.getting-started",
+    version: "1.0",
+    author: "<your user name>",
+  },
 });
 ```
 
-When choosing a user agent make sure to follow the [guidelines](/api/interfaces/redditconstructor#useragent).
+Check out [the useragent docs](/api/interfaces/useragent) for more information which values to use.
 
 You can try it out right here without leaving the docs by opening the console (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd>) and using the `wholesome.Reddit` variable.
 

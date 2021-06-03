@@ -16,9 +16,51 @@ import { FullSubreddit, Subreddit } from "./objects/subreddit";
 import { SubmissionSearchOptions } from "./objects/subreddit/small";
 import { FullUser, Self, User } from "./objects/user";
 
-export interface RedditConstructor {
-  userAgent: string;
+export interface UserAgent {
+  /**
+   * The platform your script runs on. When building a reddit client this could
+   * be something like `web`, `android` or `windows`. Bots might want to use
+   * something like `nodejs` or `linux` when running on a linux server.
+   */
+  platform: string;
 
+  /**
+   * A string identifying your app. This could be an your android package name
+   * or the bots username
+   *
+   * @example `com.example.myapp` `someredditbot`
+   */
+  identifier: string;
+
+  /**
+   * The apps version number.
+   *
+   * @example `1.2.3` `v2.0-beta`
+   */
+  version: string;
+
+  /**
+   * Your reddit username used as a contact information
+   *
+   * @example `yourusername` `someuser`
+   */
+  author: string;
+}
+
+function generateUserAgent(ua: UserAgent) {
+  `${ua.platform}:${ua.identifier}:${
+    ua.version[0] === "v" ? ua.version : "v" + ua.version
+  } (by /u/${ua.author})`;
+}
+
+export interface RedditConstructor {
+  /**
+   * The User agent sent to reddits API. We recommend passing it in as an
+   * {@link UserAgent} object instead of an raw string.
+   */
+  userAgent: UserAgent | string;
+
+  /** Log debug information such as API calls to the console */
   debug?: boolean;
 }
 
@@ -32,12 +74,18 @@ export default class Reddit {
 
   linkUrl = "https://www.reddit.com";
 
+  /** Create a `Reddit` instance */
   constructor(data: RedditConstructor) {
     this.api = axios.create({
       baseURL: "https://www.reddit.com",
       headers:
         typeof window === "undefined"
-          ? { "User-Agent": data.userAgent }
+          ? {
+              "User-Agent":
+                typeof data.userAgent === "string"
+                  ? data.userAgent
+                  : generateUserAgent(data.userAgent),
+            }
           : undefined,
       params: { raw_json: 1 },
     });

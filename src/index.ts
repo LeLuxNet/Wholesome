@@ -64,7 +64,7 @@ export {
   User,
 } from "./objects/user";
 export { Preferences } from "./objects/user/self/prefs";
-export { RedditConstructor } from "./reddit";
+export { RedditConstructor, UserAgent } from "./reddit";
 export { Reddit };
 export default Reddit;
 
