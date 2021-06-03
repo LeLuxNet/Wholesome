@@ -1,6 +1,6 @@
 const path = require("path");
 
-/** @type {import('@docusaurus/types').DocusaurusConfig} */
+/** @type {import("@docusaurus/types").DocusaurusConfig} */
 module.exports = {
   title: "Wholesome",
   tagline: "A Reddit API wrapper",
@@ -16,14 +16,19 @@ module.exports = {
       title: "Wholesome",
       items: [
         {
+          label: "Docs",
           type: "doc",
           docId: "getting-started",
           position: "left",
-          label: "Docs",
         },
         {
-          href: "https://github.com/LeLuxNet/Wholesome",
+          label: "npm",
+          href: "https://www.npmjs.com/package/wholesome",
+          position: "right",
+        },
+        {
           label: "GitHub",
+          href: "https://github.com/LeLuxNet/Wholesome",
           position: "right",
         },
       ],
@@ -34,6 +39,10 @@ module.exports = {
           title: "More",
           items: [
             {
+              label: "npm",
+              href: "https://www.npmjs.com/package/wholesome",
+            },
+            {
               label: "GitHub",
               href: "https://github.com/LeLuxNet/Wholesome",
             },
@@ -41,6 +50,9 @@ module.exports = {
         },
       ],
       copyright: `Copyright © ${new Date().getFullYear()} LeLuxNet`,
+    },
+    colorMode: {
+      respectPrefersColorScheme: true,
     },
     prism: {
       theme: require("prism-react-renderer/themes/github"),

@@ -8,6 +8,12 @@ import CommentTree from "./tree";
 export default class FullComment extends _Comment(FullPost) implements Comment {
   comments: CommentTree;
 
+  /**
+   * The depth of the comment in the tree relative to the {@link submission}.
+   * Zero represents a top level comment; one a reply to it.
+   */
+  depth: number;
+
   /** The comment body */
   body: Content;
 
@@ -23,6 +29,8 @@ export default class FullComment extends _Comment(FullPost) implements Comment {
       this,
       data.replies ? data.replies.data.children : []
     );
+
+    this.depth = data.depth;
 
     this.body = {
       markdown: data.body,

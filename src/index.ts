@@ -69,5 +69,5 @@ export { Reddit };
 export default Reddit;
 
 if (typeof process !== "undefined" && process.browser) {
-  global.wholesome = Reddit;
+  global.wholesome = { Reddit };
 }
