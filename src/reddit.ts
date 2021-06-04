@@ -55,16 +55,14 @@ function generateUserAgent(ua: UserAgent) {
 
 export interface RedditConstructor {
   /**
-   * The User agent sent to reddits API. We recommend passing it in as an
-   * {@link UserAgent} object instead of an raw string.
+   * The User agent sent to reddits API. It's recommended to pass in a
+   * {@link UserAgent} object instead of a raw string.
    */
   userAgent: UserAgent | string;
 
   /** Log debug information such as API calls to the console */
   debug?: boolean;
 }
-
-declare const window: unknown;
 
 export default class Reddit {
   /** @internal */
@@ -76,17 +74,20 @@ export default class Reddit {
 
   /** Create a `Reddit` instance */
   constructor(data: RedditConstructor) {
+    const headers: any = {
+      "Accept-Encoding": "gzip, deflate, br",
+    };
+
+    if (typeof window === "undefined") {
+      headers["User-Agent"] =
+        typeof data.userAgent === "string"
+          ? data.userAgent
+          : generateUserAgent(data.userAgent);
+    }
+
     this.api = axios.create({
       baseURL: "https://www.reddit.com",
-      headers:
-        typeof window === "undefined"
-          ? {
-              "User-Agent":
-                typeof data.userAgent === "string"
-                  ? data.userAgent
-                  : generateUserAgent(data.userAgent),
-            }
-          : undefined,
+      headers,
       params: { raw_json: 1 },
     });
 
@@ -180,10 +181,29 @@ export default class Reddit {
 
       refresh(res.data);
     } else {
-      setTimeout(
+      const t = setTimeout(
         () => (this.auth = undefined),
         res.data.expires_in * 1000
-      ).unref();
+      );
+      if (typeof window === "undefined") t.unref();
+    }
+
+    let session: string | undefined;
+    if ("auth" in data && data.auth) {
+      const res = await this.api.post(
+        "https://old.reddit.com/api/login",
+        {
+          op: "login",
+          user: data.auth.username,
+          passwd: data.auth.twoFA
+            ? `${data.auth.password}:${data.auth.twoFA}`
+            : data.auth.password,
+          rem: "yes",
+        },
+        { skipAuth: true }
+      );
+
+      session = res.data.json.data.cookie;
     }
 
     this.auth = {
@@ -191,6 +211,8 @@ export default class Reddit {
 
       accessToken: res.data.access_token,
       refreshToken: res.data.refresh_token,
+
+      session,
 
       scopes,
     };

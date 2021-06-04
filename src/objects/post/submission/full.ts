@@ -292,7 +292,7 @@ export default class FullSubmission
 
   crosspostsStream(
     options?: CrosspostsStreamOptions
-  ): AsyncIterator<FullSubmission> {
+  ): AsyncIterable<FullSubmission> {
     return this.duplicatesStream({ ...options, crosspostsOnly: true });
   }
 
@@ -320,7 +320,7 @@ export default class FullSubmission
 
   duplicatesStream(
     options?: DuplicatesStreamOptions
-  ): AsyncIterator<FullSubmission> {
+  ): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
       {

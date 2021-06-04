@@ -11,6 +11,7 @@ declare namespace Api {
     author: string;
     author_fullname: string;
     author_premium: boolean;
+    author_cakeday?: true;
 
     author_patreon_flair: false;
     author_flair_css_class: "" | string | null;

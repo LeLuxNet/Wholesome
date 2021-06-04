@@ -48,7 +48,7 @@ export default class Self extends User {
     );
   }
 
-  subredditsStream(options?: StreamOptions): AsyncIterator<FullSubreddit> {
+  subredditsStream(options?: StreamOptions): AsyncIterable<FullSubreddit> {
     this.r.needScopes("mysubreddits");
     return stream<FullSubreddit, Api.SubredditWrap>(
       this.r,
@@ -68,7 +68,7 @@ export default class Self extends User {
     );
   }
 
-  messagesStream(options?: StreamOptions): AsyncIterator<Message> {
+  messagesStream(options?: StreamOptions): AsyncIterable<Message> {
     this.r.needScopes("privatemessages");
     return stream<Message, Api.MessageWrap>(
       this.r,
@@ -99,7 +99,7 @@ export default class Self extends User {
   votedStream(
     dir: 1 | -1,
     options?: StreamOptions
-  ): AsyncIterator<FullSubmission> {
+  ): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
       {
@@ -120,7 +120,7 @@ export default class Self extends User {
     );
   }
 
-  savedStream(options?: StreamOptions): AsyncIterator<FullSubmission> {
+  savedStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
       { url: "user/{name}/saved", fields: { name: this.name } },
@@ -138,7 +138,7 @@ export default class Self extends User {
     );
   }
 
-  hiddenStream(options?: StreamOptions): AsyncIterator<FullSubmission> {
+  hiddenStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
       { url: "user/{name}/hidden", fields: { name: this.name } },

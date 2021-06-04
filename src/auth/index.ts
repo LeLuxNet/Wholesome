@@ -35,5 +35,7 @@ export interface Auth {
   accessToken: string;
   refreshToken?: string;
 
+  session?: string;
+
   scopes: "*" | Set<Scope>;
 }

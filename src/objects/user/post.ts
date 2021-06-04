@@ -2,11 +2,16 @@ import Reddit from "../../reddit";
 import { Flair, flairPart } from "./flair";
 import { User } from "./small";
 
-export class SubmissionUser extends User {
+export class PostUser extends User {
   id: string;
   fullId: string;
 
   premium: boolean;
+  /**
+   * Whether the user posted this on his cakeday. To get whether the user has
+   * cakeday today {@link fetch().cakeday}
+   */
+  cakeday: boolean;
 
   flair: Flair | null;
 
@@ -18,6 +23,7 @@ export class SubmissionUser extends User {
     this.fullId = data.author_fullname;
 
     this.premium = data.author_premium;
+    this.cakeday = !!data.author_cakeday;
 
     this.flair = data.author_flair_text_color
       ? {

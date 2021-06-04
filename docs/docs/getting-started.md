@@ -17,7 +17,7 @@ const r = new Reddit({
 });
 ```
 
-Check out [the useragent docs](/api/interfaces/useragent) for more information which values to use.
+Check out [the user agent docs](/api/interfaces/useragent) for more information which values to use.
 
 You can try it out right here without leaving the docs by opening the console (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd>) and using the `wholesome.Reddit` variable.
 

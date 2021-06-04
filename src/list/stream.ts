@@ -12,7 +12,7 @@ export async function* stream<I extends Identified, T>(
   config: AxiosRequestConfig,
   map: (d: T) => I,
   options: StreamOptions | undefined
-): AsyncIterator<I> {
+): AsyncIterable<I> {
   const res = await r.api.get<Api.ListingRes<T>>(config.url!, {
     ...config,
     params: { ...config.params, limit: 1 },

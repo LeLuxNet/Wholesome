@@ -18,10 +18,8 @@ it("should load all comments", async () => {
   const cs = await c.fetchAll();
 
   cs.forEach((d) => {
-    expect(d === null || d instanceof FullComment).toBeTruthy();
+    expect(d).toBeInstanceOf(FullComment);
   });
-
-  expect(c.allComments.length).toBe(cs.length);
 });
 
 it("should load missing comments", async () => {

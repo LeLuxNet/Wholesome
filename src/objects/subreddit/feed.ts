@@ -70,7 +70,7 @@ export default class Feed {
     );
   }
 
-  submissionsStream(options?: StreamOptions): AsyncIterator<FullSubmission> {
+  submissionsStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
       { url: "r/{name}/new.json", fields: { name: this[nameSymbol] } },

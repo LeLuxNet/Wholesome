@@ -2,14 +2,15 @@ import Action from "../../media/actions";
 import Reddit from "../../reddit";
 import { GivenAward } from "../award";
 import { Subreddit } from "../subreddit";
-import { SubmissionUser, User } from "../user";
+import { PostUser, User } from "../user";
 import Post, { VoteDirection } from "./small";
 
 export type DistinguishKinds = "mod" | "admin" | "special" | null;
 
 export default class FullPost extends Post {
   /** The user who posted this or null if he's 'u/[deleted]' */
-  author: SubmissionUser | null;
+  author: PostUser | null;
+
   /** The subreddit it was posted on or a user if it was posted directly on it's profile */
   subreddit: Subreddit | User;
 
@@ -49,7 +50,7 @@ export default class FullPost extends Post {
     super(r, data.id, data.name);
 
     this.author =
-      data.author_fullname === undefined ? null : new SubmissionUser(r, data);
+      data.author_fullname === undefined ? null : new PostUser(r, data);
     this.subreddit =
       data.subreddit_type === "user"
         ? r.user(data.subreddit.slice(2))

@@ -5,9 +5,11 @@ import { get, GetOptions } from "../../list/get";
 import Page from "../../list/page";
 import { stream, StreamOptions } from "../../list/stream";
 import Reddit from "../../reddit";
+import { jsonFunction } from "../../utils/html";
 import { Multi } from "../multi";
 import { FullComment, FullSubmission } from "../post";
 import { FullUser } from "./full";
+import { mapOldAvatar, OldAvatar } from "./snoo";
 import { Trophy } from "./trophy";
 
 export class User implements Fetchable<FullUser> {
@@ -80,6 +82,31 @@ export class User implements Fetchable<FullUser> {
     });
   }
 
+  /**
+   * Get the items a users old avatar consists of.
+   *
+   * ::warning
+   *
+   * This function doesn't work in browsers.
+   *
+   * :::
+   */
+  async oldAvatar(): Promise<OldAvatar | null> {
+    const res = await this.r.api.get<string>(
+      "https://old.reddit.com/user/{name}/snoo",
+      {
+        fields: { name: this.name },
+        validateStatus: (s) => s === 200 || s === 404,
+      }
+    );
+
+    if (res.status === 404) return null;
+
+    const data: Api.Snoo = jsonFunction("initSnoovatar", res.data);
+
+    return mapOldAvatar(data);
+  }
+
   async trophies(): Promise<Trophy[]> {
     const res = await this.r.api.get<Api.TrophyList>(
       "user/{name}/trophies.json",
@@ -104,7 +131,7 @@ export class User implements Fetchable<FullUser> {
     );
   }
 
-  submissionsStream(options?: StreamOptions): AsyncIterator<FullSubmission> {
+  submissionsStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
       { url: "user/{name}/submitted.json", fields: { name: this.name } },
@@ -122,7 +149,7 @@ export class User implements Fetchable<FullUser> {
     );
   }
 
-  commentsStream(options?: StreamOptions): AsyncIterator<FullComment> {
+  commentsStream(options?: StreamOptions): AsyncIterable<FullComment> {
     return stream<FullComment, Api.CommentWrap>(
       this.r,
       { url: "user/{name}/comments.json", fields: { name: this.name } },

@@ -7,28 +7,48 @@ export class FullUser extends User implements Identified {
   id: string;
   fullId: string;
 
-  displayName: string;
+  /** The display name a user has set. The normal u/ username is found under {@link name}. */
+  displayName: string | null;
   description: string | null;
 
   icon: Image;
-  avatar: Image | null;
+  newAvatar: Image | null;
   banner: Image | null;
 
+  /** The date the profile was created at. */
   created: Date;
 
+  /** Whether the users profile is marked as NSFW. */
   nsfw: boolean;
+  /** Whether the user currently has reddit premium/gold. */
   premium: boolean;
+  /** Whether the user is a moderator in some subreddit. */
   mod: boolean;
+  /** Whether the user is an reddit admin/employee. */
   admin: boolean;
 
   verifiedEmail: boolean;
 
   robotIndexable: boolean;
 
+  /**
+   * Total karma beeing the sum of {@link submissionKarma}, {@link commentKarma},
+   * {@link awardeeKarma} and {@link awarderKarma}
+   */
   karma: number;
+  /** Karma gotten by upvotes on this users submissions. */
   submissionKarma: number;
+  /** Karma gotten by upvotes on this users comments. */
   commentKarma: number;
+  /**
+   * Karma this user got by **receiving** awards **from** other users. Not to
+   * confuse with {@link awarderKarma}.
+   */
   awardeeKarma: number;
+  /**
+   * Karma this user got by **giving** award **to** other users. Not to confuse
+   * with {@link awardeeKarma}.
+   */
   awarderKarma: number;
 
   /** @internal */
@@ -38,7 +58,7 @@ export class FullUser extends User implements Identified {
     this.id = data.id;
     this.fullId = `t2_${data.name}`;
 
-    this.displayName = data.subreddit.title || this.name;
+    this.displayName = data.subreddit.title || null;
     this.description = data.subreddit.public_description || null;
 
     this.icon = {
@@ -48,7 +68,7 @@ export class FullUser extends User implements Identified {
         height: data.subreddit.icon_size[1],
       },
     };
-    this.avatar =
+    this.newAvatar =
       data.snoovatar_size === null
         ? null
         : {
@@ -85,5 +105,19 @@ export class FullUser extends User implements Identified {
     this.commentKarma = data.comment_karma;
     this.awardeeKarma = data.awardee_karma;
     this.awarderKarma = data.awarder_karma;
+  }
+
+  /**
+   * Whether the user has cakeday today or the day passed in.
+   *
+   * @param date The time to check if the user has cakeday at instead of using today.
+   */
+  hasCakeday(date?: Date): boolean {
+    date ||= new Date();
+    return (
+      this.created.getFullYear() === date.getFullYear() &&
+      this.created.getMonth() === date.getMonth() &&
+      this.created.getDate() === date.getDate()
+    );
   }
 }
