@@ -5,7 +5,7 @@ const lines = [
     "",
   ],
   [
-    '%cUsage: %cconst %cr %c= %cnew %cwholesome.Reddit({ %cuserAgent%c: %c"..."%c });',
+    "%cUsage: %cconst %cr %c= %cnew %cwholesome.Reddit({ %cuserAgent%c: { ... }});",
     "#747474",
     "#9a7fd5",
     "#5db0d7",
@@ -13,8 +13,6 @@ const lines = [
     "#9a7fd5",
     "",
     "#d2c057",
-    "",
-    "#f28b54",
     "",
   ],
 ];

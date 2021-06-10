@@ -60,14 +60,15 @@ export function _Submission<T extends PostConstructor>(base: T) {
      * @example
      *
      * ```ts
-     * // Mark OC
+     * // Mark as OC
      * r.submission("i5nc5").setOc();
      *
-     * // Unmark OC
+     * // Unmark as OC
      * r.submission("i5nc5").setOc(false);
      * ```
      *
-     * @param oc Whether this submission should be marked as OC. @scope `modposts`
+     * @param oc Whether this submission should be marked as OC.
+     * @scope `modposts`
      */
     async setOc(oc = true) {
       this.r.needScopes("modposts");
@@ -85,14 +86,15 @@ export function _Submission<T extends PostConstructor>(base: T) {
      * @example
      *
      * ```ts
-     * // Mark NSFW
+     * // Mark as NSFW
      * r.submission("i5nc5").setNsfw();
      *
-     * // Unmark NSFW
+     * // Unmark as NSFW
      * r.submission("i5nc5").setNsfw(false);
      * ```
      *
-     * @param nsfw Whether this submission should be marked as NSFW. @scope `modposts`
+     * @param nsfw Whether this submission should be marked as NSFW.
+     * @scope `modposts`
      */
     async setNsfw(nsfw = true) {
       this.r.needScopes("modposts");
@@ -101,6 +103,24 @@ export function _Submission<T extends PostConstructor>(base: T) {
       });
     }
 
+    /**
+     * Mark this submission as a spoiler
+     *
+     * This method can only be used by the submission author.
+     *
+     * @example
+     *
+     * ```ts
+     * // Mark as a spoiler
+     * r.submission("i5nc5").setSpoiler();
+     *
+     * // Unmark OC
+     * r.submission("i5nc5").setSpoiler(false);
+     * ```
+     *
+     * @param spoiler Whether this submission should be marked as a spoiler.
+     * @scope `modposts`
+     */
     async setSpoiler(spoiler = true) {
       this.r.needScopes("modposts");
       await this.r.api.post(`api/${spoiler ? "" : "un"}spoiler`, {

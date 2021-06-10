@@ -6,6 +6,7 @@ import Comment, { _Comment } from "./small";
 import CommentTree from "./tree";
 
 export default class FullComment extends _Comment(FullPost) implements Comment {
+  /** The comments/replies to this comment. */
   comments: CommentTree;
 
   /**

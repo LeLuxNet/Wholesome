@@ -46,7 +46,7 @@ export class FullUser extends User implements Identified {
    */
   awardeeKarma: number;
   /**
-   * Karma this user got by **giving** award **to** other users. Not to confuse
+   * Karma this user got by **giving** awards **to** other users. Not to confuse
    * with {@link awardeeKarma}.
    */
   awarderKarma: number;

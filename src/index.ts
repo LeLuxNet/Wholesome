@@ -14,6 +14,7 @@ export {
   Video,
 } from "./media/image";
 export { default as Poll } from "./media/poll";
+export { Promotion } from "./media/promotion";
 export { Relation } from "./media/relation";
 export { Award, GivenAward } from "./objects/award";
 export { Collection } from "./objects/collection";
@@ -30,6 +31,7 @@ export {
   ModPermission,
   ModRelation,
   NewSubmissionOptions,
+  Requirements,
   Rule,
   Style,
   Subreddit,

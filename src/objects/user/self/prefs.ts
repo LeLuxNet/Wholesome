@@ -1,5 +1,84 @@
 export interface Preferences {
-  /** The selected language as a IETF language tag (underscore seperated) */
+  /**
+   * The selected language as a IETF language tag (underscore seperated)
+   *
+   * | native name             | code  |
+   * | ----------------------- | ----- |
+   * | English                 | en    |
+   * | Afrikaans               | af    |
+   * | العربية                 | ar    |
+   * | Беларуская мова         | be    |
+   * | български език          | bg    |
+   * | বাংলা                   | bn_IN |
+   * | বাংলা                   | bn_bd |
+   * | Bosanski                | bs    |
+   * | català                  | ca    |
+   * | česky                   | cs    |
+   * | Cymraeg                 | cy    |
+   * | dansk                   | da    |
+   * | Deutsch                 | de    |
+   * | Ελληνικά                | el    |
+   * | English (Australia)     | en_au |
+   * | English (Canadian)      | en_ca |
+   * | English (Great Britain) | en_gb |
+   * | English                 | en_us |
+   * | Esperanto               | eo    |
+   * | español                 | es    |
+   * | español                 | es_ar |
+   * | español                 | es_cl |
+   * | Español                 | es_mx |
+   * | eesti keel              | et    |
+   * | Euskara                 | eu    |
+   * | فارسی                   | fa    |
+   * | suomi                   | fi    |
+   * | Filipino                | fil   |
+   * | français                | fr    |
+   * | Français                | fr_ca |
+   * | Frysk                   | fy_NL |
+   * | Gaeilge                 | ga_ie |
+   * | Gàidhlig                | gd    |
+   * | Galego                  | gl    |
+   * | עברית                   | he    |
+   * | मानक हिन्दी             | hi    |
+   * | hrvatski                | hr    |
+   * | Magyar                  | hu    |
+   * | Հայերեն լեզու           | hy    |
+   * | Bahasa Indonesia        | id    |
+   * | íslenska                | is    |
+   * | italiano (Italy)        | it    |
+   * | 日本語                  | ja    |
+   * | ಕನ್ನಡ                   | kn_IN |
+   * | 한국어                  | ko    |
+   * | Latin                   | la    |
+   * | 1337                    | leet  |
+   * | LOL                     | lol   |
+   * | lietuvių kalba          | lt    |
+   * | latviešu valoda         | lv    |
+   * | Bahasa Melayu           | ms    |
+   * | Malti                   | mt_MT |
+   * | Nederlands              | nl    |
+   * | Nynorsk                 | nn    |
+   * | Norsk                   | no    |
+   * | Arrrrrrrr!              | pir   |
+   * | polski                  | pl    |
+   * | português               | pt    |
+   * | português               | pt_pt |
+   * | português brasileiro    | pt_BR |
+   * | română                  | ro    |
+   * | русский                 | ru    |
+   * | slovenčina              | sk    |
+   * | slovenščina             | sl    |
+   * | српски језик            | sr    |
+   * | Srpski                  | sr_la |
+   * | Svenska                 | sv    |
+   * | தமிழ்                   | ta    |
+   * | ภาษาไทย                 | th    |
+   * | Türkçe                  | tr    |
+   * | українська мова         | uk    |
+   * | Tiếng Việt              | vi    |
+   * | 中文                    | zh    |
+   * | 简化字                  | zh_cn |
+   */
   language: string;
 
   /** Whether it should open links in a new windows */

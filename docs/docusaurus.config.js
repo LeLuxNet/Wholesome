@@ -67,7 +67,8 @@ module.exports = {
           routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/LeLuxNet/Wholesome/edit/master/docs/",
-          remarkPlugins: [require("wholesome.md")],
+          remarkPlugins: [require("remark-math"), require("wholesome.md")],
+          rehypePlugins: [require("rehype-katex")],
         },
       },
     ],
@@ -84,6 +85,10 @@ module.exports = {
         watch: process.env.NODE_ENV !== "production",
       },
     ],
-    [path.resolve(__dirname, "try-it-out.js"), { url: "/browser.js" }],
+    [
+      path.resolve(__dirname, "plugins", "try-it-out.js"),
+      { url: "/browser.js" },
+    ],
+    [path.resolve(__dirname, "plugins", "katex.js"), {}],
   ],
 };

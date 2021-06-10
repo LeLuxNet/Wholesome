@@ -12,7 +12,10 @@ export class Award {
   /** The amount of coins the user receiving this award gets. */
   coinReward: number;
 
-  /** The days of reddit premium the user receiving this award gets. */
+  /**
+   * The days of reddit premium the user receiving this award gets. This could
+   * for example be the Gold award (7 days) or the Platinum award (31 days).
+   */
   daysOfPremium: number;
 
   startDate: Date | null;
@@ -121,7 +124,7 @@ function image(u: string, w: number, r: Api.Image[]) {
 
   if (u !== r[0].url) {
     r.forEach((i) => {
-      if (i.width == 48) return;
+      if (i.width === 48) return;
       res.resized!.push({ url: i.url, width: i.width, height: i.height });
     });
   }

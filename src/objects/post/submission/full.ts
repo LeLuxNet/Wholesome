@@ -6,7 +6,7 @@ import Embed from "../../../media/embed";
 import Event from "../../../media/event";
 import { GIF, Image, Stream, Video } from "../../../media/image";
 import Poll, { PollOption } from "../../../media/poll";
-import Promotion from "../../../media/promotion";
+import { Promotion } from "../../../media/promotion";
 import Reddit from "../../../reddit";
 import { Collection } from "../../collection";
 import { Subreddit } from "../../subreddit";
@@ -21,6 +21,10 @@ export default class FullSubmission
   /** The title of the submission. */
   title: string;
 
+  /**
+   * The upvote percentage calculated using
+   * $\frac{\text{upvotes}}{\text{upvotes}+\text{downvotes}}$.
+   */
   upvoteRatio: number;
 
   /**
@@ -46,6 +50,11 @@ export default class FullSubmission
 
   robotIndexable: boolean;
 
+  /**
+   * The count of all comments (not only top level comments).
+   *
+   * @see {@link comments}
+   */
   commentCount: number;
 
   hidden: boolean;
@@ -276,8 +285,8 @@ export default class FullSubmission
       };
     }
 
-    this.promoted = data.call_to_action
-      ? { button: data.call_to_action }
+    this.promoted = data.promoted
+      ? { button: data.call_to_action || null }
       : null;
   }
 

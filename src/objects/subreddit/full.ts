@@ -47,6 +47,65 @@ export default class FullSubreddit extends Subreddit implements Identified {
   /** The time the subreddit was created at */
   created: Date;
   nsfw: boolean;
+
+  /**
+   * The language set for this subreddit in form of a ISO 639-1 code. `en` by default.
+   *
+   * | native name      | code |
+   * | ---------------- | ---- |
+   * | Afrikaans        | af   |
+   * | العربية          | ar   |
+   * | Беларуская мова  | be   |
+   * | български език   | bg   |
+   * | Bosanski         | bs   |
+   * | català           | ca   |
+   * | česky            | cs   |
+   * | Cymraeg          | cy   |
+   * | dansk            | da   |
+   * | Deutsch          | de   |
+   * | Ελληνικά         | el   |
+   * | English          | en   |
+   * | Esperanto        | eo   |
+   * | español          | es   |
+   * | eesti keel       | et   |
+   * | Euskara          | eu   |
+   * | فارسی            | fa   |
+   * | suomi            | fi   |
+   * | français         | fr   |
+   * | Gàidhlig         | gd   |
+   * | Galego           | gl   |
+   * | עברית            | he   |
+   * | मानक हिन्दी      | hi   |
+   * | hrvatski         | hr   |
+   * | Magyar           | hu   |
+   * | Հայերեն լեզու    | hy   |
+   * | Bahasa Indonesia | id   |
+   * | íslenska         | is   |
+   * | italiano (Italy) | it   |
+   * | 日本語           | ja   |
+   * | 한국어           | ko   |
+   * | Latin            | la   |
+   * | lietuvių kalba   | lt   |
+   * | latviešu valoda  | lv   |
+   * | Bahasa Melayu    | ms   |
+   * | Nederlands       | nl   |
+   * | Nynorsk          | nn   |
+   * | Norsk            | no   |
+   * | polski           | pl   |
+   * | português        | pt   |
+   * | română           | ro   |
+   * | русский          | ru   |
+   * | slovenčina       | sk   |
+   * | slovenščina      | sl   |
+   * | српски језик     | sr   |
+   * | Svenska          | sv   |
+   * | தமிழ்            | ta   |
+   * | ภาษาไทย          | th   |
+   * | Türkçe           | tr   |
+   * | українська мова  | uk   |
+   * | Tiếng Việt       | vi   |
+   * | 中文             | zh   |
+   */
   language: string;
 
   favorite: boolean;
