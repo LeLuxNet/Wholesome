@@ -6,7 +6,7 @@ declare module "axios" {
   }
 }
 
-export default function fieldInterceptor(
+export function fieldInterceptor(
   config: AxiosRequestConfig
 ): AxiosRequestConfig {
   config.url = config.url!.replace(/{([^}]+)}/g, (_, p) => {

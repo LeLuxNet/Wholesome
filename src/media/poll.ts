@@ -1,6 +1,6 @@
-import Content from "./content";
+import { Content } from "./content";
 
-export default interface Poll {
+export interface Poll {
   body: Content | null;
   url: string;
 

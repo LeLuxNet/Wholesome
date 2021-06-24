@@ -1,8 +1,8 @@
 import Reddit from "../../..";
-import Fetchable from "../../../interfaces/fetchable";
-import CommentTree from "../comment/tree";
-import Post, { PostConstructor } from "../small";
-import FullSubmission from "./full";
+import { Fetchable } from "../../../interfaces/fetchable";
+import { CommentTree } from "../comment/tree";
+import { Post, PostConstructor } from "../small";
+import { FullSubmission } from "./full";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function _Submission<T extends PostConstructor>(base: T) {
@@ -143,7 +143,7 @@ export function _Submission<T extends PostConstructor>(base: T) {
   return _Submission;
 }
 
-export default class Submission extends _Submission(Post) {
+export class Submission extends _Submission(Post) {
   constructor(r: Reddit, id: string) {
     super(r, id, `t3_${id}`);
   }

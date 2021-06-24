@@ -1,4 +1,4 @@
-import Self from ".";
+import { Self } from ".";
 import { ar } from "../../../test/setup";
 
 (ar ? describe : describe.skip)("self", () => {

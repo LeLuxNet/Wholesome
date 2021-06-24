@@ -1,4 +1,4 @@
-import fieldInterceptor from "./fields";
+import { fieldInterceptor } from "./fields";
 
 it("should replace field", () => {
   const conf = fieldInterceptor({ url: "a{B}c", fields: { B: "b" } });

@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from "axios";
-import Identified from "../interfaces/identified";
+import { Identified } from "../interfaces/identified";
 import Reddit from "../reddit";
-import Page from "./page";
+import { Page } from "./page";
 
 export interface GetOptions {
   limit?: number;

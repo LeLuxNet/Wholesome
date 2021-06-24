@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from "axios";
-import bodyInterceptor from "./body";
+import { bodyInterceptor } from "./body";
 
 it("should skip GET", () => {
   const req: AxiosRequestConfig = { method: "GET" };

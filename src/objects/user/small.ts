@@ -1,8 +1,8 @@
 import { AxiosResponse } from "axios";
 import { ApiError } from "../../error/api";
-import Fetchable from "../../interfaces/fetchable";
+import { Fetchable } from "../../interfaces/fetchable";
 import { get, GetOptions } from "../../list/get";
-import Page from "../../list/page";
+import { Page } from "../../list/page";
 import { stream, StreamOptions } from "../../list/stream";
 import Reddit from "../../reddit";
 import { jsonFunction } from "../../utils/html";

@@ -1,4 +1,4 @@
-import Identified from "../../interfaces/identified";
+import { Identified } from "../../interfaces/identified";
 import { Image } from "../../media/image";
 import Reddit from "../../reddit";
 import { User } from "./small";

@@ -1,12 +1,12 @@
 import { get, GetOptions } from "../../list/get";
-import Page from "../../list/page";
+import { Page } from "../../list/page";
 import { stream, StreamOptions } from "../../list/stream";
 import Reddit from "../../reddit";
 import { FullSubmission } from "../post";
 
 const nameSymbol = Symbol();
 
-export default class Feed {
+export class Feed {
   r: Reddit;
 
   [nameSymbol]: string;

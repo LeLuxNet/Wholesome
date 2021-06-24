@@ -1,4 +1,4 @@
-import Deletable from "../../interfaces/deletable";
+import { Deletable } from "../../interfaces/deletable";
 import Reddit from "../../reddit";
 import { Submission } from "../post";
 import { Subreddit } from "../subreddit";

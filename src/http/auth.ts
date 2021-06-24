@@ -8,7 +8,7 @@ declare module "axios" {
 }
 
 /** @internal */
-export default function authInterceptor(r: Reddit) {
+export function authInterceptor(r: Reddit) {
   return (config: AxiosRequestConfig): AxiosRequestConfig => {
     if (r.auth && !config.skipAuth) {
       if (config.url?.startsWith("https://old.reddit.com")) {

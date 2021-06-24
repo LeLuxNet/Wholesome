@@ -1,5 +1,5 @@
 import { createReddit } from "../test/setup";
-import authInterceptor from "./auth";
+import { authInterceptor } from "./auth";
 
 const r = createReddit();
 r.auth = {

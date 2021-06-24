@@ -1,4 +1,4 @@
-import Content from "../../media/content";
+import { Content } from "../../media/content";
 
 export interface Rule {
   kind: "submission" | "comment" | "all";

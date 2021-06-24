@@ -1,4 +1,4 @@
-export default interface Fetchable<T> {
+export interface Fetchable<T> {
   readonly key: string;
 
   fetch(): Promise<T>;

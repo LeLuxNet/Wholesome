@@ -30,7 +30,7 @@ export function errorRejectionInterceptor(
   );
 }
 
-export default function errorInterceptor(api: AxiosInstance): void {
+export function errorInterceptor(api: AxiosInstance): void {
   api.interceptors.response.use(
     errorSuccessInterceptor,
     errorRejectionInterceptor

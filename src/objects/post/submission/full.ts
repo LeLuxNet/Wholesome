@@ -1,20 +1,20 @@
 import { get, GetOptions } from "../../../list/get";
-import Page from "../../../list/page";
+import { Page } from "../../../list/page";
 import { stream, StreamOptions } from "../../../list/stream";
-import Content from "../../../media/content";
-import Embed from "../../../media/embed";
-import Event from "../../../media/event";
+import { Content } from "../../../media/content";
+import { Embed } from "../../../media/embed";
+import { Event } from "../../../media/event";
 import { GIF, Image, Stream, Video } from "../../../media/image";
-import Poll, { PollOption } from "../../../media/poll";
+import { Poll, PollOption } from "../../../media/poll";
 import { Promotion } from "../../../media/promotion";
 import Reddit from "../../../reddit";
 import { Collection } from "../../collection";
 import { Subreddit } from "../../subreddit";
 import { Flair, flairPart } from "../../user/flair";
-import FullPost from "../full";
-import Submission, { _Submission } from "./small";
+import { FullPost } from "../full";
+import { Submission, _Submission } from "./small";
 
-export default class FullSubmission
+export class FullSubmission
   extends _Submission(FullPost)
   implements Submission
 {

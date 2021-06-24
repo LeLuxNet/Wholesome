@@ -1,3 +1,3 @@
-export default interface Deletable {
+export interface Deletable {
   delete(): Promise<void>;
 }

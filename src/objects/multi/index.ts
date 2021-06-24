@@ -1,10 +1,10 @@
-import Deletable from "../../interfaces/deletable";
-import Fetchable from "../../interfaces/fetchable";
-import Content from "../../media/content";
+import { Deletable } from "../../interfaces/deletable";
+import { Fetchable } from "../../interfaces/fetchable";
+import { Content } from "../../media/content";
 import { Image } from "../../media/image";
 import Reddit from "../../reddit";
 import { Subreddit } from "../subreddit";
-import Feed from "../subreddit/feed";
+import { Feed } from "../subreddit/feed";
 import { User } from "../user";
 
 export class Multi extends Feed implements Deletable, Fetchable<Multi> {

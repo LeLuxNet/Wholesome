@@ -1,9 +1,9 @@
-import Identified from "../../interfaces/identified";
-import Content from "../../media/content";
+import { Identified } from "../../interfaces/identified";
+import { Content } from "../../media/content";
 import { BaseImage, Image } from "../../media/image";
 import Reddit from "../../reddit";
 import { Collection } from "../collection";
-import Subreddit from "./small";
+import { Subreddit } from "./small";
 
 export type SubredditType =
   | "public" /** Everyone can read and post */
@@ -24,7 +24,7 @@ const subredditTypeMap: { [raw: string]: SubredditType } = {
   employees_only: "adminOnly",
 };
 
-export default class FullSubreddit extends Subreddit implements Identified {
+export class FullSubreddit extends Subreddit implements Identified {
   id: string;
   fullId: string;
 

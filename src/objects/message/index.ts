@@ -1,6 +1,6 @@
-import Deletable from "../../interfaces/deletable";
-import Identified from "../../interfaces/identified";
-import Content from "../../media/content";
+import { Deletable } from "../../interfaces/deletable";
+import { Identified } from "../../interfaces/identified";
+import { Content } from "../../media/content";
 import Reddit from "../../reddit";
 import { User } from "../user";
 

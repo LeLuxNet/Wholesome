@@ -1,4 +1,4 @@
-export default interface Event {
+export interface Event {
   isLive: boolean;
   from: Date;
   to: Date;

@@ -1,5 +1,5 @@
 import { get, GetOptions } from "../../../list/get";
-import Page from "../../../list/page";
+import { Page } from "../../../list/page";
 import { stream, StreamOptions } from "../../../list/stream";
 import { Relation } from "../../../media/relation";
 import Reddit from "../../../reddit";
@@ -13,7 +13,7 @@ type Optional<T> = {
   [K in keyof T]?: T[K];
 };
 
-export default class Self extends User {
+export class Self extends User {
   /** @internal */
   constructor(r: Reddit, name: string | undefined) {
     super(r, name || "");

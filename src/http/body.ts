@@ -2,7 +2,7 @@ import { AxiosRequestConfig } from "axios";
 import { stringify } from "querystring";
 
 /** @internal */
-export default function bodyInterceptor(
+export function bodyInterceptor(
   config: AxiosRequestConfig
 ): AxiosRequestConfig {
   if (

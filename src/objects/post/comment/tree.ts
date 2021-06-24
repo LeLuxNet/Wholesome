@@ -1,7 +1,7 @@
 import { Comment, FullComment, Submission } from "..";
 import Reddit from "../../../reddit";
 
-export default class CommentTree<T = Submission | FullComment> {
+export class CommentTree<T = Submission | FullComment> {
   r: Reddit;
 
   /** The submission this comment was posted under */

@@ -1,11 +1,11 @@
 import { Content } from "../../..";
 import Reddit from "../../../reddit";
-import FullPost from "../full";
-import Submission from "../submission/small";
-import Comment, { _Comment } from "./small";
-import CommentTree from "./tree";
+import { FullPost } from "../full";
+import { Submission } from "../submission/small";
+import { Comment, _Comment } from "./small";
+import { CommentTree } from "./tree";
 
-export default class FullComment extends _Comment(FullPost) implements Comment {
+export class FullComment extends _Comment(FullPost) implements Comment {
   /** The comments/replies to this comment. */
   comments: CommentTree;
 

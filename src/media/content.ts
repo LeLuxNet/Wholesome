@@ -1,4 +1,4 @@
-export default interface Content {
+export interface Content {
   /** The content in {@link https://www.reddit.com/wiki/markdown|reddit-flavoured markdown}. */
   markdown: string;
 

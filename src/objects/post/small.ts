@@ -1,5 +1,5 @@
-import Deletable from "../../interfaces/deletable";
-import Identified from "../../interfaces/identified";
+import { Deletable } from "../../interfaces/deletable";
+import { Identified } from "../../interfaces/identified";
 import Reddit from "../../reddit";
 import { Award } from "../award";
 import { DistinguishKinds } from "./full";
@@ -8,7 +8,7 @@ export type VoteDirection = 1 | 0 | -1;
 
 export type PostConstructor = new (...args: any[]) => Post;
 
-export default class Post implements Deletable, Identified {
+export class Post implements Deletable, Identified {
   r: Reddit;
 
   id: string;

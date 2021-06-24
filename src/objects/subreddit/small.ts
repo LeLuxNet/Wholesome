@@ -2,14 +2,14 @@ import { Stream } from "stream";
 import { FullSubreddit } from ".";
 import { UnrealSubreddit } from "../../error";
 import { upload } from "../../helper/upload";
-import Fetchable from "../../interfaces/fetchable";
+import { Fetchable } from "../../interfaces/fetchable";
 import { get, GetOptions } from "../../list/get";
-import Page from "../../list/page";
+import { Page } from "../../list/page";
 import { BaseImage } from "../../media/image";
 import Reddit from "../../reddit";
 import { FullSubmission, Submission } from "../post";
 import { User } from "../user";
-import Feed from "./feed";
+import { Feed } from "./feed";
 import { ModPermission, ModRelation } from "./moderator";
 import { Requirements } from "./requirement";
 import { parseRule, Rule } from "./rule";
@@ -29,10 +29,7 @@ export interface BanOptions {
   duration?: number;
 }
 
-export default class Subreddit
-  extends Feed
-  implements Fetchable<FullSubreddit>
-{
+export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   name: string;
   get key(): string {
     return this.name;

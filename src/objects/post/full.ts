@@ -1,13 +1,13 @@
-import Action from "../../media/actions";
+import { Action } from "../../media/actions";
 import Reddit from "../../reddit";
 import { GivenAward } from "../award";
 import { Subreddit } from "../subreddit";
 import { PostUser, User } from "../user";
-import Post, { VoteDirection } from "./small";
+import { Post, VoteDirection } from "./small";
 
 export type DistinguishKinds = "mod" | "admin" | "special" | null;
 
-export default class FullPost extends Post {
+export class FullPost extends Post {
   /** The user who posted this or null if he's 'u/[deleted]' */
   author: PostUser | null;
 

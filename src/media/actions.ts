@@ -1,6 +1,6 @@
 import { User } from "../objects/user";
 
-export default interface Action {
+export interface Action {
   by: User;
   at: Date;
 }

@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from "axios";
-import Identified from "../interfaces/identified";
+import { Identified } from "../interfaces/identified";
 import Reddit from "../reddit";
 
 /**
@@ -15,7 +15,7 @@ import Reddit from "../reddit";
  * nextPage.items.length; // 20
  * ```
  */
-export default class Page<I extends Identified, T = any> {
+export class Page<I extends Identified, T = any> {
   r: Reddit;
 
   private config: AxiosRequestConfig;

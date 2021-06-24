@@ -1,5 +1,5 @@
-export { default as FullComment } from "./comment/full";
-export { default as Comment } from "./comment/small";
-export { default as CommentTree } from "./comment/tree";
-export { default as FullSubmission } from "./submission/full";
-export { default as Submission } from "./submission/small";
+export { FullComment } from "./comment/full";
+export { Comment } from "./comment/small";
+export { CommentTree } from "./comment/tree";
+export { FullSubmission } from "./submission/full";
+export { Submission } from "./submission/small";

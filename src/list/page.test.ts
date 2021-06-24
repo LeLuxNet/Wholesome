@@ -1,8 +1,8 @@
-import Identified from "../interfaces/identified";
+import { Identified } from "../interfaces/identified";
 import { FullSubmission } from "../objects/post";
 import { r } from "../test/setup";
 import { unique } from "../utils/array";
-import Page, { fetchPage } from "./page";
+import { fetchPage, Page } from "./page";
 
 jest.setTimeout(60 * 1000);
 

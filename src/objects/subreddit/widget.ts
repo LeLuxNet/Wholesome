@@ -1,6 +1,6 @@
 import { Subreddit } from ".";
-import Deletable from "../../interfaces/deletable";
-import Content from "../../media/content";
+import { Deletable } from "../../interfaces/deletable";
+import { Content } from "../../media/content";
 import { Image } from "../../media/image";
 import { User } from "../user";
 import { parseRule, Rule } from "./rule";

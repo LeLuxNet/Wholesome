@@ -3,7 +3,7 @@ import buildURL from "axios/lib/helpers/buildURL";
 import combineURLs from "axios/lib/helpers/combineURLs";
 import isAbsoluteURL from "axios/lib/helpers/isAbsoluteURL";
 
-export default function debugInterceptor(
+export function debugInterceptor(
   config: AxiosRequestConfig
 ): AxiosRequestConfig {
   let url = config.url!;

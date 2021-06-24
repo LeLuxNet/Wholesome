@@ -1,4 +1,4 @@
-export default interface Embed {
+export interface Embed {
   title: string | null;
 
   /**

@@ -1,8 +1,9 @@
 import Reddit from "./reddit";
+
 export { Scope } from "./auth/scopes";
-export { default as Page } from "./list/page";
-export { default as Content } from "./media/content";
-export { default as Embed } from "./media/embed";
+export { Page } from "./list/page";
+export { Content } from "./media/content";
+export { Embed } from "./media/embed";
 export {
   BaseImage,
   BaseResolution,
@@ -13,7 +14,7 @@ export {
   Stream,
   Video,
 } from "./media/image";
-export { default as Poll } from "./media/poll";
+export { Poll } from "./media/poll";
 export { Promotion } from "./media/promotion";
 export { Relation } from "./media/relation";
 export { Award, GivenAward } from "./objects/award";
@@ -67,8 +68,7 @@ export {
 } from "./objects/user";
 export { Preferences } from "./objects/user/self/prefs";
 export { RedditConstructor, UserAgent } from "./reddit";
-export { Reddit };
-export default Reddit;
+export { Reddit, Reddit as default };
 
 if (typeof process !== "undefined" && process.browser) {
   global.wholesome = { Reddit };

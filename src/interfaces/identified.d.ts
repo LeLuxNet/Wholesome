@@ -1,6 +1,6 @@
 import Reddit from "../reddit";
 
-export default interface Identified {
+export interface Identified {
   r: Reddit;
 
   /** The ID of this thing */

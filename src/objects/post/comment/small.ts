@@ -1,8 +1,8 @@
-import Fetchable from "../../../interfaces/fetchable";
+import { Fetchable } from "../../../interfaces/fetchable";
 import Reddit from "../../../reddit";
-import Post, { PostConstructor } from "../small";
-import Submission from "../submission/small";
-import FullComment from "./full";
+import { Post, PostConstructor } from "../small";
+import { Submission } from "../submission/small";
+import { FullComment } from "./full";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function _Comment<T extends PostConstructor>(base: T) {
@@ -34,7 +34,7 @@ export function _Comment<T extends PostConstructor>(base: T) {
   return _Comment;
 }
 
-export default class Comment extends _Comment(Post) {
+export class Comment extends _Comment(Post) {
   /** @internal */
   constructor(r: Reddit, id: string, submission: Submission) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

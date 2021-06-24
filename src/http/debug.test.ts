@@ -1,7 +1,6 @@
 import { AxiosRequestConfig } from "axios";
-import debugInterceptor from "./debug";
+import { debugInterceptor } from "./debug";
 
-// global.console = { log: jest.fn(), ...global.console };
 const log = jest.fn();
 global.console.log = log;
 

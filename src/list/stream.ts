@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from "axios";
-import Identified from "../interfaces/identified";
+import { Identified } from "../interfaces/identified";
 import Reddit from "../reddit";
 import { sleep } from "../utils/sleep";
 
