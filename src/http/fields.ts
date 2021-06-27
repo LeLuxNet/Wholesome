@@ -11,10 +11,10 @@ export function fieldInterceptor(
 ): AxiosRequestConfig {
   config.url = config.url!.replace(/{([^}]+)}/g, (_, p) => {
     if (config.fields === undefined) {
-      throw "Fields needed if using template in URL";
+      throw new Error("Fields needed if using template in URL");
     }
     if (config.fields[p] === undefined) {
-      throw `Field '${p}' needed`;
+      throw new Error(`Field '${p}' needed`);
     }
 
     return encodeURIComponent(config.fields[p]);

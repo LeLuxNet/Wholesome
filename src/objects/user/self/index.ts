@@ -24,7 +24,9 @@ export class Self extends User {
     if (!name) {
       Object.defineProperty(this, "name", {
         get: () => {
-          throw "Your aren't logged in with a username or the 'identity' scope";
+          throw new Error(
+            "Your aren't logged in with a username or the 'identity' scope"
+          );
         },
       });
     }

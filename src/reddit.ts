@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import { readFile } from "fs/promises";
 import { Auth, AuthData, AuthSession } from "./auth";
 import { Scope } from "./auth/scopes";
 import { ApiClient } from "./http/api";
@@ -110,7 +111,18 @@ export default class Reddit {
     errorInterceptor(this._api);
   }
 
-  async login(data: AuthData): Promise<void> {
+  async login(data?: AuthData | string): Promise<void> {
+    if (typeof data !== "object") {
+      if (typeof window !== "undefined") {
+        throw new Error(
+          "The file system can't be accessed from the browser. Please provide your login information directly."
+        );
+      }
+
+      const conf = await readFile(data || "wholesome.json", "utf-8");
+      data = JSON.parse(conf) as AuthData;
+    }
+
     let body: object;
     const config: AxiosRequestConfig = { skipAuth: true };
     let username: string | undefined;
@@ -146,11 +158,15 @@ export default class Reddit {
             : data.auth.password,
         };
       }
-    } else {
+    } else if ("refreshToken" in data) {
       body = {
         grant_type: "refresh_token",
         refresh_token: data.refreshToken,
       };
+    } else {
+      throw new Error(
+        "Missing login information. Please provide 'client', 'code' or 'refreshToken'."
+      );
     }
 
     const res = await this._api.post<Api.AccessToken>(
@@ -268,21 +284,24 @@ export default class Reddit {
     }
 
     if (needed.length !== 0)
-      throw `You are missing the ${needed.join(", ")} scope${
-        needed.length === 1 ? "" : "s"
-      }`;
+      throw new Error(
+        `You are missing the ${needed.join(", ")} scope${
+          needed.length === 1 ? "" : "s"
+        }`
+      );
   }
 
   /** @internal */
   get needAuth(): Auth {
-    if (!this.auth) throw "You need to be authenticated to use this function";
+    if (!this.auth)
+      throw new Error("You need to be authenticated to use this function");
     return this.auth;
   }
 
   /** @internal */
   get needUsername(): string {
     if (!this.auth || !this.auth.username)
-      throw "You need to be authenticated with a user";
+      throw new Error("You need to be authenticated with a user");
     return this.auth.username;
   }
 
@@ -448,7 +467,9 @@ export default class Reddit {
    */
   static loggedIn(): Promise<boolean> {
     if (typeof window === "undefined") {
-      throw "This is a browser-only function can not be used in an Node.js environment.";
+      throw new Error(
+        "This is a browser-only function can not be used in an Node.js environment."
+      );
     }
 
     const image = new Image();
