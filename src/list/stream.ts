@@ -13,7 +13,7 @@ export async function* stream<I extends Identified, T>(
   map: (d: T) => I,
   options: StreamOptions | undefined
 ): AsyncIterable<I> {
-  const res = await r.api.get<Api.ListingRes<T>>(config.url!, {
+  const res = await r._api.get<Api.ListingRes<T>>(config.url!, {
     ...config,
     params: { ...config.params, limit: 1 },
   });
@@ -25,7 +25,7 @@ export async function* stream<I extends Identified, T>(
   while (true) {
     const time = Date.now();
 
-    const res = await r.api.get<Api.ListingRes<T>>(config.url!, {
+    const res = await r._api.get<Api.ListingRes<T>>(config.url!, {
       ...config,
       params: { ...config.params, before, limit: 100 },
     });

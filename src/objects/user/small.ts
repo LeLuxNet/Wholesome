@@ -35,14 +35,14 @@ export class User implements Fetchable<FullUser> {
   }
 
   async fetch(): Promise<FullUser> {
-    const res = await this.r.api.get<Api.UserWrap>("user/{name}/about.json", {
+    const res = await this.r._api.get<Api.UserWrap>("user/{name}/about.json", {
       fields: { name: this.name },
     });
     return new FullUser(this.r, res.data.data);
   }
 
   async nameAvailable(): Promise<boolean> {
-    const res = await this.r.api.get<boolean>("api/username_available.json", {
+    const res = await this.r._api.get<boolean>("api/username_available.json", {
       params: { user: this.name },
     });
     return res.data;
@@ -50,7 +50,7 @@ export class User implements Fetchable<FullUser> {
 
   async givePremium(months: number): Promise<void> {
     this.r.needScopes("creddits");
-    await this.r.api.post(
+    await this.r._api.post(
       "/api/v1/gold/give/{name}",
       { months },
       { fields: { name: this.name } }
@@ -62,7 +62,7 @@ export class User implements Fetchable<FullUser> {
 
     let req: Promise<AxiosResponse>;
     if (friend) {
-      req = this.r.api.put(
+      req = this.r._api.put(
         "api/v1/me/friends/{name}",
         { note },
         {
@@ -71,7 +71,7 @@ export class User implements Fetchable<FullUser> {
         }
       );
     } else {
-      req = this.r.api.delete("api/v1/me/friends/{name}", {
+      req = this.r._api.delete("api/v1/me/friends/{name}", {
         fields: { name: this.name },
       });
     }
@@ -92,7 +92,7 @@ export class User implements Fetchable<FullUser> {
    * :::
    */
   async oldAvatar(): Promise<OldAvatar | null> {
-    const res = await this.r.api.get<string>(
+    const res = await this.r._api.get<string>(
       "https://old.reddit.com/user/{name}/snoo",
       {
         fields: { name: this.name },
@@ -108,7 +108,7 @@ export class User implements Fetchable<FullUser> {
   }
 
   async trophies(): Promise<Trophy[]> {
-    const res = await this.r.api.get<Api.TrophyList>(
+    const res = await this.r._api.get<Api.TrophyList>(
       "user/{name}/trophies.json",
       { fields: { name: this.name } }
     );
@@ -116,9 +116,12 @@ export class User implements Fetchable<FullUser> {
   }
 
   async multis(): Promise<Multi[]> {
-    const res = await this.r.api.get<Api.MultiWrap[]>("api/multi/user/{name}", {
-      fields: { name: this.name },
-    });
+    const res = await this.r._api.get<Api.MultiWrap[]>(
+      "api/multi/user/{name}",
+      {
+        fields: { name: this.name },
+      }
+    );
     return res.data.map((d) => new Multi(this.r, d.data));
   }
 
@@ -160,7 +163,7 @@ export class User implements Fetchable<FullUser> {
 
   async sendMessage(subject: string, body: string): Promise<void> {
     this.r.needScopes("privatemessages");
-    await this.r.api.post("api/compose", {
+    await this.r._api.post("api/compose", {
       subject,
       text: body,
       to: this.name,

@@ -7,6 +7,10 @@ slug: /
 The first step of using Wholesome is creating a `Reddit` instance.
 
 ```ts
+import Reddit from "wholesome";
+// or
+const { Reddit } = require("wholesome");
+
 const r = new Reddit({
   userAgent: {
     platform: "nodejs",

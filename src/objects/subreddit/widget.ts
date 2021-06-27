@@ -34,7 +34,7 @@ class Widget implements Deletable {
 
   async delete() {
     this.subreddit.r.needScopes("structuredstyles");
-    await this.subreddit.r.api.delete("r/{sub}/api/widget/{id}", {
+    await this.subreddit.r._api.delete("r/{sub}/api/widget/{id}", {
       fields: { sub: this.subreddit.name, id: this.id },
     });
   }

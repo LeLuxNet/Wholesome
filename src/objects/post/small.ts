@@ -29,7 +29,7 @@ export class Post implements Deletable, Identified {
   /** Delete this thing */
   async delete(): Promise<void> {
     this.r.needScopes("edit");
-    await this.r.api.post("api/del", { id: this.fullId });
+    await this.r._api.post("api/del", { id: this.fullId });
   }
 
   /**
@@ -55,12 +55,12 @@ export class Post implements Deletable, Identified {
    */
   async vote(dir: VoteDirection): Promise<void> {
     this.r.needScopes("vote");
-    await this.r.api.post("api/vote", { dir, id: this.fullId });
+    await this.r._api.post("api/vote", { dir, id: this.fullId });
   }
 
   async award(award: Award, anonymous: boolean): Promise<void> {
     this.r.needScopes("creddits");
-    await this.r.api.post("api/v2/gold/gild", {
+    await this.r._api.post("api/v2/gold/gild", {
       thing_id: this.fullId,
       gild_type: award.id,
       is_anonymous: anonymous,
@@ -75,7 +75,7 @@ export class Post implements Deletable, Identified {
    */
   async edit(body: string): Promise<void> {
     this.r.needScopes("edit");
-    await this.r.api.post("api/editusertext", {
+    await this.r._api.post("api/editusertext", {
       thing_id: this.fullId,
       text: body,
     });
@@ -83,37 +83,37 @@ export class Post implements Deletable, Identified {
 
   async save(): Promise<void> {
     this.r.needScopes("save");
-    await this.r.api.post("api/save", { id: this.fullId });
+    await this.r._api.post("api/save", { id: this.fullId });
   }
 
   async unsave(): Promise<void> {
     this.r.needScopes("save");
-    await this.r.api.post("api/unsave", { id: this.fullId });
+    await this.r._api.post("api/unsave", { id: this.fullId });
   }
 
   async hide(): Promise<void> {
     this.r.needScopes("report");
-    await this.r.api.post("api/hide", { id: this.fullId });
+    await this.r._api.post("api/hide", { id: this.fullId });
   }
 
   async unhide(): Promise<void> {
     this.r.needScopes("report");
-    await this.r.api.post("api/unhide", { id: this.fullId });
+    await this.r._api.post("api/unhide", { id: this.fullId });
   }
 
   async lock(): Promise<void> {
     this.r.needScopes("modposts");
-    await this.r.api.post("api/lock", { id: this.fullId });
+    await this.r._api.post("api/lock", { id: this.fullId });
   }
 
   async unlock(): Promise<void> {
     this.r.needScopes("modposts");
-    await this.r.api.post("api/unlock", { id: this.fullId });
+    await this.r._api.post("api/unlock", { id: this.fullId });
   }
 
   async distinguish(kind: DistinguishKinds = "mod"): Promise<void> {
     this.r.needScopes("modposts");
-    await this.r.api.post("api/distinguish", {
+    await this.r._api.post("api/distinguish", {
       id: this.fullId,
       how: kind === null ? "no" : kind === "mod" ? "yes" : kind,
     });
@@ -121,11 +121,14 @@ export class Post implements Deletable, Identified {
 
   async approve(): Promise<void> {
     this.r.needScopes("modposts");
-    await this.r.api.post("api/approve", { id: this.fullId });
+    await this.r._api.post("api/approve", { id: this.fullId });
   }
 
   async comment(body: string): Promise<void> {
     this.r.needScopes("submit");
-    await this.r.api.post("api/comment", { thing_id: this.fullId, text: body });
+    await this.r._api.post("api/comment", {
+      thing_id: this.fullId,
+      text: body,
+    });
   }
 }

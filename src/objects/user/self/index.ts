@@ -1,8 +1,11 @@
+import { ApiError } from "../../../error";
 import { get, GetOptions } from "../../../list/get";
 import { Page } from "../../../list/page";
 import { stream, StreamOptions } from "../../../list/stream";
 import { Relation } from "../../../media/relation";
 import Reddit from "../../../reddit";
+import { camelObject2Snake } from "../../../utils/snake";
+import { Award } from "../../award";
 import { Message } from "../../message";
 import { FullSubmission } from "../../post";
 import { FullSubreddit } from "../../subreddit";
@@ -28,7 +31,7 @@ export class Self extends User {
   }
 
   async friends(): Promise<Relation[]> {
-    const res = await this.r.api.get<Api.Friends>("prefs/friends.json");
+    const res = await this.r._api.get<Api.Friends>("prefs/friends.json");
     return res.data[0].data.children.map((r) => ({
       id: r.rel_id.slice(3),
       fullId: r.rel_id,
@@ -81,7 +84,7 @@ export class Self extends User {
   /** Marks all messages as read */
   async setMessagesRead(): Promise<void> {
     this.r.needScopes("privatemessages");
-    await this.r.api.post("api/read_all_messages");
+    await this.r._api.post("api/read_all_messages");
   }
 
   voted(dir: 1 | -1, options?: GetOptions): Promise<Page<FullSubmission>> {
@@ -149,7 +152,7 @@ export class Self extends User {
 
   async prefs(): Promise<Preferences> {
     this.r.needScopes("identity");
-    const { data } = await this.r.api.get<Api.Prefs>("api/v1/me/prefs");
+    const { data } = await this.r._api.get<Api.Prefs>("api/v1/me/prefs");
 
     return {
       language: data.lang,
@@ -354,8 +357,40 @@ export class Self extends User {
       use_global_defaults: undefined,
     };
 
-    await this.r.api.patch("api/v1/me/prefs", data, {
+    await this.r._api.patch("api/v1/me/prefs", data, {
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  async hasFreeAward(): Promise<boolean> {
+    const { econSpecialEvents: data } =
+      await this.r.api.gql<Api.FreeAwardCheck>("7537a71b4f14");
+
+    return data.freeAwardEvent.isEnabled;
+  }
+
+  async claimFreeAward(): Promise<Award | null> {
+    let data: Api.FreeAwardClaim;
+    try {
+      data = await this.r.api.gql<Api.FreeAwardClaim>("7264b2ee2ded", {
+        input: { offerId: "free_awards" },
+      });
+    } catch (err) {
+      if (
+        err instanceof ApiError &&
+        err.code === "INVALID_REQUEST" &&
+        err.msg === "User is not eligible"
+      ) {
+        return null;
+      }
+
+      throw err;
+    }
+
+    const a: Api.GAward = camelObject2Snake(
+      data.claimAwardOffer.awards[0]
+    ) as any;
+
+    return new Award(a);
   }
 }

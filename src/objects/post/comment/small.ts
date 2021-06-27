@@ -17,7 +17,7 @@ export function _Comment<T extends PostConstructor>(base: T) {
     }
 
     async fetch() {
-      const res = await this.r.api.get<Api.GetSubmission>(
+      const res = await this.r._api.get<Api.GetSubmission>(
         "comments/{submission}//{id}.json",
         { fields: { submission: this.submission.id, id: this.id } }
       );

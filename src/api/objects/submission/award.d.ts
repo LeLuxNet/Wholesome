@@ -1,6 +1,6 @@
 /// <reference path="../../index.d.ts" />
 declare namespace Api {
-  export interface Award {
+  export interface BaseAward {
     giver_coin_reward: null;
     subreddit_id: null;
     is_new: boolean;
@@ -9,29 +9,53 @@ declare namespace Api {
     id: string;
     penny_donate: null;
     coin_reward: number;
-    icon_url: string;
     days_of_premium: number;
-    icon_height: number;
-    tiers_by_required_awardings: AwardTiers | null;
-    resized_icons: Image[];
-    icon_width: number;
-    static_icon_width: number;
     start_date: number | null;
     is_enabled: boolean;
-    awardings_required_to_grant_benefits: number | null;
     description: string;
     end_date: number | null;
     subreddit_coin_reward: number;
-    count: number;
-    static_icon_height: number;
     name: string;
-    resized_static_icons: Image[];
     icon_format: null;
-    award_sub_type: "GLOBAL" | "GROUP" | "PREMIUM" | "APPRECIATION";
+    award_sub_type: AwardSubType;
     penny_price: null;
     award_type: "global";
-    static_icon_url: string;
   }
+
+  export interface Award extends BaseAward {
+    icon_url: string;
+    icon_height: number;
+    icon_width: number;
+    resized_icons: Image[];
+
+    static_icon_url: string;
+    static_icon_height: number;
+    static_icon_width: number;
+    resized_static_icons: Image[];
+
+    tiers_by_required_awardings: AwardTiers | null;
+    awardings_required_to_grant_benefits: number | null;
+
+    count: number;
+  }
+
+  export interface GAward extends BaseAward {
+    icon: BaseImage;
+    icon32: BaseImage;
+    icon64: BaseImage;
+    icon128: BaseImage;
+
+    static_icon: BaseImage;
+    static_icon32: BaseImage;
+    static_icon64: BaseImage;
+    static_icon128: BaseImage;
+
+    tags: string[];
+    tiers: unknown | null;
+    is_optional: false;
+  }
+
+  type AwardSubType = "GLOBAL" | "GROUP" | "PREMIUM" | "APPRECIATION";
 
   interface AwardTiers {
     [index: string]: {

@@ -4,7 +4,11 @@ A Reddit API wrapper
 
 ## Examples
 
-```js
+```ts
+import Reddit from "wholesome";
+// or
+const { Reddit } = require("wholesome");
+
 const r = new Reddit({ userAgent: "Wholesome Example" });
 
 const page = await r.subreddit("askreddit").hot();

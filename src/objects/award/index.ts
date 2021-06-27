@@ -27,7 +27,7 @@ export class Award {
   [tierIconsSymbol]?: Image[];
 
   /** @internal */
-  constructor(data: Api.Award) {
+  constructor(data: Api.Award | Api.GAward) {
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;
@@ -41,9 +41,25 @@ export class Award {
     this.endDate =
       data.end_date === null ? null : new Date(data.end_date * 1000);
 
-    this.icon = image(data.icon_url, data.icon_width, data.resized_icons);
+    if ("icon_url" in data) {
+      this.icon = image(data.icon_url, data.icon_width, data.resized_icons);
+    } else {
+      const size = data.icon.url.endsWith("_512.png") ? 512 : 2048;
 
-    if (data.tiers_by_required_awardings !== null) {
+      this.icon = {
+        native: { url: data.icon.url, width: size, height: size },
+        resized: [
+          { url: data.icon32.url, width: 32, height: 32 },
+          { url: data.icon64.url, width: 64, height: 64 },
+          { url: data.icon128.url, width: 128, height: 128 },
+        ],
+      };
+    }
+
+    if (
+      "tiers_by_required_awardings" in data &&
+      data.tiers_by_required_awardings
+    ) {
       const list: Image[] = [];
 
       Object.entries(data.tiers_by_required_awardings).forEach(

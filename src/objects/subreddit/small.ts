@@ -59,15 +59,18 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   }
 
   async fetch(): Promise<FullSubreddit> {
-    const res = await this.r.api.get<Api.SubredditWrap>("r/{name}/about.json", {
-      fields: { name: this.name },
-    });
+    const res = await this.r._api.get<Api.SubredditWrap>(
+      "r/{name}/about.json",
+      {
+        fields: { name: this.name },
+      }
+    );
     return new FullSubreddit(this.r, res.data.data);
   }
 
   async stylesheet(): Promise<string> {
     this._checkReal();
-    const res = await this.r.api.get<string>("r/{name}/stylesheet.json", {
+    const res = await this.r._api.get<string>("r/{name}/stylesheet.json", {
       fields: { name: this.name },
     });
     return res.data;
@@ -104,7 +107,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async setStylesheet(content: string): Promise<void> {
     this._checkReal();
     this.r.needScopes("modconfig");
-    await await this.r.api.post(
+    await await this.r._api.post(
       "r/{name}/api/subreddit_stylesheet",
       { op: "save", stylesheet_contents: content },
       { fields: { name: this.name } }
@@ -118,14 +121,14 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
       (this.r.auth.scopes === "*" || this.r.auth.scopes.has("structuredstyles"))
     ) {
       this.r.needScopes("structuredstyles");
-      const res = await this.r.api.get<Api.SubredditWidgets>(
+      const res = await this.r._api.get<Api.SubredditWidgets>(
         "r/{name}/api/widgets",
         { fields: { name: this.name } }
       );
 
       return parseWidgets(this, res.data);
     } else {
-      const res = await this.r.api.get<Api.Style>(
+      const res = await this.r._api.get<Api.Style>(
         "api/v1/structured_styles/{name}.json",
         { fields: { name: this.name } }
       );
@@ -137,7 +140,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   /** Get structured subreddit styles */
   async style(): Promise<Style> {
     this._checkReal();
-    const res = await this.r.api.get<Api.Style>(
+    const res = await this.r._api.get<Api.Style>(
       "api/v1/structured_styles/{name}.json",
       { fields: { name: this.name } }
     );
@@ -162,7 +165,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
 
   async moderators(): Promise<ModRelation[]> {
     this._checkReal();
-    const res = await this.r.api.get<Api.SubredditModerators>(
+    const res = await this.r._api.get<Api.SubredditModerators>(
       "r/{name}/about/moderators",
       { fields: { name: this.name } }
     );
@@ -184,7 +187,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   ): Promise<void> {
     this._checkReal();
     this.r.needScopes("modothers");
-    await this.r.api.post(
+    await this.r._api.post(
       "r/{name}/api/friend",
       {
         type: "moderator_invite",
@@ -201,7 +204,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   ): Promise<void> {
     this._checkReal();
     this.r.needScopes("modothers");
-    await this.r.api.post(
+    await this.r._api.post(
       "r/{name}/api/setpermissions",
       { name: user.name, permissions: permissions?.join(",") },
       { fields: { name: this.name } }
@@ -211,7 +214,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async removeModeratorInvite(user: User): Promise<void> {
     this._checkReal();
     this.r.needScopes("modothers");
-    await this.r.api.post(
+    await this.r._api.post(
       "r/{name}/api/unfriend",
       { type: "moderator_invite", name: user.name },
       { fields: { name: this.name } }
@@ -221,7 +224,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async removeModerator(user: User): Promise<void> {
     this._checkReal();
     this.r.needScopes("modothers");
-    await this.r.api.post(
+    await this.r._api.post(
       "r/{name}/api/unfriend",
       { type: "moderator", name: user.name },
       { fields: { name: this.name } }
@@ -231,7 +234,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async mute(user: User): Promise<void> {
     this._checkReal();
     this.r.needScopes("modcontributors");
-    await this.r.api.post(
+    await this.r._api.post(
       "r/{name}/api/friend",
       { type: "muted", name: user.name },
       { fields: { name: this.name } }
@@ -241,7 +244,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async unmute(user: User): Promise<void> {
     this._checkReal();
     this.r.needScopes("modcontributors");
-    await this.r.api.post(
+    await this.r._api.post(
       "r/{name}/api/unfriend",
       { type: "muted", name: user.name },
       { fields: { name: this.name } }
@@ -251,7 +254,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async ban(user: User, options: BanOptions = {}): Promise<void> {
     this._checkReal();
     this.r.needScopes("modcontributors");
-    await this.r.api.post(
+    await this.r._api.post(
       "r/{name}/api/friend",
       {
         type: "banned",
@@ -268,7 +271,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async unban(user: User): Promise<void> {
     this._checkReal();
     this.r.needScopes("modothers");
-    await this.r.api.post(
+    await this.r._api.post(
       "r/{name}/api/unfriend",
       { type: "banned", name: user.name },
       { fields: { name: this.name } }
@@ -290,7 +293,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async join(): Promise<void> {
     this._checkReal();
     this.r.needScopes("subscribe");
-    await this.r.api.post("api/subscribe", {
+    await this.r._api.post("api/subscribe", {
       action: "sub",
       skip_initial_defaults: true,
       sr_name: this.name,
@@ -312,7 +315,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async leave(): Promise<void> {
     this._checkReal();
     this.r.needScopes("subscribe");
-    await this.r.api.post("api/subscribe", {
+    await this.r._api.post("api/subscribe", {
       action: "unsub",
       sr_name: this.name,
     });
@@ -320,7 +323,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
 
   async rules(): Promise<Rule[]> {
     this._checkReal();
-    const res = await this.r.api.get<Api.SubredditRules>(
+    const res = await this.r._api.get<Api.SubredditRules>(
       "r/{name}/about/rules.json",
       { fields: { name: this.name } }
     );
@@ -329,7 +332,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
 
   async requirements(): Promise<Requirements> {
     this._checkReal();
-    const res = await this.r.api.get<Api.SubredditRequirements>(
+    const res = await this.r._api.get<Api.SubredditRequirements>(
       "https://www.reddit.com/api/v1/{name}/post_requirements.json",
       { fields: { name: this.name } }
     );
@@ -363,7 +366,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async traffic(): Promise<Traffics> {
     this._checkReal();
     this.r.needScopes("modconfig");
-    const res = await this.r.api.get<Api.SubredditTraffic>(
+    const res = await this.r._api.get<Api.SubredditTraffic>(
       "r/{name}/about/traffic.json",
       { fields: { name: this.name } }
     );
@@ -394,7 +397,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   }
 
   async sticky(num: 1 | 2 = 1): Promise<FullSubmission> {
-    const res = await this.r.api.get<Api.GetSubmission>(
+    const res = await this.r._api.get<Api.GetSubmission>(
       "r/{name}/about/sticky.json",
       { fields: { name: this.name }, params: { num } }
     );
@@ -402,7 +405,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   }
 
   async randomSubmission(): Promise<FullSubmission> {
-    const res = await this.r.api.get<Api.GetSubmission>(
+    const res = await this.r._api.get<Api.GetSubmission>(
       "r/{name}/random.json",
       { fields: { name: this.name } }
     );
@@ -446,7 +449,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
    * @param view Whether the user should be able to access the quarantined subreddit
    */
   async viewQuarantined(view = true): Promise<void> {
-    await this.r.api.post(`api/quarantine_opt${view ? "in" : "out"}`, {
+    await this.r._api.post(`api/quarantine_opt${view ? "in" : "out"}`, {
       sr_name: this.name,
     });
   }
@@ -608,7 +611,7 @@ async function submit(
   url?: string
 ) {
   subreddit.r.needScopes("submit");
-  const res = await subreddit.r.api.post(
+  const res = await subreddit.r._api.post(
     url || "api/submit",
     {
       sr: subreddit.name,

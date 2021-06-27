@@ -18,7 +18,7 @@ export async function get<I extends Identified, T>(
   let limit = options?.limit || 25;
 
   while (limit > 0) {
-    const res = await r.api.get<Api.ListingRes<T>>(config.url!, {
+    const res = await r._api.get<Api.ListingRes<T>>(config.url!, {
       ...config,
       params: {
         ...config.params,

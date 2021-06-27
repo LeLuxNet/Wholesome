@@ -54,13 +54,13 @@ export class Multi extends Feed implements Deletable, Fetchable<Multi> {
   }
 
   async fetch(): Promise<Multi> {
-    const res = await this.r.api.get<Api.MultiWrap>(`api/multi${this.key}`);
+    const res = await this.r._api.get<Api.MultiWrap>(`api/multi${this.key}`);
     return new Multi(this.r, res.data.data);
   }
 
   async copy(name: string): Promise<Multi> {
     this.r.needScopes("subscribe");
-    const res = await this.r.api.post<Api.MultiWrap>("api/multi/copy", {
+    const res = await this.r._api.post<Api.MultiWrap>("api/multi/copy", {
       display_name: name,
       from: this.key,
       to: `user/${encodeURIComponent(
@@ -72,21 +72,21 @@ export class Multi extends Feed implements Deletable, Fetchable<Multi> {
 
   async delete(): Promise<void> {
     this.r.needScopes("subscribe");
-    await this.r.api.delete("api/multi/{name}", {
+    await this.r._api.delete("api/multi/{name}", {
       fields: { name: this.name },
     });
   }
 
   async addSubreddit(sub: Subreddit): Promise<void> {
     this.r.needScopes("subscribe");
-    await this.r.api.put(`api/multi${this.key}/r/{sub}`, undefined, {
+    await this.r._api.put(`api/multi${this.key}/r/{sub}`, undefined, {
       fields: { sub: sub.name },
     });
   }
 
   async removeSubreddit(sub: Subreddit): Promise<void> {
     this.r.needScopes("subscribe");
-    await this.r.api.delete(`api/multi${this.key}/r/{sub}`, {
+    await this.r._api.delete(`api/multi${this.key}/r/{sub}`, {
       fields: { sub: sub.name },
     });
   }

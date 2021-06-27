@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { Auth, AuthData } from "./auth";
+import { Auth, AuthData, AuthSession } from "./auth";
 import { Scope } from "./auth/scopes";
+import { ApiClient } from "./http/api";
 import { authInterceptor } from "./http/auth";
 import { bodyInterceptor } from "./http/body";
 import { debugInterceptor } from "./http/debug";
@@ -15,6 +16,8 @@ import { FullSubmission, Submission } from "./objects/post";
 import { FullSubreddit, Subreddit } from "./objects/subreddit";
 import { SubmissionSearchOptions } from "./objects/subreddit/small";
 import { FullUser, Self, User } from "./objects/user";
+import { jsonVariable } from "./utils/html";
+import { unrefTimeout } from "./utils/time";
 
 export interface UserAgent {
   /**
@@ -66,14 +69,19 @@ export interface RedditConstructor {
 
 export default class Reddit {
   /** @internal */
-  api: AxiosInstance;
+  api: ApiClient;
+  /** @internal */
+  _api: AxiosInstance;
 
+  /** @internal */
   auth?: Auth;
 
   linkUrl = "https://www.reddit.com";
 
   /** Create a `Reddit` instance */
   constructor(data: RedditConstructor) {
+    this.api = new ApiClient(this);
+
     const headers: any = {
       "Accept-Encoding": "gzip, deflate, br",
     };
@@ -85,21 +93,21 @@ export default class Reddit {
           : generateUserAgent(data.userAgent);
     }
 
-    this.api = axios.create({
+    this._api = axios.create({
       baseURL: "https://www.reddit.com",
       headers,
       params: { raw_json: 1 },
     });
 
     if (data.debug) {
-      this.api.interceptors.request.use(debugInterceptor);
+      this._api.interceptors.request.use(debugInterceptor);
     }
 
-    this.api.interceptors.request.use(fieldInterceptor);
-    this.api.interceptors.request.use(bodyInterceptor);
-    this.api.interceptors.request.use(authInterceptor(this));
+    this._api.interceptors.request.use(fieldInterceptor);
+    this._api.interceptors.request.use(bodyInterceptor);
+    this._api.interceptors.request.use(authInterceptor(this));
 
-    errorInterceptor(this.api);
+    errorInterceptor(this._api);
   }
 
   async login(data: AuthData): Promise<void> {
@@ -145,8 +153,8 @@ export default class Reddit {
       };
     }
 
-    const res = await this.api.post<Api.AccessToken>(
-      "https://www.reddit.com/api/v1/access_token",
+    const res = await this._api.post<Api.AccessToken>(
+      "api/v1/access_token",
       body,
       config
     );
@@ -161,9 +169,9 @@ export default class Reddit {
 
     if (res.data.refresh_token) {
       const refresh = (data: Api.AccessToken) => {
-        const timeout = setTimeout(async () => {
-          const res = await this.api.post<Api.AccessToken>(
-            "https://www.reddit.com/api/v1/access_token",
+        unrefTimeout(async () => {
+          const res = await this._api.post<Api.AccessToken>(
+            "api/v1/access_token",
             {
               grant_type: "refresh_token",
               refresh_token: data.refresh_token,
@@ -175,23 +183,21 @@ export default class Reddit {
           this.auth.accessToken = res.data.access_token;
 
           refresh(res.data);
-        }, (data.expires_in - 30) * 1000);
-        timeout.unref();
+        }, (data.expires_in - 30) * 1000) as any;
       };
 
       refresh(res.data);
     } else {
-      const t = setTimeout(
+      unrefTimeout(
         () => (this.auth = undefined),
         res.data.expires_in * 1000
-      );
-      if (typeof window === "undefined") t.unref();
+      ) as any;
     }
 
-    let session: string | undefined;
+    let session: AuthSession | undefined;
     if ("auth" in data && data.auth) {
-      const res = await this.api.post(
-        "https://old.reddit.com/api/login",
+      const res = await this._api.post<Api.FormWrap<Api.FormLogin>>(
+        "api/login",
         {
           op: "login",
           user: data.auth.username,
@@ -203,7 +209,20 @@ export default class Reddit {
         { skipAuth: true }
       );
 
-      session = res.data.json.data.cookie;
+      const { cookie } = res.data.json.data;
+
+      const res2 = await this._api.get<string>("chat/minimize", {
+        headers: {
+          Cookie: `reddit_session=${cookie}`,
+        },
+        skipAuth: true,
+      });
+      const data2 = jsonVariable("___r", res2.data);
+
+      session = {
+        cookie,
+        accessToken: data2.user.session.accessToken,
+      };
     }
 
     this.auth = {
@@ -218,7 +237,7 @@ export default class Reddit {
     };
 
     if ("code" in data && (scopes === "*" || scopes.has("identity"))) {
-      const res2 = await this.api.get("api/v1/me");
+      const res2 = await this._api.get("api/v1/me");
       this.auth.username = res2.data.name;
     }
   }
@@ -299,7 +318,7 @@ export default class Reddit {
    */
   async submissions(...ids: string[]): Promise<FullSubmission[]> {
     ids = ids.map((i) => (i.startsWith("t3_") ? i : "t3_" + i));
-    const res = await this.api.get<Api.Listing<Api.SubmissionWrap>>(
+    const res = await this._api.get<Api.Listing<Api.SubmissionWrap>>(
       "api/info.json",
       { params: { id: ids.join(",") } }
     );
@@ -325,7 +344,7 @@ export default class Reddit {
   }
 
   async collection(id: string): Promise<Collection> {
-    const res = await this.api.get<Api.Collection>(
+    const res = await this._api.get<Api.Collection>(
       "api/v1/collections/collection.json",
       { params: { collection_id: id, include_links: 0 } }
     );
@@ -336,7 +355,7 @@ export default class Reddit {
     const sid = awardMap[id];
     if (!sid) return null;
 
-    const res = await this.api.get<Api.Listing<Api.SubmissionWrap>>(
+    const res = await this._api.get<Api.Listing<Api.SubmissionWrap>>(
       "api/info.json",
       { params: { id: "t3_" + sid } }
     );
@@ -350,7 +369,7 @@ export default class Reddit {
 
   async trendingSubreddits(): Promise<Subreddit[]> {
     // This endpoint only exists on www.reddit.com not on oauth.reddit.com
-    const res = await this.api.get<Api.TrendingSubreddits>(
+    const res = await this._api.get<Api.TrendingSubreddits>(
       "https://www.reddit.com/api/trending_subreddits.json"
     );
     return res.data.subreddit_names.map((n) => this.subreddit(n));
@@ -405,6 +424,47 @@ export default class Reddit {
       (d) => new FullUser(this, d.data),
       options
     );
+  }
+
+  /**
+   * Detects whether the browser is logged in on
+   * [reddit.com](https://www.reddit.com). This works cross-origin.
+   *
+   * :::note
+   *
+   * This is a browser-only function can not be used in an Node.js environment.
+   *
+   * :::
+   *
+   * @example
+   *
+   * ```ts
+   * // The browser is logged in on reddit.com
+   * await Reddit.loggedIn(); // true
+   *
+   * // The browser isn't logged in on reddit.com or the check failed
+   * await Reddit.loggedIn(); // false
+   * ```
+   */
+  static loggedIn(): Promise<boolean> {
+    if (typeof window === "undefined") {
+      throw "This is a browser-only function can not be used in an Node.js environment.";
+    }
+
+    const image = new Image();
+
+    const p = new Promise<boolean>((resolve) => {
+      image.onload = () => resolve(true);
+      image.onerror = () => resolve(false);
+    });
+
+    const redirect = "/favicon.ico";
+
+    image.src = `https://old.reddit.com/login?dest=${encodeURIComponent(
+      redirect
+    )}`;
+
+    return p;
   }
 }
 

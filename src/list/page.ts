@@ -97,7 +97,7 @@ export async function fetchPage<I extends Identified, T>(
   // eslint-disable-next-line no-constant-condition
   while (true) {
     const limit = Math.min(count, 100);
-    const res = await r.api.get<Api.ListingRes<T>>(config.url as string, {
+    const res = await r._api.get<Api.ListingRes<T>>(config.url as string, {
       ...config,
       params: {
         ...config.params,

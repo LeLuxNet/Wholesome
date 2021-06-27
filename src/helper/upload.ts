@@ -11,7 +11,7 @@ export async function upload(
 ): Promise<string> {
   r.needScopes();
 
-  const res = await r.api.post<Api.Media>("api/media/asset.json", {
+  const res = await r._api.post<Api.Media>("api/media/asset.json", {
     filepath: ".",
     mimetype,
   });

@@ -35,7 +35,12 @@ export interface Auth {
   accessToken: string;
   refreshToken?: string;
 
-  session?: string;
+  session?: AuthSession;
 
   scopes: "*" | Set<Scope>;
+}
+
+export interface AuthSession {
+  cookie: string;
+  accessToken: string;
 }
