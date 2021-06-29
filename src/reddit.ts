@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { readFile } from "fs/promises";
+import { promises as fsPromises } from "fs";
 import { Auth, AuthData, AuthSession } from "./auth";
 import { Scope } from "./auth/scopes";
 import { ApiClient } from "./http/api";
@@ -119,7 +119,7 @@ export default class Reddit {
         );
       }
 
-      const conf = await readFile(data || "wholesome.json", "utf-8");
+      const conf = await fsPromises.readFile(data || "wholesome.json", "utf-8");
       data = JSON.parse(conf) as AuthData;
     }
 

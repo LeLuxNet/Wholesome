@@ -1,6 +1,7 @@
 import browserify from "browserify";
 import { exec as execCallback } from "child_process";
 import { writeFile } from "fs/promises";
+import { compiler } from "google-closure-compiler";
 import { Stream } from "stream";
 import { minify } from "uglify-js";
 import Reddit, { FullSubmission } from "./src";
@@ -52,21 +53,41 @@ async function generateAwards() {
   await writeFile("src/objects/award/data.ts", lines.join("\n"));
 }
 
+function size(code: string) {
+  console.log(` (${Math.round(code.length / 100) / 10} kB)`);
+}
+
 async function run() {
+  const browserPath = "dist/browser.js";
+
   console.log("Generate");
   await generateAwards();
 
   console.log("TypeScript");
   await exec("tsc");
 
-  console.log("Browserify");
+  process.stdout.write("Browserify");
   let code = await stream2string(browserify("dist/index.js").bundle());
+  size(code);
 
-  console.log("Minify");
+  process.stdout.write("Google Closure Compiler");
+  await writeFile(browserPath, code);
+  const gcc = new compiler({
+    js: browserPath,
+    compilation_level: "ADVANCED",
+  });
+
+  code = await new Promise<string>((resolve) =>
+    gcc.run((_, out) => resolve(out))
+  );
+  size(code);
+
+  process.stdout.write("Minify");
   code = minify(code).code;
+  size(code);
 
   await Promise.all([
-    writeFile("dist/browser.js", code),
+    writeFile(browserPath, code),
     writeFile("docs/static/browser.js", code),
   ]);
 
@@ -74,4 +95,7 @@ async function run() {
   console.log("Finished!");
 }
 
-run();
+run().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

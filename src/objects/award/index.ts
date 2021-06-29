@@ -64,11 +64,7 @@ export class Award {
 
       Object.entries(data.tiers_by_required_awardings).forEach(
         ([key, i]) =>
-          (list[parseInt(key)] = image(
-            i.icon.url,
-            i.icon.width,
-            i.resized_icons
-          ))
+          (list[Number(key)] = image(i.icon.url, i.icon.width, i.resized_icons))
       );
 
       let lastTier = this.icon;
@@ -130,7 +126,7 @@ function image(u: string, w: number, r: Api.Image[]) {
   let size = w;
   if (u.startsWith("https://www.redditstatic.com")) {
     const parts = u.split("_");
-    size = parseInt(parts[parts.length - 1].split(".")[0]);
+    size = Number(parts[parts.length - 1].split(".")[0]);
   }
 
   const res: Image = {

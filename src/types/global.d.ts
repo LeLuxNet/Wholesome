@@ -7,5 +7,3 @@ declare namespace NodeJS {
     wholesome: unknown;
   }
 }
-
-declare const window: unknown;
