@@ -1,6 +1,6 @@
 .vscode
-build.ts
 coverage
 dist
 docs
 node_modules
+tools

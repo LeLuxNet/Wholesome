@@ -6,3 +6,6 @@ dist
 docs/docs/api
 docs/static/browser.js
 node_modules
+tools/graphql
+tools/reddit.apk
+tools/tmp

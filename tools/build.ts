@@ -4,7 +4,7 @@ import { writeFile } from "fs/promises";
 import { compiler } from "google-closure-compiler";
 import { Stream } from "stream";
 import { minify } from "uglify-js";
-import Reddit, { FullSubmission } from "./src";
+import Reddit, { FullSubmission } from "../src";
 
 function exec(cmd: string) {
   return new Promise<void>((resolve, reject) =>
