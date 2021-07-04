@@ -2,15 +2,15 @@ import { Identified } from "../interfaces/identified";
 import { FullSubmission } from "../objects/post";
 import { r } from "../test/setup";
 import { unique } from "../utils/array";
-import { fetchPage, Page } from "./page";
+import { fetchPage, _Page } from "./oldpage";
 
 jest.setTimeout(60 * 1000);
 
-function pageItems(p: Page<Identified>) {
+function pageItems(p: _Page<Identified>) {
   return p.items.map((i) => i.fullId);
 }
 
-let page: Page<FullSubmission>;
+let page: _Page<FullSubmission>;
 beforeAll(async () => {
   page = await fetchPage<FullSubmission, Api.SubmissionWrap>(
     r,

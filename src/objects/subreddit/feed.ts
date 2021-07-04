@@ -1,5 +1,5 @@
 import { get, GetOptions } from "../../list/get";
-import { Page } from "../../list/page";
+import { _Page } from "../../list/oldpage";
 import { stream, StreamOptions } from "../../list/stream";
 import Reddit from "../../reddit";
 import { FullSubmission } from "../post";
@@ -16,7 +16,7 @@ export class Feed {
     this[nameSymbol] = name;
   }
 
-  hot(options?: GetOptions): Promise<Page<FullSubmission>> {
+  hot(options?: GetOptions): Promise<_Page<FullSubmission>> {
     // TODO: 'g' param
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
@@ -26,7 +26,7 @@ export class Feed {
     );
   }
 
-  new(options?: GetOptions): Promise<Page<FullSubmission>> {
+  new(options?: GetOptions): Promise<_Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       { url: "r/{name}/new.json", fields: { name: this[nameSymbol] } },
@@ -35,7 +35,7 @@ export class Feed {
     );
   }
 
-  top(options?: TimeOptions): Promise<Page<FullSubmission>> {
+  top(options?: TimeOptions): Promise<_Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       {
@@ -48,7 +48,7 @@ export class Feed {
     );
   }
 
-  rising(options?: GetOptions): Promise<Page<FullSubmission>> {
+  rising(options?: GetOptions): Promise<_Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       { url: "r/{name}/rising.json", fields: { name: this[nameSymbol] } },
@@ -57,7 +57,7 @@ export class Feed {
     );
   }
 
-  controversial(options?: TimeOptions): Promise<Page<FullSubmission>> {
+  controversial(options?: TimeOptions): Promise<_Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       {

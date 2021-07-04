@@ -4,7 +4,7 @@ import { UnrealSubreddit } from "../../error";
 import { upload } from "../../helper/upload";
 import { Fetchable } from "../../interfaces/fetchable";
 import { get, GetOptions } from "../../list/get";
-import { Page } from "../../list/page";
+import { _Page } from "../../list/oldpage";
 import { BaseImage } from "../../media/image";
 import Reddit from "../../reddit";
 import { FullSubmission, Submission } from "../post";
@@ -415,7 +415,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async searchSubmission(
     query: string,
     options?: SubmissionSearchOptions
-  ): Promise<Page<FullSubmission>> {
+  ): Promise<_Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       {

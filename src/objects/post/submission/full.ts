@@ -1,5 +1,5 @@
 import { get, GetOptions } from "../../../list/get";
-import { Page } from "../../../list/page";
+import { _Page } from "../../../list/oldpage";
 import { stream, StreamOptions } from "../../../list/stream";
 import { Content } from "../../../media/content";
 import { Embed } from "../../../media/embed";
@@ -295,7 +295,7 @@ export class FullSubmission
    *
    * @see {@link crosspostsStream}
    */
-  crossposts(options?: CrosspostsOptions): Promise<Page<FullSubmission>> {
+  crossposts(options?: CrosspostsOptions): Promise<_Page<FullSubmission>> {
     return this.duplicates({ ...options, crosspostsOnly: true });
   }
 
@@ -310,7 +310,7 @@ export class FullSubmission
    *
    * @see {@link duplicatesStream}
    */
-  duplicates(options?: DuplicatesOptions): Promise<Page<FullSubmission>> {
+  duplicates(options?: DuplicatesOptions): Promise<_Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       {

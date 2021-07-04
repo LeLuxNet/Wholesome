@@ -2,7 +2,7 @@ import { AxiosResponse } from "axios";
 import { ApiError } from "../../error/api";
 import { Fetchable } from "../../interfaces/fetchable";
 import { get, GetOptions } from "../../list/get";
-import { Page } from "../../list/page";
+import { _Page } from "../../list/oldpage";
 import { stream, StreamOptions } from "../../list/stream";
 import Reddit from "../../reddit";
 import { jsonFunction } from "../../utils/html";
@@ -125,7 +125,7 @@ export class User implements Fetchable<FullUser> {
     return res.data.map((d) => new Multi(this.r, d.data));
   }
 
-  submissions(options?: GetOptions): Promise<Page<FullSubmission>> {
+  submissions(options?: GetOptions): Promise<_Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this.r,
       { url: "user/{name}/submitted.json", fields: { name: this.name } },
@@ -143,7 +143,7 @@ export class User implements Fetchable<FullUser> {
     );
   }
 
-  comments(options?: GetOptions): Promise<Page<FullComment>> {
+  comments(options?: GetOptions): Promise<_Page<FullComment>> {
     return get<FullComment, Api.CommentWrap>(
       this.r,
       { url: "user/{name}/comments.json", fields: { name: this.name } },

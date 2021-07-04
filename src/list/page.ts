@@ -1,142 +1,76 @@
-import { AxiosRequestConfig } from "axios";
-import { Identified } from "../interfaces/identified";
 import Reddit from "../reddit";
 
-/**
- * A page reddit returns from listings
- *
- * @example
- *
- * ```ts
- * const page = await r.subreddit("askreddit").hot({ count: 10 });
- * page.items.length; // 10
- *
- * const nextPage = await page.next(20);
- * nextPage.items.length; // 20
- * ```
- */
-export class Page<I extends Identified, T = any> {
-  r: Reddit;
+const pageLimit = 25;
 
-  private config: AxiosRequestConfig;
-  private map: (d: T) => I;
-  private before: string;
-  private after: string;
+export interface PageOptions {
+  limit?: number;
+}
 
-  items: I[];
+export interface Page<T> {
+  items: T[];
+
+  options: PageOptions;
+
+  next: (limit?: number) => Promise<Page<T>>;
+  prev: (limit?: number) => Promise<Page<T>>;
+}
+
+export class GPage<T> implements Page<T> {
+  items: T[];
+
+  options: PageOptions;
+
+  private data: GData<T>;
+  private first: number;
 
   /** @internal */
-  constructor(
-    r: Reddit,
-    config: AxiosRequestConfig,
-    map: (d: T) => I,
-    items: I[],
-    before: string,
-    after: string
-  ) {
-    this.r = r;
-
-    this.config = config;
-    this.map = map;
-    this.before = before;
-    this.after = after;
-
+  constructor(items: T[], options: PageOptions, data: GData<T>, first: number) {
     this.items = items;
+    this.options = options;
+    this.data = data;
+    this.first = first;
   }
 
-  /** Refetch the current page */
-  fetch(): Promise<Page<I, T>> {
-    return fetchPage(
-      this.r,
-      this.config,
-      this.map,
-      undefined,
-      this.before,
-      this.after
-    );
-  }
-
-  /**
-   * Fetch next page after this
-   *
-   * @param limit The maximum count of items
-   */
-  next(limit: number): Promise<Page<I, T>> {
-    return fetchPage(
-      this.r,
-      this.config,
-      this.map,
+  next(limit?: number): Promise<Page<T>> {
+    return gPage(
+      this.data,
+      this.options,
       limit,
-      undefined,
-      this.after
+      this.first + this.items.length
     );
   }
 
-  /**
-   * Fetch previous page before this
-   *
-   * @param limit The maximum count of items
-   */
-  prev(limit: number): Promise<Page<I, T>> {
-    return fetchPage(this.r, this.config, this.map, limit, this.before);
+  prev(limit?: number): Promise<Page<T>> {
+    const l = limit || this.options.limit || pageLimit;
+    const after = Math.max(0, this.first - l);
+    return gPage(this.data, this.options, this.first - after, after);
   }
 }
 
-/** @internal */
-export async function fetchPage<I extends Identified, T>(
-  r: Reddit,
-  config: AxiosRequestConfig,
-  map: (d: T) => I,
-  count?: number,
-  before?: string,
-  after?: string
-): Promise<Page<I, T>> {
-  const children: I[] = [];
-  count = count || Infinity;
+export interface GData<Thing, Response = any, ResponseNode = any> {
+  r: Reddit;
+  id: string;
+  firstKey: string;
+  afterKey: string;
+  mapRes: (res: Response) => Api.GListing<ResponseNode>;
+  mapItem: (i: ResponseNode) => Thing;
+}
 
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const limit = Math.min(count, 100);
-    const res = await r._api.get<Api.ListingRes<T>>(config.url as string, {
-      ...config,
-      params: {
-        ...config.params,
-        limit,
-        before,
-        after: before === undefined ? after : undefined,
-      },
-    });
-    const data = res.data instanceof Array ? res.data[1] : res.data;
+export async function gPage<Thing, Response, ResponseNode>(
+  data: GData<Thing, Response, ResponseNode>,
+  options: PageOptions | undefined,
+  first?: number,
+  after?: number
+): Promise<Page<Thing>> {
+  options ||= {};
 
-    const c = data.data.children.map(map);
-    children.push(...c);
-    count -= c.length;
-    if (c.length !== limit || count <= 0) {
-      if (children.length === 0) {
-        return new Page(
-          r,
-          config,
-          map,
-          children,
-          (before || after)!,
-          (after || before)!
-        );
-      }
+  const res = await data.r.api.gql<Response>(data.id, {
+    [data.firstKey]: first || options?.limit || pageLimit,
+    [data.afterKey]: after === undefined ? undefined : btoa(after.toString()),
+  });
+  const listing = data.mapRes(res);
 
-      return new Page(
-        r,
-        config,
-        map,
-        children,
-        children[0].fullId,
-        children[children.length - 1].fullId
-      );
-    }
+  const children = listing.edges.map((n) => data.mapItem(n.node));
 
-    if (before === undefined) {
-      after = c[c.length - 1].fullId;
-    } else {
-      before = c[0].fullId;
-    }
-  }
+  return new GPage<Thing>(children, options, data, first || 0);
 }

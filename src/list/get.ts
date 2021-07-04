@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from "axios";
 import { Identified } from "../interfaces/identified";
 import Reddit from "../reddit";
-import { Page } from "./page";
+import { _Page } from "./oldpage";
 
 export interface GetOptions {
   limit?: number;
@@ -12,7 +12,7 @@ export async function get<I extends Identified, T>(
   config: AxiosRequestConfig,
   map: (d: T) => I,
   options: GetOptions | undefined
-): Promise<Page<I, T>> {
+): Promise<_Page<I, T>> {
   const children: I[] = [];
   let after: string | undefined;
   let limit = options?.limit || 25;
@@ -33,7 +33,7 @@ export async function get<I extends Identified, T>(
     limit -= 100;
   }
 
-  return new Page(
+  return new _Page(
     r,
     config,
     map,

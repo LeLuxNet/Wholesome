@@ -1,6 +1,7 @@
 import { ApiError } from "../../../error";
 import { get, GetOptions } from "../../../list/get";
-import { Page } from "../../../list/page";
+import { _Page } from "../../../list/oldpage";
+import { gPage, Page, PageOptions } from "../../../list/page";
 import { stream, StreamOptions } from "../../../list/stream";
 import { Relation } from "../../../media/relation";
 import Reddit from "../../../reddit";
@@ -43,7 +44,7 @@ export class Self extends User {
     }));
   }
 
-  subreddits(options?: GetOptions): Promise<Page<FullSubreddit>> {
+  subreddits(options?: GetOptions): Promise<_Page<FullSubreddit>> {
     this.r.needScopes("mysubreddits");
     return get<FullSubreddit, Api.SubredditWrap>(
       this.r,
@@ -63,7 +64,7 @@ export class Self extends User {
     );
   }
 
-  messages(options?: GetOptions): Promise<Page<Message>> {
+  messages(options?: GetOptions): Promise<_Page<Message>> {
     this.r.needScopes("privatemessages");
     return get<Message, Api.MessageWrap>(
       this.r,
@@ -89,7 +90,7 @@ export class Self extends User {
     await this.r._api.post("api/read_all_messages");
   }
 
-  voted(dir: 1 | -1, options?: GetOptions): Promise<Page<FullSubmission>> {
+  voted(dir: 1 | -1, options?: GetOptions): Promise<_Page<FullSubmission>> {
     return get<FullSubmission, Api.Submission>(
       this.r,
       {
@@ -116,7 +117,7 @@ export class Self extends User {
     );
   }
 
-  saved(options?: GetOptions): Promise<Page<FullSubmission>> {
+  saved(options?: GetOptions): Promise<_Page<FullSubmission>> {
     return get<FullSubmission, Api.Submission>(
       this.r,
       { url: "user/{name}/saved", fields: { name: this.name } },
@@ -134,7 +135,7 @@ export class Self extends User {
     );
   }
 
-  hidden(options?: GetOptions): Promise<Page<FullSubmission>> {
+  hidden(options?: GetOptions): Promise<_Page<FullSubmission>> {
     return get<FullSubmission, Api.Submission>(
       this.r,
       { url: "user/{name}/hidden", fields: { name: this.name } },
@@ -365,8 +366,7 @@ export class Self extends User {
   }
 
   async hasFreeAward(): Promise<boolean> {
-    const { econSpecialEvents: data } =
-      await this.r.api.gql<Api.FreeAwardCheck>("7537a71b4f14");
+    const { econSpecialEvents: data } = await this.r.api.gql("7537a71b4f14");
 
     return data.freeAwardEvent.isEnabled;
   }
@@ -394,5 +394,25 @@ export class Self extends User {
     ) as any;
 
     return new Award(a);
+  }
+
+  /**
+   * Get the users following this account.
+   *
+   * @param options Options to use when fetching this list.
+   */
+  followers(options?: PageOptions): Promise<Page<User | null>> {
+    return gPage<User | null, Api.GFollowers, Api.GFollowerNode>(
+      {
+        r: this.r,
+        id: "c210908bdd13",
+        firstKey: "limit",
+        afterKey: "from",
+        mapRes: (r) => r.identity.followedByRedditorsInfo,
+        mapItem: (i) =>
+          i.__typename === "Redditor" ? new User(this.r, i.name) : null,
+      },
+      options
+    );
   }
 }

@@ -9,7 +9,7 @@ import { debugInterceptor } from "./http/debug";
 import { errorInterceptor } from "./http/error";
 import { fieldInterceptor } from "./http/fields";
 import { get, GetOptions } from "./list/get";
-import { Page } from "./list/page";
+import { _Page } from "./list/oldpage";
 import { Award } from "./objects/award";
 import { awardMap } from "./objects/award/data";
 import { Collection } from "./objects/collection";
@@ -397,7 +397,7 @@ export default class Reddit {
   async searchSubmission(
     query: string,
     options?: SubmissionSearchOptions
-  ): Promise<Page<FullSubmission>> {
+  ): Promise<_Page<FullSubmission>> {
     return get<FullSubmission, Api.SubmissionWrap>(
       this,
       {
@@ -418,7 +418,7 @@ export default class Reddit {
   async searchSubreddit(
     query: string,
     options?: SearchOptions
-  ): Promise<Page<FullSubreddit>> {
+  ): Promise<_Page<FullSubreddit>> {
     return get<FullSubreddit, Api.SubredditWrap>(
       this,
       {
@@ -433,7 +433,7 @@ export default class Reddit {
   async searchUser(
     query: string,
     options?: SearchOptions
-  ): Promise<Page<FullUser>> {
+  ): Promise<_Page<FullUser>> {
     return get<FullUser, Api.UserWrap>(
       this,
       {
