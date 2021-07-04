@@ -1,7 +1,8 @@
 import browserify from "browserify";
 import { exec as execCallback } from "child_process";
-import { writeFile } from "fs/promises";
+import { rm, writeFile } from "fs/promises";
 import { compiler } from "google-closure-compiler";
+import { join } from "path";
 import { Stream } from "stream";
 import { minify } from "uglify-js";
 import Reddit, { FullSubmission } from "../src";
@@ -58,7 +59,11 @@ function size(code: string) {
 }
 
 async function run() {
-  const browserPath = "dist/browser.js";
+  const dist = "dist";
+
+  await rm(dist, { recursive: true, force: true });
+
+  const browserPath = join(dist, "browser.js");
 
   console.log("Generate");
   await generateAwards();
@@ -67,7 +72,7 @@ async function run() {
   await exec("tsc");
 
   process.stdout.write("Browserify");
-  let code = await stream2string(browserify("dist/index.js").bundle());
+  let code = await stream2string(browserify(join(dist, "index.js")).bundle());
   size(code);
 
   process.stdout.write("Google Closure Compiler");
@@ -88,7 +93,7 @@ async function run() {
 
   await Promise.all([
     writeFile(browserPath, code),
-    writeFile("docs/static/browser.js", code),
+    writeFile(join("docs", "static", "browser.js"), code),
   ]);
 
   console.log();

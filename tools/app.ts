@@ -23,7 +23,7 @@ java.asyncOptions = {
   syncSuffix: "",
 };
 
-const fileSuffix = "Query.kt";
+const fileRegex = /^.+(Query|Mutation)\.kt$/;
 
 async function run() {
   const _tmp = join(__dirname, "tmp");
@@ -73,7 +73,7 @@ async function run() {
 
   for (const c of classes) {
     const file: string | null = c.getSourceFile();
-    if (file === null || file === fileSuffix || !file.endsWith(fileSuffix)) {
+    if (file === null || !file.match(fileRegex)) {
       continue;
     }
 
@@ -124,10 +124,7 @@ async function run() {
 
     if (query) {
       await writeFile(
-        join(
-          graphql,
-          `${file.slice(0, file.length - fileSuffix.length)}.graphql`
-        ),
+        join(graphql, file.replace(".kt", ".graphql")),
         `# ${id}\n${query}`
       );
     }
