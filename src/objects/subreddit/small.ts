@@ -59,21 +59,17 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   }
 
   async fetch(): Promise<FullSubreddit> {
-    const res = await this.r._api.get<Api.SubredditWrap>(
-      "r/{name}/about.json",
-      {
-        fields: { name: this.name },
-      }
-    );
-    return new FullSubreddit(this.r, res.data.data);
+    const { data } = await this.r.api.g<Api.SubredditWrap>("r/{name}/about", {
+      name: this.name,
+    });
+    return new FullSubreddit(this.r, data);
   }
 
   async stylesheet(): Promise<string> {
     this._checkReal();
-    const res = await this.r._api.get<string>("r/{name}/stylesheet.json", {
-      fields: { name: this.name },
+    return await this.r.api.g<string>("r/{name}/stylesheet", {
+      name: this.name,
     });
-    return res.data;
   }
 
   /**
@@ -107,10 +103,10 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async setStylesheet(content: string): Promise<void> {
     this._checkReal();
     this.r.needScopes("modconfig");
-    await await this.r._api.post(
+    await await this.r.api.p(
       "r/{name}/api/subreddit_stylesheet",
       { op: "save", stylesheet_contents: content },
-      { fields: { name: this.name } }
+      { name: this.name }
     );
   }
 
@@ -120,34 +116,33 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
       this.r.auth &&
       (this.r.auth.scopes === "*" || this.r.auth.scopes.has("structuredstyles"))
     ) {
-      this.r.needScopes("structuredstyles");
-      const res = await this.r._api.get<Api.SubredditWidgets>(
+      const data = await this.r.api.g<Api.SubredditWidgets>(
         "r/{name}/api/widgets",
-        { fields: { name: this.name } }
+        { name: this.name }
       );
 
-      return parseWidgets(this, res.data);
+      return parseWidgets(this, data);
     } else {
-      const res = await this.r._api.get<Api.Style>(
-        "api/v1/structured_styles/{name}.json",
-        { fields: { name: this.name } }
+      const { data } = await this.r.api.g<Api.Style>(
+        "api/v1/structured_styles/{name}",
+        { name: this.name }
       );
 
-      return parseWidgets(this, res.data.data.content.widgets);
+      return parseWidgets(this, data.content.widgets);
     }
   }
 
   /** Get structured subreddit styles */
   async style(): Promise<Style> {
     this._checkReal();
-    const res = await this.r._api.get<Api.Style>(
-      "api/v1/structured_styles/{name}.json",
-      { fields: { name: this.name } }
+    const { data } = await this.r.api.g<Api.Style>(
+      "api/v1/structured_styles/{name}",
+      { name: this.name }
     );
-    const s = res.data.data.style;
+    const s = data.style;
 
     return {
-      widgets: parseWidgets(this, res.data.data.content.widgets),
+      widgets: parseWidgets(this, data.content.widgets),
 
       icon: createStyleImage(s.communityIcon),
 
@@ -165,12 +160,12 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
 
   async moderators(): Promise<ModRelation[]> {
     this._checkReal();
-    const res = await this.r._api.get<Api.SubredditModerators>(
+    const { data } = await this.r.api.g<Api.SubredditModerators>(
       "r/{name}/about/moderators",
-      { fields: { name: this.name } }
+      { name: this.name }
     );
 
-    return res.data.data.children.map((r) => ({
+    return data.children.map((r) => ({
       id: r.rel_id.slice(3),
       fullId: r.rel_id,
 
@@ -187,14 +182,14 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   ): Promise<void> {
     this._checkReal();
     this.r.needScopes("modothers");
-    await this.r._api.post(
+    await this.r.api.p(
       "r/{name}/api/friend",
       {
         type: "moderator_invite",
         name: user.name,
         permissions: permissions?.join(","),
       },
-      { fields: { name: this.name } }
+      { name: this.name }
     );
   }
 
@@ -204,57 +199,57 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   ): Promise<void> {
     this._checkReal();
     this.r.needScopes("modothers");
-    await this.r._api.post(
+    await this.r.api.p(
       "r/{name}/api/setpermissions",
       { name: user.name, permissions: permissions?.join(",") },
-      { fields: { name: this.name } }
+      { name: this.name }
     );
   }
 
   async removeModeratorInvite(user: User): Promise<void> {
     this._checkReal();
     this.r.needScopes("modothers");
-    await this.r._api.post(
+    await this.r.api.p(
       "r/{name}/api/unfriend",
       { type: "moderator_invite", name: user.name },
-      { fields: { name: this.name } }
+      { name: this.name }
     );
   }
 
   async removeModerator(user: User): Promise<void> {
     this._checkReal();
     this.r.needScopes("modothers");
-    await this.r._api.post(
+    await this.r.api.p(
       "r/{name}/api/unfriend",
       { type: "moderator", name: user.name },
-      { fields: { name: this.name } }
+      { name: this.name }
     );
   }
 
   async mute(user: User): Promise<void> {
     this._checkReal();
     this.r.needScopes("modcontributors");
-    await this.r._api.post(
+    await this.r.api.p(
       "r/{name}/api/friend",
       { type: "muted", name: user.name },
-      { fields: { name: this.name } }
+      { name: this.name }
     );
   }
 
   async unmute(user: User): Promise<void> {
     this._checkReal();
     this.r.needScopes("modcontributors");
-    await this.r._api.post(
+    await this.r.api.p(
       "r/{name}/api/unfriend",
       { type: "muted", name: user.name },
-      { fields: { name: this.name } }
+      { name: this.name }
     );
   }
 
   async ban(user: User, options: BanOptions = {}): Promise<void> {
     this._checkReal();
     this.r.needScopes("modcontributors");
-    await this.r._api.post(
+    await this.r.api.p(
       "r/{name}/api/friend",
       {
         type: "banned",
@@ -264,17 +259,17 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
         note: options.modNote,
         duration: options.duration,
       },
-      { fields: { name: this.name } }
+      { name: this.name }
     );
   }
 
   async unban(user: User): Promise<void> {
     this._checkReal();
     this.r.needScopes("modothers");
-    await this.r._api.post(
+    await this.r.api.p(
       "r/{name}/api/unfriend",
       { type: "banned", name: user.name },
-      { fields: { name: this.name } }
+      { name: this.name }
     );
   }
 
@@ -293,7 +288,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async join(): Promise<void> {
     this._checkReal();
     this.r.needScopes("subscribe");
-    await this.r._api.post("api/subscribe", {
+    await this.r.api.p("api/subscribe", {
       action: "sub",
       skip_initial_defaults: true,
       sr_name: this.name,
@@ -315,7 +310,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async leave(): Promise<void> {
     this._checkReal();
     this.r.needScopes("subscribe");
-    await this.r._api.post("api/subscribe", {
+    await this.r.api.p("api/subscribe", {
       action: "unsub",
       sr_name: this.name,
     });
@@ -323,42 +318,42 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
 
   async rules(): Promise<Rule[]> {
     this._checkReal();
-    const res = await this.r._api.get<Api.SubredditRules>(
-      "r/{name}/about/rules.json",
-      { fields: { name: this.name } }
+    const { rules } = await this.r.api.g<Api.SubredditRules>(
+      "r/{name}/about/rules",
+      { name: this.name }
     );
-    return res.data.rules.map(parseRule);
+    return rules.map(parseRule);
   }
 
   async requirements(): Promise<Requirements> {
     this._checkReal();
-    const res = await this.r._api.get<Api.SubredditRequirements>(
-      "https://www.reddit.com/api/v1/{name}/post_requirements.json",
-      { fields: { name: this.name } }
+    const data = await this.r.api.g<Api.SubredditRequirements>(
+      "api/v1/{name}/post_requirements",
+      { name: this.name }
     );
 
     return {
-      guideline: res.data.guidelines_text,
+      guideline: data.guidelines_text,
 
-      titleLengthMin: res.data.title_text_min_length,
-      titleLengthMax: res.data.title_text_max_length,
-      titleRequired: res.data.title_required_strings,
-      titleBlacklist: res.data.title_blacklisted_strings,
-      titleRegexes: res.data.title_regexes,
+      titleLengthMin: data.title_text_min_length,
+      titleLengthMax: data.title_text_max_length,
+      titleRequired: data.title_required_strings,
+      titleBlacklist: data.title_blacklisted_strings,
+      titleRegexes: data.title_regexes,
 
-      bodyLengthMin: res.data.body_text_min_length,
-      bodyLengthMax: res.data.body_text_max_length,
-      bodyRequired: res.data.body_required_strings,
-      bodyBlacklist: res.data.body_blacklisted_strings,
-      bodyRegexes: res.data.body_regexes,
+      bodyLengthMin: data.body_text_min_length,
+      bodyLengthMax: data.body_text_max_length,
+      bodyRequired: data.body_required_strings,
+      bodyBlacklist: data.body_blacklisted_strings,
+      bodyRegexes: data.body_regexes,
 
       domainBlacklist:
-        res.data.link_restriction_policy === "blacklist"
-          ? res.data.domain_blacklist
+        data.link_restriction_policy === "blacklist"
+          ? data.domain_blacklist
           : null,
       domainWhitelist:
-        res.data.link_restriction_policy === "whitelist"
-          ? res.data.domain_whitelist
+        data.link_restriction_policy === "whitelist"
+          ? data.domain_whitelist
           : null,
     };
   }
@@ -366,19 +361,21 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async traffic(): Promise<Traffics> {
     this._checkReal();
     this.r.needScopes("modconfig");
-    const res = await this.r._api.get<Api.SubredditTraffic>(
-      "r/{name}/about/traffic.json",
-      { fields: { name: this.name } }
+
+    const data = await this.r.api.g<Api.SubredditTraffic>(
+      "r/{name}/about/traffic",
+      { name: this.name }
     );
+
     return {
-      hour: res.data.hour.map((d) => {
+      hour: data.hour.map((d) => {
         return {
           time: new Date(d[0] * 1000),
           views: d[1],
           uniqueViews: d[2],
         };
       }),
-      day: res.data.day.map((d) => {
+      day: data.day.map((d) => {
         return {
           time: new Date(d[0] * 1000),
           views: d[1],
@@ -386,7 +383,7 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
           joined: d[3],
         };
       }),
-      month: res.data.month.map((d) => {
+      month: data.month.map((d) => {
         return {
           time: new Date(d[0] * 1000),
           views: d[1],
@@ -397,19 +394,20 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   }
 
   async sticky(num: 1 | 2 = 1): Promise<FullSubmission> {
-    const res = await this.r._api.get<Api.GetSubmission>(
-      "r/{name}/about/sticky.json",
-      { fields: { name: this.name }, params: { num } }
+    const [{ data }] = await this.r.api.g<Api.GetSubmission>(
+      "r/{name}/about/sticky",
+      { name: this.name },
+      { num }
     );
-    return new FullSubmission(this.r, res.data[0].data.children[0].data);
+    return new FullSubmission(this.r, data.children[0].data);
   }
 
   async randomSubmission(): Promise<FullSubmission> {
-    const res = await this.r._api.get<Api.GetSubmission>(
-      "r/{name}/random.json",
-      { fields: { name: this.name } }
+    const [{ data }] = await this.r.api.g<Api.GetSubmission>(
+      "r/{name}/random",
+      { name: this.name }
     );
-    return new FullSubmission(this.r, res.data[0].data.children[0].data);
+    return new FullSubmission(this.r, data.children[0].data);
   }
 
   async searchSubmission(
@@ -434,22 +432,21 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
    * @example
    *
    * ```ts
-   *   const sub = r.subreddit("QUESTIONABLE");
+   * const sub = r.subreddit("QUESTIONABLE");
    *
-   *   await sub.top(); // Throws error
+   * await sub.top(); // Throws error
    *
-   *   await sub.viewQuarantined();
-   *   await sub.top(); // Works
+   * await sub.viewQuarantined();
+   * await sub.top(); // Works
    *
-   *   await sub.viewQuarantined(false);
-   *   await sub.top(); // Throws error again
-   *   ```;
+   * await sub.viewQuarantined(false);
+   * await sub.top(); // Throws error again
    * ```
    *
    * @param view Whether the user should be able to access the quarantined subreddit
    */
   async viewQuarantined(view = true): Promise<void> {
-    await this.r._api.post(`api/quarantine_opt${view ? "in" : "out"}`, {
+    await this.r.api.p(`api/quarantine_opt${view ? "in" : "out"}`, {
       sr_name: this.name,
     });
   }
@@ -460,15 +457,15 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
    * @example
    *
    * ```ts
-   *   await r
-   *     .subreddit("test")
-   *     .submitLink("A example page", "https://www.example.com", {
-   *       nsfw: true,
-   *     });
-   *   ```;
+   * await r
+   *   .subreddit("test")
+   *   .submitLink("A example page", "https://www.example.com", {
+   *     nsfw: true,
+   *   });
    * ```
    *
-   * @param title The title the submission has @param url The URL to submit
+   * @param title The title the submission has
+   * @param url The URL to submit
    * @param options Options containing additional information about the submission
    */
   submitLink(
@@ -486,16 +483,18 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
    * @example
    *
    * ```ts
-   *   await r
-   *     .subreddit("test")
-   *     .submitText("An important message", "Lorem ipsum dolor sit amet, ...", {
-   *       spoiler: true,
-   *     });
-   *   ```;
+   * await r
+   *   .subreddit("test")
+   *   .submitText(
+   *     "An important message",
+   *     "Lorem ipsum dolor sit amet, ...",
+   *     { spoiler: true }
+   *   );
    * ```
    *
-   * @param title The title the submission has @param body The text in markdown
-   * format @param options Options containing additional information about the submission
+   * @param title The title the submission has
+   * @param body The text in markdown format
+   * @param options Options containing additional information about the submission
    */
   submitText(
     title: string,
@@ -611,24 +610,25 @@ async function submit(
   url?: string
 ) {
   subreddit.r.needScopes("submit");
-  const res = await subreddit.r._api.post(
-    url || "api/submit",
-    {
-      sr: subreddit.name,
-      title,
 
-      nsfw: options?.nsfw,
-      spoiler: options?.spoiler,
+  const body = {
+    sr: subreddit.name,
+    title,
 
-      ...data,
-    },
-    {
-      headers: {
-        "Content-Type": url === undefined ? undefined : "application/json",
-      },
-    }
-  );
-  const submission = subreddit.r.submission(res.data.json.data.id);
+    nsfw: options?.nsfw,
+    spoiler: options?.spoiler,
+
+    ...data,
+  };
+
+  var data: any;
+  if (url) {
+    data = await subreddit.r.api.json("post", url, body);
+  } else {
+    data = await subreddit.r.api.p("api/submit", body);
+  }
+
+  const submission = subreddit.r.submission(data.json.data.id);
 
   if (options?.oc) {
     await submission.setOc();

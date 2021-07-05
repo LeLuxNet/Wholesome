@@ -1,4 +1,5 @@
 import { ApiError } from "../../../error";
+import { ApiClient } from "../../../http/api";
 import { get, GetOptions } from "../../../list/get";
 import { _Page } from "../../../list/oldpage";
 import { gPage, Page, PageOptions } from "../../../list/page";
@@ -34,8 +35,8 @@ export class Self extends User {
   }
 
   async friends(): Promise<Relation[]> {
-    const res = await this.r._api.get<Api.Friends>("prefs/friends.json");
-    return res.data[0].data.children.map((r) => ({
+    const [{ data }] = await this.r.api.g<Api.Friends>("prefs/friends");
+    return data.children.map((r) => ({
       id: r.rel_id.slice(3),
       fullId: r.rel_id,
 
@@ -87,7 +88,7 @@ export class Self extends User {
   /** Marks all messages as read */
   async setMessagesRead(): Promise<void> {
     this.r.needScopes("privatemessages");
-    await this.r._api.post("api/read_all_messages");
+    await this.r.api.p("api/read_all_messages");
   }
 
   voted(dir: 1 | -1, options?: GetOptions): Promise<_Page<FullSubmission>> {
@@ -155,7 +156,7 @@ export class Self extends User {
 
   async prefs(): Promise<Preferences> {
     this.r.needScopes("identity");
-    const { data } = await this.r._api.get<Api.Prefs>("api/v1/me/prefs");
+    const data = await this.r.api.g<Api.Prefs>("api/v1/me/prefs");
 
     return {
       language: data.lang,
@@ -360,9 +361,7 @@ export class Self extends User {
       use_global_defaults: undefined,
     };
 
-    await this.r._api.patch("api/v1/me/prefs", data, {
-      headers: { "Content-Type": "application/json" },
-    });
+    await this.r.api.json("patch", "api/v1/me/prefs", data);
   }
 
   async hasFreeAward(): Promise<boolean> {
@@ -405,7 +404,7 @@ export class Self extends User {
     return gPage<User | null, Api.GFollowers, Api.GFollowerNode>(
       {
         r: this.r,
-        id: "c210908bdd13",
+        req: ApiClient.gql("c210908bdd13"),
         firstKey: "limit",
         afterKey: "from",
         mapRes: (r) => r.identity.followedByRedditorsInfo,

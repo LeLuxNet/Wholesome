@@ -1,3 +1,4 @@
+import { ApiReq } from "../http/api";
 import Reddit from "../reddit";
 
 const pageLimit = 25;
@@ -49,7 +50,7 @@ export class GPage<T> implements Page<T> {
 
 export interface GData<Thing, Response = any, ResponseNode = any> {
   r: Reddit;
-  id: string;
+  req: ApiReq;
   firstKey: string;
   afterKey: string;
   mapRes: (res: Response) => Api.GListing<ResponseNode>;
@@ -64,10 +65,16 @@ export async function gPage<Thing, Response, ResponseNode>(
 ): Promise<Page<Thing>> {
   options ||= {};
 
-  const res = await data.r.api.gql<Response>(data.id, {
-    [data.firstKey]: first || options?.limit || pageLimit,
-    [data.afterKey]: after === undefined ? undefined : btoa(after.toString()),
-  });
+  const req2 = {
+    ...data.req,
+    data: {
+      ...data.req.data,
+      [data.firstKey]: first || options?.limit || pageLimit,
+      [data.afterKey]: after ? btoa(after.toString()) : undefined,
+    },
+  };
+
+  const res = await data.r.api.exec<Response>(req2);
   const listing = data.mapRes(res);
 
   const children = listing.edges.map((n) => data.mapItem(n.node));

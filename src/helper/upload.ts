@@ -11,20 +11,20 @@ export async function upload(
 ): Promise<string> {
   r.needScopes();
 
-  const res = await r._api.post<Api.Media>("api/media/asset.json", {
+  const data = await r.api.p<Api.Media>("api/media/asset", {
     filepath: ".",
     mimetype,
   });
 
   let key;
   const body = new FormData();
-  res.data.args.fields.forEach(({ name, value }) => {
+  data.args.fields.forEach(({ name, value }) => {
     body.append(name, value);
     if (name === "key") key = value;
   });
   body.append("file", file);
 
-  const url = `https:${res.data.args.action}`;
+  const url = `https:${data.args.action}`;
   await axios.post(url, body, {
     headers: body.getHeaders(),
   });

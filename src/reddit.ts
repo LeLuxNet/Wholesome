@@ -52,7 +52,7 @@ export interface UserAgent {
 }
 
 function generateUserAgent(ua: UserAgent) {
-  `${ua.platform}:${ua.identifier}:${
+  return `${ua.platform}:${ua.identifier}:${
     ua.version[0] === "v" ? ua.version : "v" + ua.version
   } (by /u/${ua.author})`;
 }
@@ -81,17 +81,22 @@ export default class Reddit {
 
   /** Create a `Reddit` instance */
   constructor(data: RedditConstructor) {
-    this.api = new ApiClient(this);
+    let userAgent: string | undefined;
+    if (typeof window === "undefined") {
+      userAgent =
+        typeof data.userAgent === "string"
+          ? data.userAgent
+          : generateUserAgent(data.userAgent);
+    }
+
+    this.api = new ApiClient(this, !!data.debug, userAgent);
 
     const headers: any = {
       "Accept-Encoding": "gzip, deflate, br",
     };
 
-    if (typeof window === "undefined") {
-      headers["User-Agent"] =
-        typeof data.userAgent === "string"
-          ? data.userAgent
-          : generateUserAgent(data.userAgent);
+    if (userAgent) {
+      headers["User-Agent"] = userAgent;
     }
 
     this._api = axios.create({
@@ -264,7 +269,7 @@ export default class Reddit {
     scopes: Scope[],
     temporary?: boolean
   ): string {
-    return `https://www.reddit.com/api/v1/authorize?client_id=${encodeURIComponent(
+    return `${this.linkUrl}/api/v1/authorize?client_id=${encodeURIComponent(
       clientId
     )}&response_type=code&state=+&redirect_uri=${encodeURIComponent(
       redirectUri
@@ -337,11 +342,12 @@ export default class Reddit {
    */
   async submissions(...ids: string[]): Promise<FullSubmission[]> {
     ids = ids.map((i) => (i.startsWith("t3_") ? i : "t3_" + i));
-    const res = await this._api.get<Api.Listing<Api.SubmissionWrap>>(
-      "api/info.json",
-      { params: { id: ids.join(",") } }
+    const { data } = await this.api.g<Api.Listing<Api.SubmissionWrap>>(
+      "api/info",
+      {},
+      { id: ids.join(",") }
     );
-    return res.data.data.children.map((d) => new FullSubmission(this, d.data));
+    return data.children.map((d) => new FullSubmission(this, d.data));
   }
 
   subreddit(...names: string[]): Subreddit {
@@ -363,22 +369,24 @@ export default class Reddit {
   }
 
   async collection(id: string): Promise<Collection> {
-    const res = await this._api.get<Api.Collection>(
-      "api/v1/collections/collection.json",
-      { params: { collection_id: id, include_links: 0 } }
+    const data = await this.api.g<Api.Collection>(
+      "api/v1/collections/collection",
+      {},
+      { collection_id: id, include_links: 0 }
     );
-    return new Collection(this, res.data);
+    return new Collection(this, data);
   }
 
   async award(id: string): Promise<Award | null> {
     const sid = awardMap[id];
     if (!sid) return null;
 
-    const res = await this._api.get<Api.Listing<Api.SubmissionWrap>>(
-      "api/info.json",
-      { params: { id: "t3_" + sid } }
+    const { data } = await this.api.g<Api.Listing<Api.SubmissionWrap>>(
+      "api/info",
+      {},
+      { id: "t3_" + sid }
     );
-    for (const a of res.data.data.children[0].data.all_awardings) {
+    for (const a of data.children[0].data.all_awardings) {
       if (a.id === id) {
         return new Award(a);
       }
@@ -388,10 +396,13 @@ export default class Reddit {
 
   async trendingSubreddits(): Promise<Subreddit[]> {
     // This endpoint only exists on www.reddit.com not on oauth.reddit.com
-    const res = await this._api.get<Api.TrendingSubreddits>(
-      "https://www.reddit.com/api/trending_subreddits.json"
+    const data = await this.api.g<Api.TrendingSubreddits>(
+      "api/trending_subreddits",
+      undefined,
+      undefined,
+      true
     );
-    return res.data.subreddit_names.map((n) => this.subreddit(n));
+    return data.subreddit_names.map((n) => this.subreddit(n));
   }
 
   async searchSubmission(

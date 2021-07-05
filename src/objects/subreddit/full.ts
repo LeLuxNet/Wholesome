@@ -210,10 +210,11 @@ export class FullSubreddit extends Subreddit implements Identified {
   }
 
   async collections(): Promise<Collection[]> {
-    const res = await this.r._api.get<Api.SubmissionCollection[]>(
-      "api/v1/collections/subreddit_collections.json",
-      { params: { sr_fullname: this.fullId } }
+    const data = await this.r.api.g<Api.SubmissionCollection[]>(
+      "api/v1/collections/subreddit_collections",
+      {},
+      { sr_fullname: this.fullId }
     );
-    return res.data.map((c) => new Collection(this.r, c));
+    return data.map((c) => new Collection(this.r, c));
   }
 }
