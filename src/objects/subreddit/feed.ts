@@ -1,3 +1,4 @@
+import { ApiClient } from "../../http/api";
 import { get, GetOptions } from "../../list/get";
 import { _Page } from "../../list/oldpage";
 import { stream, StreamOptions } from "../../list/stream";
@@ -73,7 +74,7 @@ export class Feed {
   submissionsStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
-      { url: "r/{name}/new.json", fields: { name: this[nameSymbol] } },
+      ApiClient.g("r/{name}/new", { name: this[nameSymbol] }),
       (d) => new FullSubmission(this.r, d.data),
       options
     );

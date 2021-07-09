@@ -59,7 +59,7 @@ export class Self extends User {
     this.r.needScopes("mysubreddits");
     return stream<FullSubreddit, Api.SubredditWrap>(
       this.r,
-      { url: "subreddits/mine/subscriber" },
+      ApiClient.g("subreddits/mine/subscriber"),
       (d) => new FullSubreddit(this.r, d.data),
       options
     );
@@ -79,7 +79,7 @@ export class Self extends User {
     this.r.needScopes("privatemessages");
     return stream<Message, Api.MessageWrap>(
       this.r,
-      { url: "message/inbox" },
+      ApiClient.g("message/inbox"),
       (d) => new Message(this.r, d.data),
       options
     );
@@ -109,10 +109,9 @@ export class Self extends User {
   ): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
-      {
-        url: `user/{name}/${dir === -1 ? "down" : "up"}voted`,
-        fields: { name: this.name },
-      },
+      ApiClient.g(`user/{name}/${dir === -1 ? "down" : "up"}voted`, {
+        name: this.name,
+      }),
       (d) => new FullSubmission(this.r, d),
       options
     );
@@ -130,7 +129,7 @@ export class Self extends User {
   savedStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
-      { url: "user/{name}/saved", fields: { name: this.name } },
+      ApiClient.g("user/{name}/saved", { name: this.name }),
       (d) => new FullSubmission(this.r, d),
       options
     );
@@ -148,7 +147,7 @@ export class Self extends User {
   hiddenStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
-      { url: "user/{name}/hidden", fields: { name: this.name } },
+      ApiClient.g("user/{name}/hidden", { name: this.name }),
       (d) => new FullSubmission(this.r, d),
       options
     );

@@ -1,4 +1,5 @@
 import { ApiError } from "../../error/api";
+import { ApiClient } from "../../http/api";
 import { Fetchable } from "../../interfaces/fetchable";
 import { get, GetOptions } from "../../list/get";
 import { _Page } from "../../list/oldpage";
@@ -132,7 +133,7 @@ export class User implements Fetchable<FullUser> {
   submissionsStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
-      { url: "user/{name}/submitted.json", fields: { name: this.name } },
+      ApiClient.g("user/{name}/submitted", { name: this.name }),
       (d) => new FullSubmission(this.r, d.data),
       options
     );
@@ -141,7 +142,7 @@ export class User implements Fetchable<FullUser> {
   comments(options?: GetOptions): Promise<_Page<FullComment>> {
     return get<FullComment, Api.CommentWrap>(
       this.r,
-      { url: "user/{name}/comments.json", fields: { name: this.name } },
+      { url: "user/{name}/comments", fields: { name: this.name } },
       (d) => new FullComment(this.r, d.data),
       options
     );
@@ -150,7 +151,7 @@ export class User implements Fetchable<FullUser> {
   commentsStream(options?: StreamOptions): AsyncIterable<FullComment> {
     return stream<FullComment, Api.CommentWrap>(
       this.r,
-      { url: "user/{name}/comments.json", fields: { name: this.name } },
+      ApiClient.g("user/{name}/comments", { name: this.name }),
       (d) => new FullComment(this.r, d.data),
       options
     );

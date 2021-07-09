@@ -1,3 +1,4 @@
+import { ApiClient } from "../../../http/api";
 import { get, GetOptions } from "../../../list/get";
 import { _Page } from "../../../list/oldpage";
 import { stream, StreamOptions } from "../../../list/stream";
@@ -332,15 +333,15 @@ export class FullSubmission
   ): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
-      {
-        url: "duplicates/{id}.json",
-        fields: { id: this.id },
-        params: {
+      ApiClient.g(
+        "duplicates/{id}",
+        { id: this.id },
+        {
           crossposts_only: options?.crosspostsOnly ? 1 : undefined,
           sort: "new",
           sr: options?.sub ? options.sub.name : undefined,
-        },
-      },
+        }
+      ),
       (d) => new FullSubmission(this.r, d.data),
       options
     );

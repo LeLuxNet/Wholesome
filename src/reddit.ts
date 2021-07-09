@@ -258,8 +258,8 @@ export default class Reddit {
     };
 
     if ("code" in data && (scopes === "*" || scopes.has("identity"))) {
-      const res2 = await this._api.get("api/v1/me");
-      this.auth.username = res2.data.name;
+      const { name } = await this.api.g("api/v1/me");
+      this.auth.username = name;
     }
   }
 

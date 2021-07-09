@@ -9,12 +9,15 @@ const graphqlUrl = "https://gql.reddit.com";
 
 export type HTTPMethod = "get" | "post" | "put" | "patch" | "delete";
 
+type APIFields = Record<string, string>;
+type APIParams = Record<string, string | number | undefined>;
+
 export interface ApiReq {
   method?: HTTPMethod;
   url?: string;
 
-  params?: Record<string, string | number>;
-  fields?: Record<string, string>;
+  fields?: APIFields;
+  params?: APIParams;
   skipAuth?: boolean;
 
   gql?: string;
@@ -143,8 +146,8 @@ export class ApiClient {
 
   g<T>(
     url: string,
-    fields?: Record<string, string>,
-    params?: Record<string, string | number>,
+    fields?: APIFields,
+    params?: APIParams,
     skipAuth?: boolean
   ): Promise<T> {
     return this.exec(ApiClient.g(url, fields, params, skipAuth));
@@ -152,8 +155,8 @@ export class ApiClient {
 
   static g(
     url: string,
-    fields?: Record<string, string>,
-    params?: Record<string, string | number>,
+    fields?: APIFields,
+    params?: APIParams,
     skipAuth?: boolean
   ): ApiReq {
     return { url, fields, params, skipAuth };
@@ -162,8 +165,8 @@ export class ApiClient {
   p<T>(
     url: string,
     data?: any,
-    fields?: Record<string, string>,
-    params?: Record<string, string | number>
+    fields?: APIFields,
+    params?: APIParams
   ): Promise<T> {
     return this.exec(ApiClient.p(url, data, fields, params));
   }
@@ -171,8 +174,8 @@ export class ApiClient {
   static p(
     url: string,
     data?: any,
-    fields?: Record<string, string>,
-    params?: Record<string, string | number>
+    fields?: APIFields,
+    params?: APIParams
   ): ApiReq {
     return { url, data: data || {}, fields, params };
   }
@@ -181,8 +184,8 @@ export class ApiClient {
     method: HTTPMethod,
     url: string,
     data?: any,
-    fields?: Record<string, string>,
-    params?: Record<string, string | number>
+    fields?: APIFields,
+    params?: APIParams
   ): Promise<T> {
     return this.exec(ApiClient.json(method, url, data, fields, params));
   }
@@ -191,8 +194,8 @@ export class ApiClient {
     method: HTTPMethod,
     url: string,
     data?: any,
-    fields?: Record<string, string>,
-    params?: Record<string, string | number>
+    fields?: APIFields,
+    params?: APIParams
   ): ApiReq {
     return { method, url, data, fields, params };
   }
