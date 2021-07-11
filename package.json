@@ -10,6 +10,7 @@
     "dev:app": "ts-node --files tools/app.ts",
     "prepare": "git update-index --assume-unchanged src/objects/award/data.ts && npm run build",
     "test": "jest",
+    "test:memory": "node --expose-gc node_modules/jest/bin/jest.js --runInBand --logHeapUsage",
     "lint": "eslint \"src/**/*.ts\" && prettier --check \"src/**/*.ts\"",
     "lint:fix": "prettier --write \"src/**/*.ts\""
   },

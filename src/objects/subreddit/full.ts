@@ -2,7 +2,7 @@ import { Identified } from "../../interfaces/identified";
 import { Content } from "../../media/content";
 import { BaseImage, Image } from "../../media/image";
 import Reddit from "../../reddit";
-import { Collection } from "../collection";
+import type { Collection } from "../collection";
 import { Subreddit } from "./small";
 
 export type SubredditType =
@@ -210,11 +210,12 @@ export class FullSubreddit extends Subreddit implements Identified {
   }
 
   async collections(): Promise<Collection[]> {
-    const data = await this.r.api.g<Api.SubmissionCollection[]>(
+    const data = this.r.api.g<Api.SubmissionCollection[]>(
       "api/v1/collections/subreddit_collections",
       {},
       { sr_fullname: this.fullId }
     );
-    return data.map((c) => new Collection(this.r, c));
+    const { Collection } = await import("../collection");
+    return (await data).map((c) => new Collection(this.r, c));
   }
 }

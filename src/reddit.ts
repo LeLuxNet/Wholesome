@@ -10,13 +10,13 @@ import { errorInterceptor } from "./http/error";
 import { fieldInterceptor } from "./http/fields";
 import { get, GetOptions } from "./list/get";
 import { _Page } from "./list/oldpage";
-import { Award } from "./objects/award";
+import type { Award } from "./objects/award";
 import { awardMap } from "./objects/award/data";
-import { Collection } from "./objects/collection";
-import { FullSubmission, Submission } from "./objects/post";
-import { FullSubreddit, Subreddit } from "./objects/subreddit";
+import type { Collection } from "./objects/collection";
+import type { FullSubmission, Submission } from "./objects/post";
+import type { FullSubreddit, Subreddit } from "./objects/subreddit";
 import { SubmissionSearchOptions } from "./objects/subreddit/small";
-import { FullUser, Self, User } from "./objects/user";
+import type { FullUser, Self, User } from "./objects/user";
 import { jsonVariable } from "./utils/html";
 import { unrefTimeout } from "./utils/time";
 
@@ -324,6 +324,7 @@ export default class Reddit {
    */
   submission(id: string): Submission {
     if (id.startsWith("t3_")) id = id.slice(3);
+    const { Submission } = require("./objects/post");
     return new Submission(this, id);
   }
 
@@ -342,15 +343,19 @@ export default class Reddit {
    */
   async submissions(...ids: string[]): Promise<FullSubmission[]> {
     ids = ids.map((i) => (i.startsWith("t3_") ? i : "t3_" + i));
-    const { data } = await this.api.g<Api.Listing<Api.SubmissionWrap>>(
+    const data = this.api.g<Api.Listing<Api.SubmissionWrap>>(
       "api/info",
       {},
       { id: ids.join(",") }
     );
-    return data.children.map((d) => new FullSubmission(this, d.data));
+    const { FullSubmission } = await import("./objects/post");
+    return (await data).data.children.map(
+      (d) => new FullSubmission(this, d.data)
+    );
   }
 
   subreddit(...names: string[]): Subreddit {
+    const { Subreddit } = require("./objects/subreddit");
     return new Subreddit(this, names.join("+"));
   }
 
@@ -360,21 +365,24 @@ export default class Reddit {
   }
 
   user(name: string): User {
+    const { User } = require("./objects/user");
     return new User(this, name);
   }
 
   get self(): Self | null {
     if (!this.auth) return null;
+    const { Self } = require("./objects/user");
     return new Self(this, this.auth.username);
   }
 
   async collection(id: string): Promise<Collection> {
-    const data = await this.api.g<Api.Collection>(
+    const data = this.api.g<Api.Collection>(
       "api/v1/collections/collection",
       {},
       { collection_id: id, include_links: 0 }
     );
-    return new Collection(this, data);
+    const { Collection } = await import("./objects/collection");
+    return new Collection(this, await data);
   }
 
   async award(id: string): Promise<Award | null> {
@@ -388,6 +396,7 @@ export default class Reddit {
     );
     for (const a of data.children[0].data.all_awardings) {
       if (a.id === id) {
+        const { Award } = await import("./objects/award");
         return new Award(a);
       }
     }
@@ -409,6 +418,7 @@ export default class Reddit {
     query: string,
     options?: SubmissionSearchOptions
   ): Promise<_Page<FullSubmission>> {
+    const { FullSubmission } = await import("./objects/post");
     return get<FullSubmission, Api.SubmissionWrap>(
       this,
       {
@@ -430,6 +440,7 @@ export default class Reddit {
     query: string,
     options?: SearchOptions
   ): Promise<_Page<FullSubreddit>> {
+    const { FullSubreddit } = await import("./objects/subreddit");
     return get<FullSubreddit, Api.SubredditWrap>(
       this,
       {
@@ -445,6 +456,7 @@ export default class Reddit {
     query: string,
     options?: SearchOptions
   ): Promise<_Page<FullUser>> {
+    const { FullUser } = await import("./objects/user");
     return get<FullUser, Api.UserWrap>(
       this,
       {

@@ -1,8 +1,8 @@
 import Reddit from "../../..";
 import { Fetchable } from "../../../interfaces/fetchable";
-import { CommentTree } from "../comment/tree";
+import type { CommentTree } from "../comment/tree";
 import { Post, PostConstructor } from "../small";
-import { FullSubmission } from "./full";
+import type { FullSubmission } from "./full";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function _Submission<T extends PostConstructor>(base: T) {
@@ -21,17 +21,19 @@ export function _Submission<T extends PostConstructor>(base: T) {
     }
 
     async fetch() {
-      const [data] = await this.r.api.g<Api.GetSubmission>("comments/{id}", {
+      const data = this.r.api.g<Api.GetSubmission>("comments/{id}", {
         id: this.id,
       });
-      return new FullSubmission(this.r, data.data.children[0].data);
+      const { FullSubmission } = await import("./full");
+      return new FullSubmission(this.r, (await data)[0].data.children[0].data);
     }
 
     async comments(): Promise<CommentTree> {
-      const data = await this.r.api.g<Api.GetSubmission>("comments/{id}", {
+      const data = this.r.api.g<Api.GetSubmission>("comments/{id}", {
         id: this.id,
       });
-      return new CommentTree(this.r, this, this, data[1].data.children);
+      const { CommentTree } = await import("../comment/tree");
+      return new CommentTree(this.r, this, this, (await data)[1].data.children);
     }
 
     async follow() {

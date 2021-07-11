@@ -1,5 +1,5 @@
 import { Stream } from "stream";
-import { FullSubreddit } from ".";
+import type { FullSubreddit } from ".";
 import { UnrealSubreddit } from "../../error";
 import { upload } from "../../helper/upload";
 import { Fetchable } from "../../interfaces/fetchable";
@@ -59,10 +59,11 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   }
 
   async fetch(): Promise<FullSubreddit> {
-    const { data } = await this.r.api.g<Api.SubredditWrap>("r/{name}/about", {
+    const data = this.r.api.g<Api.SubredditWrap>("r/{name}/about", {
       name: this.name,
     });
-    return new FullSubreddit(this.r, data);
+    const { FullSubreddit } = await import(".");
+    return new FullSubreddit(this.r, (await data).data);
   }
 
   async stylesheet(): Promise<string> {
