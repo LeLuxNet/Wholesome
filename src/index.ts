@@ -1,6 +1,7 @@
 import Reddit from "./reddit";
 
 export { Scope } from "./auth/scopes";
+export { Page } from "./list/page";
 export { Content } from "./media/content";
 export { Embed } from "./media/embed";
 export {

@@ -2,7 +2,10 @@ import fetch from "node-fetch";
 import { stringify } from "querystring";
 import { ApiError } from "../error";
 import Reddit from "../reddit";
+import { jsonVariable } from "../utils/html";
+import { unrefTimeout } from "../utils/time";
 
+const webUrl = "https://www.reddit.com";
 const apiUrl = "https://www.reddit.com";
 const apiAuthUrl = "https://oauth.reddit.com";
 const graphqlUrl = "https://gql.reddit.com";
@@ -31,6 +34,9 @@ export class ApiClient {
   debug: boolean;
   userAgent?: string;
 
+  private gqlToken?: Promise<string>;
+  private gqlTokenTimeout?: number;
+
   constructor(r: Reddit, debug: boolean, userAgent?: string) {
     this.r = r;
 
@@ -38,10 +44,40 @@ export class ApiClient {
     this.userAgent = userAgent;
   }
 
+  _switchAuth(): void {
+    clearTimeout(this.gqlTokenTimeout);
+    this.gqlTokenTimeout = undefined;
+    this.gqlToken = undefined;
+  }
+
   async exec<T>(req: ApiReq): Promise<T> {
     const leftPadding = 6;
 
     if (req.gql) {
+      if (!this.gqlToken) {
+        this.gqlToken = (
+          this.r.auth
+            ? fetch(`${webUrl}/chat/minimized`, {
+                headers: { Cookie: `reddit_session=${this.r.auth.session}` },
+              })
+            : fetch(`${webUrl}/framedGild/x`)
+        )
+          .then((res) => res.text())
+          .then((html) => {
+            const data = jsonVariable("___r", html);
+            const { accessToken, expiresIn } = data.user.session;
+
+            this.gqlTokenTimeout = unrefTimeout(
+              () => (this.gqlToken = undefined),
+              expiresIn
+            );
+
+            return accessToken;
+          });
+      }
+
+      const token = await this.gqlToken;
+
       if (this.debug) {
         // eslint-disable-next-line no-console
         console.log(" ".repeat(leftPadding), graphqlUrl, req.gql);
@@ -50,7 +86,7 @@ export class ApiClient {
       const res = await fetch(graphqlUrl, {
         method: "post",
         headers: {
-          Authorization: `Bearer ${this.r.auth?.session?.accessToken}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ id: req.gql, variables: req.data }),

@@ -42,5 +42,4 @@ export interface Auth {
 
 export interface AuthSession {
   cookie: string;
-  accessToken: string;
 }

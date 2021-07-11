@@ -17,7 +17,6 @@ import type { FullSubmission, Submission } from "./objects/post";
 import type { FullSubreddit, Subreddit } from "./objects/subreddit";
 import { SubmissionSearchOptions } from "./objects/subreddit/small";
 import type { FullUser, Self, User } from "./objects/user";
-import { jsonVariable } from "./utils/html";
 import { unrefTimeout } from "./utils/time";
 
 export interface UserAgent {
@@ -234,18 +233,7 @@ export default class Reddit {
 
       const { cookie } = res.data.json.data;
 
-      const res2 = await this._api.get<string>("chat/minimize", {
-        headers: {
-          Cookie: `reddit_session=${cookie}`,
-        },
-        skipAuth: true,
-      });
-      const data2 = jsonVariable("___r", res2.data);
-
-      session = {
-        cookie,
-        accessToken: data2.user.session.accessToken,
-      };
+      session = { cookie };
     }
 
     this.auth = {
@@ -258,6 +246,7 @@ export default class Reddit {
 
       scopes,
     };
+    this.api._switchAuth();
 
     if ("code" in data && (scopes === "*" || scopes.has("identity"))) {
       const { name } = await this.api.g("api/v1/me");
