@@ -1,8 +1,8 @@
 import { ApiError } from "../../../error";
 import { ApiClient } from "../../../http/api";
-import { get, GetOptions } from "../../../list/get";
-import { _Page } from "../../../list/oldpage";
-import { gPage, Page, PageOptions } from "../../../list/page";
+import { aPage } from "../../../list/apage";
+import { gPage } from "../../../list/gpage";
+import { Page, PageOptions } from "../../../list/page";
 import { stream, StreamOptions } from "../../../list/stream";
 import { Relation } from "../../../media/relation";
 import Reddit from "../../../reddit";
@@ -45,12 +45,14 @@ export class Self extends User {
     }));
   }
 
-  subreddits(options?: GetOptions): Promise<_Page<FullSubreddit>> {
+  subreddits(options?: PageOptions): Promise<Page<FullSubreddit>> {
     this.r.needScopes("mysubreddits");
-    return get<FullSubreddit, Api.SubredditWrap>(
-      this.r,
-      { url: "subreddits/mine/subscriber" },
-      (d) => new FullSubreddit(this.r, d.data),
+    return aPage<FullSubreddit, Api.SubredditWrap>(
+      {
+        r: this.r,
+        req: ApiClient.g("subreddits/mine/subscriber"),
+        mapItem: (d) => new FullSubreddit(this.r, d.data),
+      },
       options
     );
   }
@@ -65,12 +67,14 @@ export class Self extends User {
     );
   }
 
-  messages(options?: GetOptions): Promise<_Page<Message>> {
+  messages(options?: PageOptions): Promise<Page<Message>> {
     this.r.needScopes("privatemessages");
-    return get<Message, Api.MessageWrap>(
-      this.r,
-      { url: "message/inbox" },
-      (d) => new Message(this.r, d.data),
+    return aPage<Message, Api.MessageWrap>(
+      {
+        r: this.r,
+        req: ApiClient.g("message/inbox"),
+        mapItem: (d) => new Message(this.r, d.data),
+      },
       options
     );
   }
@@ -91,14 +95,15 @@ export class Self extends User {
     await this.r.api.p("api/read_all_messages");
   }
 
-  voted(dir: 1 | -1, options?: GetOptions): Promise<_Page<FullSubmission>> {
-    return get<FullSubmission, Api.Submission>(
-      this.r,
+  voted(dir: 1 | -1, options?: PageOptions): Promise<Page<FullSubmission>> {
+    return aPage<FullSubmission, Api.Submission>(
       {
-        url: `user/{name}/${dir === -1 ? "down" : "up"}voted`,
-        fields: { name: this.name },
+        r: this.r,
+        req: ApiClient.g(`user/{name}/${dir === -1 ? "down" : "up"}voted`, {
+          name: this.name,
+        }),
+        mapItem: (d) => new FullSubmission(this.r, d),
       },
-      (d) => new FullSubmission(this.r, d),
       options
     );
   }
@@ -117,11 +122,13 @@ export class Self extends User {
     );
   }
 
-  saved(options?: GetOptions): Promise<_Page<FullSubmission>> {
-    return get<FullSubmission, Api.Submission>(
-      this.r,
-      { url: "user/{name}/saved", fields: { name: this.name } },
-      (d) => new FullSubmission(this.r, d),
+  saved(options?: PageOptions): Promise<Page<FullSubmission>> {
+    return aPage<FullSubmission, Api.Submission>(
+      {
+        r: this.r,
+        req: ApiClient.g("user/{name}/saved", { name: this.name }),
+        mapItem: (d) => new FullSubmission(this.r, d),
+      },
       options
     );
   }
@@ -135,11 +142,13 @@ export class Self extends User {
     );
   }
 
-  hidden(options?: GetOptions): Promise<_Page<FullSubmission>> {
-    return get<FullSubmission, Api.Submission>(
-      this.r,
-      { url: "user/{name}/hidden", fields: { name: this.name } },
-      (d) => new FullSubmission(this.r, d),
+  hidden(options?: PageOptions): Promise<Page<FullSubmission>> {
+    return aPage<FullSubmission, Api.Submission>(
+      {
+        r: this.r,
+        req: ApiClient.g("user/{name}/hidden", { name: this.name }),
+        mapItem: (d) => new FullSubmission(this.r, d),
+      },
       options
     );
   }

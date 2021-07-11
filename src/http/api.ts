@@ -166,18 +166,20 @@ export class ApiClient {
     url: string,
     data?: any,
     fields?: APIFields,
-    params?: APIParams
+    params?: APIParams,
+    skipAuth?: boolean
   ): Promise<T> {
-    return this.exec(ApiClient.p(url, data, fields, params));
+    return this.exec(ApiClient.p(url, data, fields, params, skipAuth));
   }
 
   static p(
     url: string,
     data?: any,
     fields?: APIFields,
-    params?: APIParams
+    params?: APIParams,
+    skipAuth?: boolean
   ): ApiReq {
-    return { url, data: data || {}, fields, params };
+    return { url, data: data || {}, fields, params, skipAuth };
   }
 
   json<T>(

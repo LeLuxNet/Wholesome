@@ -2,9 +2,10 @@ import { Stream } from "stream";
 import type { FullSubreddit } from ".";
 import { UnrealSubreddit } from "../../error";
 import { upload } from "../../helper/upload";
+import { ApiClient } from "../../http/api";
 import { Fetchable } from "../../interfaces/fetchable";
-import { get, GetOptions } from "../../list/get";
-import { _Page } from "../../list/oldpage";
+import { aPage } from "../../list/apage";
+import { Page, PageOptions } from "../../list/page";
 import { BaseImage } from "../../media/image";
 import Reddit from "../../reddit";
 import { FullSubmission, Submission } from "../post";
@@ -414,15 +415,17 @@ export class Subreddit extends Feed implements Fetchable<FullSubreddit> {
   async searchSubmission(
     query: string,
     options?: SubmissionSearchOptions
-  ): Promise<_Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
+  ): Promise<Page<FullSubmission>> {
+    return aPage<FullSubmission, Api.SubmissionWrap>(
       {
-        url: "r/{name}/search.json",
-        fields: { name: this.name },
-        params: { q: query, sort: options?.sort },
+        r: this.r,
+        req: ApiClient.g(
+          "r/{name}/search",
+          { name: this.name },
+          { q: query, sort: options?.sort }
+        ),
+        mapItem: (d) => new FullSubmission(this.r, d.data),
       },
-      (d) => new FullSubmission(this.r, d.data),
       options
     );
   }
@@ -622,14 +625,14 @@ async function submit(
     ...data,
   };
 
-  var data: any;
+  let res: any;
   if (url) {
-    data = await subreddit.r.api.json("post", url, body);
+    res = await subreddit.r.api.json("post", url, body);
   } else {
-    data = await subreddit.r.api.p("api/submit", body);
+    res = await subreddit.r.api.p("api/submit", body);
   }
 
-  const submission = subreddit.r.submission(data.json.data.id);
+  const submission = subreddit.r.submission(res.json.data.id);
 
   if (options?.oc) {
     await submission.setOc();
@@ -642,6 +645,6 @@ function createStyleImage(url: string | null): BaseImage | null {
   return url ? { native: { url } } : null;
 }
 
-export interface SubmissionSearchOptions extends GetOptions {
+export interface SubmissionSearchOptions extends PageOptions {
   sort?: "relevance" | "hot" | "top" | "new" | "comments";
 }

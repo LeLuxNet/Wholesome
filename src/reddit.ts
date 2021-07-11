@@ -8,8 +8,8 @@ import { bodyInterceptor } from "./http/body";
 import { debugInterceptor } from "./http/debug";
 import { errorInterceptor } from "./http/error";
 import { fieldInterceptor } from "./http/fields";
-import { get, GetOptions } from "./list/get";
-import { _Page } from "./list/oldpage";
+import { aPage } from "./list/apage";
+import { Page, PageOptions } from "./list/page";
 import type { Award } from "./objects/award";
 import { awardMap } from "./objects/award/data";
 import type { Collection } from "./objects/collection";
@@ -191,19 +191,21 @@ export default class Reddit {
     if (res.data.refresh_token) {
       const refresh = (data: Api.AccessToken) => {
         unrefTimeout(async () => {
-          const res = await this._api.post<Api.AccessToken>(
+          const res = await this.api.p<Api.AccessToken>(
             "api/v1/access_token",
             {
               grant_type: "refresh_token",
               refresh_token: data.refresh_token,
             },
-            { skipAuth: true }
+            undefined,
+            undefined,
+            true
           );
 
           if (this.auth === undefined) return;
-          this.auth.accessToken = res.data.access_token;
+          this.auth.accessToken = res.access_token;
 
-          refresh(res.data);
+          refresh(res);
         }, (data.expires_in - 30) * 1000) as any;
       };
 
@@ -417,15 +419,14 @@ export default class Reddit {
   async searchSubmission(
     query: string,
     options?: SubmissionSearchOptions
-  ): Promise<_Page<FullSubmission>> {
+  ): Promise<Page<FullSubmission>> {
     const { FullSubmission } = await import("./objects/post");
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this,
+    return aPage<FullSubmission, Api.SubmissionWrap>(
       {
-        url: "search.json",
-        params: { q: query, sort: options?.sort },
+        r: this,
+        req: ApiClient.g("search", {}, { q: query, sort: options?.sort }),
+        mapItem: (d) => new FullSubmission(this, d.data),
       },
-      (d) => new FullSubmission(this, d.data),
       options
     );
   }
@@ -439,15 +440,18 @@ export default class Reddit {
   async searchSubreddit(
     query: string,
     options?: SearchOptions
-  ): Promise<_Page<FullSubreddit>> {
+  ): Promise<Page<FullSubreddit>> {
     const { FullSubreddit } = await import("./objects/subreddit");
-    return get<FullSubreddit, Api.SubredditWrap>(
-      this,
+    return aPage<FullSubreddit, Api.SubredditWrap>(
       {
-        url: "subreddits/search.json",
-        params: { q: query, sort: options?.sort },
+        r: this,
+        req: ApiClient.g(
+          "subreddits/search",
+          {},
+          { q: query, sort: options?.sort }
+        ),
+        mapItem: (d) => new FullSubreddit(this, d.data),
       },
-      (d) => new FullSubreddit(this, d.data),
       options
     );
   }
@@ -455,15 +459,14 @@ export default class Reddit {
   async searchUser(
     query: string,
     options?: SearchOptions
-  ): Promise<_Page<FullUser>> {
+  ): Promise<Page<FullUser>> {
     const { FullUser } = await import("./objects/user");
-    return get<FullUser, Api.UserWrap>(
-      this,
+    return aPage<FullUser, Api.UserWrap>(
       {
-        url: "users/search.json",
-        params: { q: query, sort: options?.sort },
+        r: this,
+        req: ApiClient.g("users/search", {}, { q: query, sort: options?.sort }),
+        mapItem: (d) => new FullUser(this, d.data),
       },
-      (d) => new FullUser(this, d.data),
       options
     );
   }
@@ -512,6 +515,6 @@ export default class Reddit {
   }
 }
 
-export interface SearchOptions extends GetOptions {
+export interface SearchOptions extends PageOptions {
   sort?: "relevance" | "activity";
 }

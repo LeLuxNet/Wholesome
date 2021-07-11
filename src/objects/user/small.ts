@@ -1,8 +1,8 @@
 import { ApiError } from "../../error/api";
 import { ApiClient } from "../../http/api";
 import { Fetchable } from "../../interfaces/fetchable";
-import { get, GetOptions } from "../../list/get";
-import { _Page } from "../../list/oldpage";
+import { aPage } from "../../list/apage";
+import { Page, PageOptions } from "../../list/page";
 import { stream, StreamOptions } from "../../list/stream";
 import Reddit from "../../reddit";
 import { jsonFunction } from "../../utils/html";
@@ -123,12 +123,14 @@ export class User implements Fetchable<FullUser> {
     return (await data).map((d) => new Multi(this.r, d.data));
   }
 
-  async submissions(options?: GetOptions): Promise<_Page<FullSubmission>> {
+  async submissions(options?: PageOptions): Promise<Page<FullSubmission>> {
     const { FullSubmission } = await import("../post");
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
-      { url: "user/{name}/submitted.json", fields: { name: this.name } },
-      (d) => new FullSubmission(this.r, d.data),
+    return aPage<FullSubmission, Api.SubmissionWrap>(
+      {
+        r: this.r,
+        req: ApiClient.g("user/{name}/submitted", { name: this.name }),
+        mapItem: (d) => new FullSubmission(this.r, d.data),
+      },
       options
     );
   }
@@ -143,12 +145,14 @@ export class User implements Fetchable<FullUser> {
     );
   }
 
-  async comments(options?: GetOptions): Promise<_Page<FullComment>> {
-    const { FullComment } = await import("../post");
-    return get<FullComment, Api.CommentWrap>(
-      this.r,
-      { url: "user/{name}/comments", fields: { name: this.name } },
-      (d) => new FullComment(this.r, d.data),
+  async comments(options?: PageOptions): Promise<Page<FullSubmission>> {
+    const { FullSubmission } = await import("../post");
+    return aPage<FullSubmission, Api.SubmissionWrap>(
+      {
+        r: this.r,
+        req: ApiClient.g("user/{name}/comments", { name: this.name }),
+        mapItem: (d) => new FullSubmission(this.r, d.data),
+      },
       options
     );
   }

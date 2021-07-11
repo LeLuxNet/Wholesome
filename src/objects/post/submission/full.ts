@@ -1,6 +1,6 @@
 import { ApiClient } from "../../../http/api";
-import { get, GetOptions } from "../../../list/get";
-import { _Page } from "../../../list/oldpage";
+import { aPage } from "../../../list/apage";
+import { Page, PageOptions } from "../../../list/page";
 import { stream, StreamOptions } from "../../../list/stream";
 import { Content } from "../../../media/content";
 import { Embed } from "../../../media/embed";
@@ -296,7 +296,7 @@ export class FullSubmission
    *
    * @see {@link crosspostsStream}
    */
-  crossposts(options?: CrosspostsOptions): Promise<_Page<FullSubmission>> {
+  crossposts(options?: CrosspostsOptions): Promise<Page<FullSubmission>> {
     return this.duplicates({ ...options, crosspostsOnly: true });
   }
 
@@ -311,19 +311,21 @@ export class FullSubmission
    *
    * @see {@link duplicatesStream}
    */
-  duplicates(options?: DuplicatesOptions): Promise<_Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
+  duplicates(options?: DuplicatesOptions): Promise<Page<FullSubmission>> {
+    return aPage<FullSubmission, Api.SubmissionWrap>(
       {
-        url: "duplicates/{id}.json",
-        fields: { id: this.id },
-        params: {
-          crossposts_only: options?.crosspostsOnly ? 1 : undefined,
-          sort: options?.sort === "new" ? "new" : "num_comments",
-          sr: options?.sub ? options.sub.name : undefined,
-        },
+        r: this.r,
+        req: ApiClient.g(
+          "duplicates/{id}",
+          { id: this.id },
+          {
+            crossposts_only: options?.crosspostsOnly ? 1 : undefined,
+            sort: options?.sort === "new" ? "new" : "num_comments",
+            sr: options?.sub ? options.sub.name : undefined,
+          }
+        ),
+        mapItem: (d) => new FullSubmission(this.r, d.data),
       },
-      (d) => new FullSubmission(this.r, d.data),
       options
     );
   }
@@ -350,7 +352,7 @@ export class FullSubmission
 
 export type CrosspostsStreamOptions = StreamOptions & { sub?: Subreddit };
 
-export type CrosspostsOptions = GetOptions & {
+export type CrosspostsOptions = PageOptions & {
   sub?: Subreddit;
   sort?: "new" | "commentCount";
 };
