@@ -105,6 +105,7 @@ declare namespace Api {
     media_only: boolean;
     third_party_trackers?: unknown[];
     link_flair_template_id: string;
+    sr_detail?: unknown;
     can_gild: boolean;
     spoiler: boolean;
     locked: boolean;

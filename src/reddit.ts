@@ -394,6 +394,14 @@ export default class Reddit {
     return null;
   }
 
+  async trendingSubmissions(): Promise<FullSubmission[]> {
+    const data = this.api.g<Api.TrendingSearches>("api/trending_searches_v1");
+    const { FullSubmission } = await import("./objects/post");
+    return (await data).trending_searches.map(
+      (s) => new FullSubmission(this, s.results.data.children[0].data)
+    );
+  }
+  
   async trendingSubreddits(): Promise<Subreddit[]> {
     // This endpoint only exists on www.reddit.com not on oauth.reddit.com
     const data = await this.api.g<Api.TrendingSubreddits>(
