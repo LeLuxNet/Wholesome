@@ -1,16 +1,16 @@
-import { AxiosResponse } from "axios";
 import { ApiError } from "../../error/api";
+import { ApiClient } from "../../http/api";
 import { Fetchable } from "../../interfaces/fetchable";
-import { get, GetOptions } from "../../list/get";
-import { Page } from "../../list/page";
+import { aPage } from "../../list/apage";
+import { Page, PageOptions } from "../../list/page";
 import { stream, StreamOptions } from "../../list/stream";
 import Reddit from "../../reddit";
 import { jsonFunction } from "../../utils/html";
-import { Multi } from "../multi";
-import { FullComment, FullSubmission } from "../post";
-import { FullUser } from "./full";
+import type { Multi } from "../multi";
+import type { FullComment, FullSubmission } from "../post";
+import type { FullUser } from "./full";
 import { mapOldAvatar, OldAvatar } from "./snoo";
-import { Trophy } from "./trophy";
+import type { Trophy } from "./trophy";
 
 export class User implements Fetchable<FullUser> {
   r: Reddit;
@@ -35,48 +35,48 @@ export class User implements Fetchable<FullUser> {
   }
 
   async fetch(): Promise<FullUser> {
-    const res = await this.r._api.get<Api.UserWrap>("user/{name}/about.json", {
-      fields: { name: this.name },
+    const data = this.r.api.g<Api.UserWrap>("user/{name}/about", {
+      name: this.name,
     });
-    return new FullUser(this.r, res.data.data);
+    const { FullUser } = await import("./full");
+    return new FullUser(this.r, (await data).data);
   }
 
-  async nameAvailable(): Promise<boolean> {
-    const res = await this.r._api.get<boolean>("api/username_available.json", {
-      params: { user: this.name },
-    });
-    return res.data;
+  nameAvailable(): Promise<boolean> {
+    return this.r.api.g<boolean>(
+      "api/username_available",
+      {},
+      { user: this.name }
+    );
   }
 
   async givePremium(months: number): Promise<void> {
     this.r.needScopes("creddits");
-    await this.r._api.post(
+    await this.r.api.p(
       "/api/v1/gold/give/{name}",
       { months },
-      { fields: { name: this.name } }
+      { name: this.name }
     );
   }
 
   async friend(friend = true, note?: string): Promise<void> {
     this.r.needScopes("subscribe");
 
-    let req: Promise<AxiosResponse>;
+    let res: Promise<void>;
     if (friend) {
-      req = this.r._api.put(
+      res = this.r.api.json(
+        "put",
         "api/v1/me/friends/{name}",
         { note },
-        {
-          fields: { name: this.name },
-          headers: { "Content-Type": "application/json" },
-        }
+        { name: this.name }
       );
     } else {
-      req = this.r._api.delete("api/v1/me/friends/{name}", {
-        fields: { name: this.name },
+      res = this.r.api.json("delete", "api/v1/me/friends/{name}", undefined, {
+        name: this.name,
       });
     }
 
-    await req.catch((err) => {
+    await res.catch((err) => {
       if (err instanceof ApiError && err.code === "NOT_FRIEND") return;
       throw err;
     });
@@ -108,54 +108,60 @@ export class User implements Fetchable<FullUser> {
   }
 
   async trophies(): Promise<Trophy[]> {
-    const res = await this.r._api.get<Api.TrophyList>(
-      "user/{name}/trophies.json",
-      { fields: { name: this.name } }
-    );
-    return res.data.data.trophies.map((d) => new Trophy(this.r, d.data));
+    const data = this.r.api.g<Api.TrophyList>("user/{name}/trophies", {
+      name: this.name,
+    });
+    const { Trophy } = await import("./trophy");
+    return (await data).data.trophies.map((d) => new Trophy(this.r, d.data));
   }
 
   async multis(): Promise<Multi[]> {
-    const res = await this.r._api.get<Api.MultiWrap[]>(
-      "api/multi/user/{name}",
-      {
-        fields: { name: this.name },
-      }
-    );
-    return res.data.map((d) => new Multi(this.r, d.data));
+    const data = this.r.api.g<Api.MultiWrap[]>("api/multi/user/{name}", {
+      name: this.name,
+    });
+    const { Multi } = await import("../multi");
+    return (await data).map((d) => new Multi(this.r, d.data));
   }
 
-  submissions(options?: GetOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
-      { url: "user/{name}/submitted.json", fields: { name: this.name } },
-      (d) => new FullSubmission(this.r, d.data),
+  async submissions(options?: PageOptions): Promise<Page<FullSubmission>> {
+    const { FullSubmission } = await import("../post");
+    return aPage<FullSubmission, Api.SubmissionWrap>(
+      {
+        r: this.r,
+        req: ApiClient.g("user/{name}/submitted", { name: this.name }),
+        mapItem: (d) => new FullSubmission(this.r, d.data),
+      },
       options
     );
   }
 
   submissionsStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
+    const { FullSubmission } = require("../post");
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
-      { url: "user/{name}/submitted.json", fields: { name: this.name } },
+      ApiClient.g("user/{name}/submitted", { name: this.name }),
       (d) => new FullSubmission(this.r, d.data),
       options
     );
   }
 
-  comments(options?: GetOptions): Promise<Page<FullComment>> {
-    return get<FullComment, Api.CommentWrap>(
-      this.r,
-      { url: "user/{name}/comments.json", fields: { name: this.name } },
-      (d) => new FullComment(this.r, d.data),
+  async comments(options?: PageOptions): Promise<Page<FullSubmission>> {
+    const { FullSubmission } = await import("../post");
+    return aPage<FullSubmission, Api.SubmissionWrap>(
+      {
+        r: this.r,
+        req: ApiClient.g("user/{name}/comments", { name: this.name }),
+        mapItem: (d) => new FullSubmission(this.r, d.data),
+      },
       options
     );
   }
 
   commentsStream(options?: StreamOptions): AsyncIterable<FullComment> {
+    const { FullComment } = require("../post");
     return stream<FullComment, Api.CommentWrap>(
       this.r,
-      { url: "user/{name}/comments.json", fields: { name: this.name } },
+      ApiClient.g("user/{name}/comments", { name: this.name }),
       (d) => new FullComment(this.r, d.data),
       options
     );
@@ -163,7 +169,7 @@ export class User implements Fetchable<FullUser> {
 
   async sendMessage(subject: string, body: string): Promise<void> {
     this.r.needScopes("privatemessages");
-    await this.r._api.post("api/compose", {
+    await this.r.api.p("api/compose", {
       subject,
       text: body,
       to: this.name,

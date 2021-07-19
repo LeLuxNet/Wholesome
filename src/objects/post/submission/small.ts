@@ -1,8 +1,8 @@
 import Reddit from "../../..";
 import { Fetchable } from "../../../interfaces/fetchable";
-import { CommentTree } from "../comment/tree";
+import type { CommentTree } from "../comment/tree";
 import { Post, PostConstructor } from "../small";
-import { FullSubmission } from "./full";
+import type { FullSubmission } from "./full";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function _Submission<T extends PostConstructor>(base: T) {
@@ -21,24 +21,24 @@ export function _Submission<T extends PostConstructor>(base: T) {
     }
 
     async fetch() {
-      const res = await this.r._api.get<Api.GetSubmission>(
-        "comments/{id}.json",
-        { fields: { id: this.id } }
-      );
-      return new FullSubmission(this.r, res.data[0].data.children[0].data);
+      const data = this.r.api.g<Api.GetSubmission>("comments/{id}", {
+        id: this.id,
+      });
+      const { FullSubmission } = await import("./full");
+      return new FullSubmission(this.r, (await data)[0].data.children[0].data);
     }
 
     async comments(): Promise<CommentTree> {
-      const res = await this.r._api.get<Api.GetSubmission>(
-        "comments/{id}.json",
-        { fields: { id: this.id } }
-      );
-      return new CommentTree(this.r, this, this, res.data[1].data.children);
+      const data = this.r.api.g<Api.GetSubmission>("comments/{id}", {
+        id: this.id,
+      });
+      const { CommentTree } = await import("../comment/tree");
+      return new CommentTree(this.r, this, this, (await data)[1].data.children);
     }
 
     async follow() {
       this.r.needScopes("subscribe");
-      await this.r._api.post("api/follow_post", {
+      await this.r.api.p("api/follow_post", {
         follow: true,
         fullname: this.fullId,
       });
@@ -46,7 +46,7 @@ export function _Submission<T extends PostConstructor>(base: T) {
 
     async unfollow() {
       this.r.needScopes("subscribe");
-      await this.r._api.post("api/follow_post", {
+      await this.r.api.p("api/follow_post", {
         follow: false,
         fullname: this.fullId,
       });
@@ -72,7 +72,7 @@ export function _Submission<T extends PostConstructor>(base: T) {
      */
     async setOc(oc = true) {
       this.r.needScopes("modposts");
-      await this.r._api.post("api/set_original_content", {
+      await this.r.api.p("api/set_original_content", {
         fullname: this.fullId,
         should_set_oc: oc,
       });
@@ -98,7 +98,7 @@ export function _Submission<T extends PostConstructor>(base: T) {
      */
     async setNsfw(nsfw = true) {
       this.r.needScopes("modposts");
-      await this.r._api.post(`api/${nsfw ? "" : "un"}marknsfw`, {
+      await this.r.api.p(`api/${nsfw ? "" : "un"}marknsfw`, {
         id: this.fullId,
       });
     }
@@ -123,7 +123,7 @@ export function _Submission<T extends PostConstructor>(base: T) {
      */
     async setSpoiler(spoiler = true) {
       this.r.needScopes("modposts");
-      await this.r._api.post(`api/${spoiler ? "" : "un"}spoiler`, {
+      await this.r.api.p(`api/${spoiler ? "" : "un"}spoiler`, {
         id: this.fullId,
       });
     }
@@ -137,7 +137,7 @@ export function _Submission<T extends PostConstructor>(base: T) {
      */
     async setVisited() {
       this.r.needScopes("save");
-      await this.r._api.post("api/store_visits", { links: this.fullId });
+      await this.r.api.p("api/store_visits", { links: this.fullId });
     }
   }
   return _Submission;

@@ -8,16 +8,15 @@ import { bodyInterceptor } from "./http/body";
 import { debugInterceptor } from "./http/debug";
 import { errorInterceptor } from "./http/error";
 import { fieldInterceptor } from "./http/fields";
-import { get, GetOptions } from "./list/get";
-import { Page } from "./list/page";
-import { Award } from "./objects/award";
+import { aPage } from "./list/apage";
+import { Page, PageOptions } from "./list/page";
+import type { Award } from "./objects/award";
 import { awardMap } from "./objects/award/data";
-import { Collection } from "./objects/collection";
-import { FullSubmission, Submission } from "./objects/post";
-import { FullSubreddit, Subreddit } from "./objects/subreddit";
+import type { Collection } from "./objects/collection";
+import type { FullSubmission, Submission } from "./objects/post";
+import type { FullSubreddit, Subreddit } from "./objects/subreddit";
 import { SubmissionSearchOptions } from "./objects/subreddit/small";
-import { FullUser, Self, User } from "./objects/user";
-import { jsonVariable } from "./utils/html";
+import type { FullUser, Self, User } from "./objects/user";
 import { unrefTimeout } from "./utils/time";
 
 export interface UserAgent {
@@ -52,7 +51,7 @@ export interface UserAgent {
 }
 
 function generateUserAgent(ua: UserAgent) {
-  `${ua.platform}:${ua.identifier}:${
+  return `${ua.platform}:${ua.identifier}:${
     ua.version[0] === "v" ? ua.version : "v" + ua.version
   } (by /u/${ua.author})`;
 }
@@ -81,17 +80,22 @@ export default class Reddit {
 
   /** Create a `Reddit` instance */
   constructor(data: RedditConstructor) {
-    this.api = new ApiClient(this);
+    let userAgent: string | undefined;
+    if (typeof window === "undefined") {
+      userAgent =
+        typeof data.userAgent === "string"
+          ? data.userAgent
+          : generateUserAgent(data.userAgent);
+    }
+
+    this.api = new ApiClient(this, !!data.debug, userAgent);
 
     const headers: any = {
       "Accept-Encoding": "gzip, deflate, br",
     };
 
-    if (typeof window === "undefined") {
-      headers["User-Agent"] =
-        typeof data.userAgent === "string"
-          ? data.userAgent
-          : generateUserAgent(data.userAgent);
+    if (userAgent) {
+      headers["User-Agent"] = userAgent;
     }
 
     this._api = axios.create({
@@ -186,19 +190,21 @@ export default class Reddit {
     if (res.data.refresh_token) {
       const refresh = (data: Api.AccessToken) => {
         unrefTimeout(async () => {
-          const res = await this._api.post<Api.AccessToken>(
+          const res = await this.api.p<Api.AccessToken>(
             "api/v1/access_token",
             {
               grant_type: "refresh_token",
               refresh_token: data.refresh_token,
             },
-            { skipAuth: true }
+            undefined,
+            undefined,
+            true
           );
 
           if (this.auth === undefined) return;
-          this.auth.accessToken = res.data.access_token;
+          this.auth.accessToken = res.access_token;
 
-          refresh(res.data);
+          refresh(res);
         }, (data.expires_in - 30) * 1000) as any;
       };
 
@@ -227,18 +233,7 @@ export default class Reddit {
 
       const { cookie } = res.data.json.data;
 
-      const res2 = await this._api.get<string>("chat/minimize", {
-        headers: {
-          Cookie: `reddit_session=${cookie}`,
-        },
-        skipAuth: true,
-      });
-      const data2 = jsonVariable("___r", res2.data);
-
-      session = {
-        cookie,
-        accessToken: data2.user.session.accessToken,
-      };
+      session = { cookie };
     }
 
     this.auth = {
@@ -251,10 +246,11 @@ export default class Reddit {
 
       scopes,
     };
+    this.api._switchAuth();
 
     if ("code" in data && (scopes === "*" || scopes.has("identity"))) {
-      const res2 = await this._api.get("api/v1/me");
-      this.auth.username = res2.data.name;
+      const { name } = await this.api.g("api/v1/me");
+      this.auth.username = name;
     }
   }
 
@@ -264,7 +260,7 @@ export default class Reddit {
     scopes: Scope[],
     temporary?: boolean
   ): string {
-    return `https://www.reddit.com/api/v1/authorize?client_id=${encodeURIComponent(
+    return `${this.linkUrl}/api/v1/authorize?client_id=${encodeURIComponent(
       clientId
     )}&response_type=code&state=+&redirect_uri=${encodeURIComponent(
       redirectUri
@@ -319,6 +315,7 @@ export default class Reddit {
    */
   submission(id: string): Submission {
     if (id.startsWith("t3_")) id = id.slice(3);
+    const { Submission } = require("./objects/post");
     return new Submission(this, id);
   }
 
@@ -337,14 +334,19 @@ export default class Reddit {
    */
   async submissions(...ids: string[]): Promise<FullSubmission[]> {
     ids = ids.map((i) => (i.startsWith("t3_") ? i : "t3_" + i));
-    const res = await this._api.get<Api.Listing<Api.SubmissionWrap>>(
-      "api/info.json",
-      { params: { id: ids.join(",") } }
+    const data = this.api.g<Api.Listing<Api.SubmissionWrap>>(
+      "api/info",
+      {},
+      { id: ids.join(",") }
     );
-    return res.data.data.children.map((d) => new FullSubmission(this, d.data));
+    const { FullSubmission } = await import("./objects/post");
+    return (await data).data.children.map(
+      (d) => new FullSubmission(this, d.data)
+    );
   }
 
   subreddit(...names: string[]): Subreddit {
+    const { Subreddit } = require("./objects/subreddit");
     return new Subreddit(this, names.join("+"));
   }
 
@@ -354,57 +356,74 @@ export default class Reddit {
   }
 
   user(name: string): User {
+    const { User } = require("./objects/user");
     return new User(this, name);
   }
 
   get self(): Self | null {
     if (!this.auth) return null;
+    const { Self } = require("./objects/user");
     return new Self(this, this.auth.username);
   }
 
   async collection(id: string): Promise<Collection> {
-    const res = await this._api.get<Api.Collection>(
-      "api/v1/collections/collection.json",
-      { params: { collection_id: id, include_links: 0 } }
+    const data = this.api.g<Api.Collection>(
+      "api/v1/collections/collection",
+      {},
+      { collection_id: id, include_links: 0 }
     );
-    return new Collection(this, res.data);
+    const { Collection } = await import("./objects/collection");
+    return new Collection(this, await data);
   }
 
   async award(id: string): Promise<Award | null> {
     const sid = awardMap[id];
     if (!sid) return null;
 
-    const res = await this._api.get<Api.Listing<Api.SubmissionWrap>>(
-      "api/info.json",
-      { params: { id: "t3_" + sid } }
+    const { data } = await this.api.g<Api.Listing<Api.SubmissionWrap>>(
+      "api/info",
+      {},
+      { id: "t3_" + sid }
     );
-    for (const a of res.data.data.children[0].data.all_awardings) {
+    for (const a of data.children[0].data.all_awardings) {
       if (a.id === id) {
+        const { Award } = await import("./objects/award");
         return new Award(a);
       }
     }
     return null;
   }
 
+  async trendingSubmissions(): Promise<FullSubmission[]> {
+    const data = this.api.g<Api.TrendingSearches>("api/trending_searches_v1");
+    const { FullSubmission } = await import("./objects/post");
+    return (await data).trending_searches.map(
+      (s) => new FullSubmission(this, s.results.data.children[0].data)
+    );
+  }
+  
   async trendingSubreddits(): Promise<Subreddit[]> {
     // This endpoint only exists on www.reddit.com not on oauth.reddit.com
-    const res = await this._api.get<Api.TrendingSubreddits>(
-      "https://www.reddit.com/api/trending_subreddits.json"
+    const data = await this.api.g<Api.TrendingSubreddits>(
+      "api/trending_subreddits",
+      undefined,
+      undefined,
+      true
     );
-    return res.data.subreddit_names.map((n) => this.subreddit(n));
+    return data.subreddit_names.map((n) => this.subreddit(n));
   }
 
   async searchSubmission(
     query: string,
     options?: SubmissionSearchOptions
   ): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this,
+    const { FullSubmission } = await import("./objects/post");
+    return aPage<FullSubmission, Api.SubmissionWrap>(
       {
-        url: "search.json",
-        params: { q: query, sort: options?.sort },
+        r: this,
+        req: ApiClient.g("search", {}, { q: query, sort: options?.sort }),
+        mapItem: (d) => new FullSubmission(this, d.data),
       },
-      (d) => new FullSubmission(this, d.data),
       options
     );
   }
@@ -419,13 +438,17 @@ export default class Reddit {
     query: string,
     options?: SearchOptions
   ): Promise<Page<FullSubreddit>> {
-    return get<FullSubreddit, Api.SubredditWrap>(
-      this,
+    const { FullSubreddit } = await import("./objects/subreddit");
+    return aPage<FullSubreddit, Api.SubredditWrap>(
       {
-        url: "subreddits/search.json",
-        params: { q: query, sort: options?.sort },
+        r: this,
+        req: ApiClient.g(
+          "subreddits/search",
+          {},
+          { q: query, sort: options?.sort }
+        ),
+        mapItem: (d) => new FullSubreddit(this, d.data),
       },
-      (d) => new FullSubreddit(this, d.data),
       options
     );
   }
@@ -434,13 +457,13 @@ export default class Reddit {
     query: string,
     options?: SearchOptions
   ): Promise<Page<FullUser>> {
-    return get<FullUser, Api.UserWrap>(
-      this,
+    const { FullUser } = await import("./objects/user");
+    return aPage<FullUser, Api.UserWrap>(
       {
-        url: "users/search.json",
-        params: { q: query, sort: options?.sort },
+        r: this,
+        req: ApiClient.g("users/search", {}, { q: query, sort: options?.sort }),
+        mapItem: (d) => new FullUser(this, d.data),
       },
-      (d) => new FullUser(this, d.data),
       options
     );
   }
@@ -489,6 +512,6 @@ export default class Reddit {
   }
 }
 
-export interface SearchOptions extends GetOptions {
+export interface SearchOptions extends PageOptions {
   sort?: "relevance" | "activity";
 }

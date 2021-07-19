@@ -2,7 +2,7 @@ import { Fetchable } from "../../../interfaces/fetchable";
 import Reddit from "../../../reddit";
 import { Post, PostConstructor } from "../small";
 import { Submission } from "../submission/small";
-import { FullComment } from "./full";
+import type { FullComment } from "./full";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function _Comment<T extends PostConstructor>(base: T) {
@@ -17,13 +17,15 @@ export function _Comment<T extends PostConstructor>(base: T) {
     }
 
     async fetch() {
-      const res = await this.r._api.get<Api.GetSubmission>(
-        "comments/{submission}//{id}.json",
-        { fields: { submission: this.submission.id, id: this.id } }
+      const data = await this.r.api.g<Api.GetSubmission>(
+        "comments/{submission}//{id}",
+        { submission: this.submission.id, id: this.id }
       );
-      const children = res.data[1].data.children;
+      const children = data[1].data.children;
 
       if (children.length === 0) return null;
+
+      const { FullComment } = await import("./full");
       return new FullComment(
         this.r,
         children[0].data as Api.Comment,

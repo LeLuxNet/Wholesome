@@ -12,4 +12,14 @@ declare namespace Api {
       before: string | null;
     };
   }
+
+  export interface GListing<T> {
+    edges: {
+      node: T;
+    }[];
+
+    pageInfo: {
+      endCursor: string;
+    };
+  }
 }

@@ -1,5 +1,6 @@
-import { get, GetOptions } from "../../../list/get";
-import { Page } from "../../../list/page";
+import { ApiClient } from "../../../http/api";
+import { aPage } from "../../../list/apage";
+import { Page, PageOptions } from "../../../list/page";
 import { stream, StreamOptions } from "../../../list/stream";
 import { Content } from "../../../media/content";
 import { Embed } from "../../../media/embed";
@@ -311,18 +312,20 @@ export class FullSubmission
    * @see {@link duplicatesStream}
    */
   duplicates(options?: DuplicatesOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
+    return aPage<FullSubmission, Api.SubmissionWrap>(
       {
-        url: "duplicates/{id}.json",
-        fields: { id: this.id },
-        params: {
-          crossposts_only: options?.crosspostsOnly ? 1 : undefined,
-          sort: options?.sort === "new" ? "new" : "num_comments",
-          sr: options?.sub ? options.sub.name : undefined,
-        },
+        r: this.r,
+        req: ApiClient.g(
+          "duplicates/{id}",
+          { id: this.id },
+          {
+            crossposts_only: options?.crosspostsOnly ? 1 : undefined,
+            sort: options?.sort === "new" ? "new" : "num_comments",
+            sr: options?.sub ? options.sub.name : undefined,
+          }
+        ),
+        mapItem: (d) => new FullSubmission(this.r, d.data),
       },
-      (d) => new FullSubmission(this.r, d.data),
       options
     );
   }
@@ -332,15 +335,15 @@ export class FullSubmission
   ): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
-      {
-        url: "duplicates/{id}.json",
-        fields: { id: this.id },
-        params: {
+      ApiClient.g(
+        "duplicates/{id}",
+        { id: this.id },
+        {
           crossposts_only: options?.crosspostsOnly ? 1 : undefined,
           sort: "new",
           sr: options?.sub ? options.sub.name : undefined,
-        },
-      },
+        }
+      ),
       (d) => new FullSubmission(this.r, d.data),
       options
     );
@@ -349,7 +352,7 @@ export class FullSubmission
 
 export type CrosspostsStreamOptions = StreamOptions & { sub?: Subreddit };
 
-export type CrosspostsOptions = GetOptions & {
+export type CrosspostsOptions = PageOptions & {
   sub?: Subreddit;
   sort?: "new" | "commentCount";
 };

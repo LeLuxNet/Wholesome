@@ -43,7 +43,7 @@ export class Collection implements Deletable {
 
   async updateTitle(title: string): Promise<void> {
     this.r.needScopes("modposts");
-    await this.r._api.post("api/v1/collections/update_collection_title", {
+    await this.r.api.p("api/v1/collections/update_collection_title", {
       collection_id: this.id,
       title,
     });
@@ -51,21 +51,21 @@ export class Collection implements Deletable {
 
   async updateDescription(description: string): Promise<void> {
     this.r.needScopes("modposts");
-    await this.r._api.post("api/v1/collections/update_collection_description", {
+    await this.r.api.p("api/v1/collections/update_collection_description", {
       collection_id: this.id,
       description,
     });
   }
 
   async addSubmission(submission: Submission): Promise<void> {
-    await this.r._api.post("api/v1/collections/add_post_to_collection", {
+    await this.r.api.p("api/v1/collections/add_post_to_collection", {
       collection_id: this.id,
       link_fullname: submission.fullId,
     });
   }
 
   async removeSubmission(submission: Submission): Promise<void> {
-    await this.r._api.post("api/v1/collections/remove_post_in_collection", {
+    await this.r.api.p("api/v1/collections/remove_post_in_collection", {
       collection_id: this.id,
       link_fullname: submission.fullId,
     });
@@ -73,14 +73,14 @@ export class Collection implements Deletable {
 
   async delete(): Promise<void> {
     this.r.needScopes("modposts");
-    await this.r._api.post("api/v1/collections/delete_collection", {
+    await this.r.api.p("api/v1/collections/delete_collection", {
       collection_id: this.id,
     });
   }
 
   async follow(follow: boolean): Promise<void> {
     this.r.needScopes("subscribe");
-    await this.r._api.post("api/v1/collections/follow_collection", {
+    await this.r.api.p("api/v1/collections/follow_collection", {
       collection_id: this.id,
       follow,
     });

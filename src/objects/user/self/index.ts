@@ -1,6 +1,8 @@
 import { ApiError } from "../../../error";
-import { get, GetOptions } from "../../../list/get";
-import { Page } from "../../../list/page";
+import { ApiClient } from "../../../http/api";
+import { aPage } from "../../../list/apage";
+import { gPage } from "../../../list/gpage";
+import { Page, PageOptions } from "../../../list/page";
 import { stream, StreamOptions } from "../../../list/stream";
 import { Relation } from "../../../media/relation";
 import Reddit from "../../../reddit";
@@ -33,8 +35,8 @@ export class Self extends User {
   }
 
   async friends(): Promise<Relation[]> {
-    const res = await this.r._api.get<Api.Friends>("prefs/friends.json");
-    return res.data[0].data.children.map((r) => ({
+    const [{ data }] = await this.r.api.g<Api.Friends>("prefs/friends");
+    return data.children.map((r) => ({
       id: r.rel_id.slice(3),
       fullId: r.rel_id,
 
@@ -43,12 +45,14 @@ export class Self extends User {
     }));
   }
 
-  subreddits(options?: GetOptions): Promise<Page<FullSubreddit>> {
+  subreddits(options?: PageOptions): Promise<Page<FullSubreddit>> {
     this.r.needScopes("mysubreddits");
-    return get<FullSubreddit, Api.SubredditWrap>(
-      this.r,
-      { url: "subreddits/mine/subscriber" },
-      (d) => new FullSubreddit(this.r, d.data),
+    return aPage<FullSubreddit, Api.SubredditWrap>(
+      {
+        r: this.r,
+        req: ApiClient.g("subreddits/mine/subscriber"),
+        mapItem: (d) => new FullSubreddit(this.r, d.data),
+      },
       options
     );
   }
@@ -57,18 +61,20 @@ export class Self extends User {
     this.r.needScopes("mysubreddits");
     return stream<FullSubreddit, Api.SubredditWrap>(
       this.r,
-      { url: "subreddits/mine/subscriber" },
+      ApiClient.g("subreddits/mine/subscriber"),
       (d) => new FullSubreddit(this.r, d.data),
       options
     );
   }
 
-  messages(options?: GetOptions): Promise<Page<Message>> {
+  messages(options?: PageOptions): Promise<Page<Message>> {
     this.r.needScopes("privatemessages");
-    return get<Message, Api.MessageWrap>(
-      this.r,
-      { url: "message/inbox" },
-      (d) => new Message(this.r, d.data),
+    return aPage<Message, Api.MessageWrap>(
+      {
+        r: this.r,
+        req: ApiClient.g("message/inbox"),
+        mapItem: (d) => new Message(this.r, d.data),
+      },
       options
     );
   }
@@ -77,7 +83,7 @@ export class Self extends User {
     this.r.needScopes("privatemessages");
     return stream<Message, Api.MessageWrap>(
       this.r,
-      { url: "message/inbox" },
+      ApiClient.g("message/inbox"),
       (d) => new Message(this.r, d.data),
       options
     );
@@ -86,17 +92,18 @@ export class Self extends User {
   /** Marks all messages as read */
   async setMessagesRead(): Promise<void> {
     this.r.needScopes("privatemessages");
-    await this.r._api.post("api/read_all_messages");
+    await this.r.api.p("api/read_all_messages");
   }
 
-  voted(dir: 1 | -1, options?: GetOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.Submission>(
-      this.r,
+  voted(dir: 1 | -1, options?: PageOptions): Promise<Page<FullSubmission>> {
+    return aPage<FullSubmission, Api.Submission>(
       {
-        url: `user/{name}/${dir === -1 ? "down" : "up"}voted`,
-        fields: { name: this.name },
+        r: this.r,
+        req: ApiClient.g(`user/{name}/${dir === -1 ? "down" : "up"}voted`, {
+          name: this.name,
+        }),
+        mapItem: (d) => new FullSubmission(this.r, d),
       },
-      (d) => new FullSubmission(this.r, d),
       options
     );
   }
@@ -107,20 +114,21 @@ export class Self extends User {
   ): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
-      {
-        url: `user/{name}/${dir === -1 ? "down" : "up"}voted`,
-        fields: { name: this.name },
-      },
+      ApiClient.g(`user/{name}/${dir === -1 ? "down" : "up"}voted`, {
+        name: this.name,
+      }),
       (d) => new FullSubmission(this.r, d),
       options
     );
   }
 
-  saved(options?: GetOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.Submission>(
-      this.r,
-      { url: "user/{name}/saved", fields: { name: this.name } },
-      (d) => new FullSubmission(this.r, d),
+  saved(options?: PageOptions): Promise<Page<FullSubmission>> {
+    return aPage<FullSubmission, Api.Submission>(
+      {
+        r: this.r,
+        req: ApiClient.g("user/{name}/saved", { name: this.name }),
+        mapItem: (d) => new FullSubmission(this.r, d),
+      },
       options
     );
   }
@@ -128,17 +136,19 @@ export class Self extends User {
   savedStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
-      { url: "user/{name}/saved", fields: { name: this.name } },
+      ApiClient.g("user/{name}/saved", { name: this.name }),
       (d) => new FullSubmission(this.r, d),
       options
     );
   }
 
-  hidden(options?: GetOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.Submission>(
-      this.r,
-      { url: "user/{name}/hidden", fields: { name: this.name } },
-      (d) => new FullSubmission(this.r, d),
+  hidden(options?: PageOptions): Promise<Page<FullSubmission>> {
+    return aPage<FullSubmission, Api.Submission>(
+      {
+        r: this.r,
+        req: ApiClient.g("user/{name}/hidden", { name: this.name }),
+        mapItem: (d) => new FullSubmission(this.r, d),
+      },
       options
     );
   }
@@ -146,7 +156,7 @@ export class Self extends User {
   hiddenStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.Submission>(
       this.r,
-      { url: "user/{name}/hidden", fields: { name: this.name } },
+      ApiClient.g("user/{name}/hidden", { name: this.name }),
       (d) => new FullSubmission(this.r, d),
       options
     );
@@ -154,7 +164,7 @@ export class Self extends User {
 
   async prefs(): Promise<Preferences> {
     this.r.needScopes("identity");
-    const { data } = await this.r._api.get<Api.Prefs>("api/v1/me/prefs");
+    const data = await this.r.api.g<Api.Prefs>("api/v1/me/prefs");
 
     return {
       language: data.lang,
@@ -359,14 +369,11 @@ export class Self extends User {
       use_global_defaults: undefined,
     };
 
-    await this.r._api.patch("api/v1/me/prefs", data, {
-      headers: { "Content-Type": "application/json" },
-    });
+    await this.r.api.json("patch", "api/v1/me/prefs", data);
   }
 
   async hasFreeAward(): Promise<boolean> {
-    const { econSpecialEvents: data } =
-      await this.r.api.gql<Api.FreeAwardCheck>("7537a71b4f14");
+    const { econSpecialEvents: data } = await this.r.api.gql("7537a71b4f14");
 
     return data.freeAwardEvent.isEnabled;
   }
@@ -394,5 +401,25 @@ export class Self extends User {
     ) as any;
 
     return new Award(a);
+  }
+
+  /**
+   * Get the users following this account.
+   *
+   * @param options Options to use when fetching this list.
+   */
+  followers(options?: PageOptions): Promise<Page<User | null>> {
+    return gPage<User | null, Api.GFollowers, Api.GFollowerNode>(
+      {
+        r: this.r,
+        req: ApiClient.gql("c210908bdd13"),
+        firstKey: "limit",
+        afterKey: "from",
+        mapRes: (r) => r.identity.followedByRedditorsInfo,
+        mapItem: (i) =>
+          i.__typename === "Redditor" ? new User(this.r, i.name) : null,
+      },
+      options
+    );
   }
 }

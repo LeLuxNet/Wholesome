@@ -79,16 +79,16 @@ async function run() {
   await writeFile(browserPath, code);
   const gcc = new compiler({
     js: browserPath,
-    compilation_level: "ADVANCED",
+    compilation_level: "SIMPLE", // "ADVANCED",
   });
 
-  code = await new Promise<string>((resolve) =>
+  /* code = */ await new Promise<string>((resolve) =>
     gcc.run((_, out) => resolve(out))
   );
   size(code);
 
   process.stdout.write("Minify");
-  code = minify(code).code;
+  /* code = */ minify(code).code;
   size(code);
 
   await Promise.all([

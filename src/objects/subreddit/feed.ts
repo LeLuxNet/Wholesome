@@ -1,10 +1,26 @@
-import { get, GetOptions } from "../../list/get";
-import { Page } from "../../list/page";
+import { ApiClient } from "../../http/api";
+import { aPage } from "../../list/apage";
+import { Page, PageOptions } from "../../list/page";
 import { stream, StreamOptions } from "../../list/stream";
 import Reddit from "../../reddit";
 import { FullSubmission } from "../post";
 
 const nameSymbol = Symbol();
+
+function feedSorting(
+  feed: Feed,
+  sort: string,
+  options: PageOptions | undefined
+): Promise<Page<FullSubmission>> {
+  return aPage<FullSubmission, Api.SubmissionWrap>(
+    {
+      r: feed.r,
+      req: ApiClient.g(`r/{name}/${sort}`, { name: feed[nameSymbol] }),
+      mapItem: (d) => new FullSubmission(feed.r, d.data),
+    },
+    options
+  );
+}
 
 export class Feed {
   r: Reddit;
@@ -16,56 +32,45 @@ export class Feed {
     this[nameSymbol] = name;
   }
 
-  hot(options?: GetOptions): Promise<Page<FullSubmission>> {
+  hot(options?: PageOptions): Promise<Page<FullSubmission>> {
     // TODO: 'g' param
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
-      { url: "r/{name}/hot.json", fields: { name: this[nameSymbol] } },
-      (d) => new FullSubmission(this.r, d.data),
-      options
-    );
+    return feedSorting(this, "hot", options);
   }
 
-  new(options?: GetOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
-      { url: "r/{name}/new.json", fields: { name: this[nameSymbol] } },
-      (d) => new FullSubmission(this.r, d.data),
-      options
-    );
+  new(options?: PageOptions): Promise<Page<FullSubmission>> {
+    return feedSorting(this, "new", options);
   }
 
   top(options?: TimeOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
+    return aPage<FullSubmission, Api.SubmissionWrap>(
       {
-        url: "r/{name}/top.json",
-        fields: { name: this[nameSymbol] },
-        params: { t: options?.time },
+        r: this.r,
+        req: ApiClient.g(
+          "r/{name}/top",
+          { name: this[nameSymbol] },
+          { t: options?.time }
+        ),
+        mapItem: (d) => new FullSubmission(this.r, d.data),
       },
-      (d) => new FullSubmission(this.r, d.data),
       options
     );
   }
 
-  rising(options?: GetOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
-      { url: "r/{name}/rising.json", fields: { name: this[nameSymbol] } },
-      (d) => new FullSubmission(this.r, d.data),
-      options
-    );
+  rising(options?: PageOptions): Promise<Page<FullSubmission>> {
+    return feedSorting(this, "rising", options);
   }
 
   controversial(options?: TimeOptions): Promise<Page<FullSubmission>> {
-    return get<FullSubmission, Api.SubmissionWrap>(
-      this.r,
+    return aPage<FullSubmission, Api.SubmissionWrap>(
       {
-        url: "r/{name}/controversial.json",
-        fields: { name: this[nameSymbol] },
-        params: { t: options?.time },
+        r: this.r,
+        req: ApiClient.g(
+          "r/{name}/controversial",
+          { name: this[nameSymbol] },
+          { t: options?.time }
+        ),
+        mapItem: (d) => new FullSubmission(this.r, d.data),
       },
-      (d) => new FullSubmission(this.r, d.data),
       options
     );
   }
@@ -73,7 +78,7 @@ export class Feed {
   submissionsStream(options?: StreamOptions): AsyncIterable<FullSubmission> {
     return stream<FullSubmission, Api.SubmissionWrap>(
       this.r,
-      { url: "r/{name}/new.json", fields: { name: this[nameSymbol] } },
+      ApiClient.g("r/{name}/new", { name: this[nameSymbol] }),
       (d) => new FullSubmission(this.r, d.data),
       options
     );
@@ -82,6 +87,6 @@ export class Feed {
 
 export type Times = "hour" | "day" | "week" | "month" | "year" | "all";
 
-export interface TimeOptions extends GetOptions {
+export interface TimeOptions extends PageOptions {
   time?: Times;
 }

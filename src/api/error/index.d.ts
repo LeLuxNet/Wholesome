@@ -14,4 +14,15 @@ declare namespace Api {
     explanation?: string;
     error?: number;
   }
+
+  export interface GError {
+    message: string;
+    locations: { line: number; column: number }[];
+    path: string[];
+  }
+
+  interface GRes<T> {
+    errors?: GError[];
+    data: T;
+  }
 }

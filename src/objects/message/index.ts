@@ -42,7 +42,7 @@ export class Message implements Identified, Deletable {
 
   async reply(body: string): Promise<void> {
     this.r.needScopes("privatemessages");
-    await this.r._api.post("api/comment", {
+    await this.r.api.p("api/comment", {
       thing_id: this.fullId,
       text: body,
     });
@@ -50,13 +50,13 @@ export class Message implements Identified, Deletable {
 
   async delete(): Promise<void> {
     this.r.needScopes("privatemessages");
-    await this.r._api.post("api/del_msg", { id: this.fullId });
+    await this.r.api.p("api/del_msg", { id: this.fullId });
   }
 
   /** Mark the message as read or unread */
   async setRead(read = true): Promise<void> {
     this.r.needScopes("privatemessages");
-    await this.r._api.post(`api/${read ? "" : "un"}read_message`, {
+    await this.r.api.p(`api/${read ? "" : "un"}read_message`, {
       id: this.fullId,
     });
   }
@@ -64,7 +64,7 @@ export class Message implements Identified, Deletable {
   /** Collapse or uncollapse the message */
   async setCollapsed(collapsed = true): Promise<void> {
     this.r.needScopes("privatemessages");
-    await this.r._api.post(`api/${collapsed ? "" : "un"}collapse_message`, {
+    await this.r.api.p(`api/${collapsed ? "" : "un"}collapse_message`, {
       id: this.fullId,
     });
   }
